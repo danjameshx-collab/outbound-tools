@@ -1,0 +1,1180 @@
+<title>Physical Goods</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style id="app-styles">
+:root{
+  --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-tab:#FFFFFF;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#8A938D;
+  --stamp:#1E6B45; --stamp-ink:#FFFFFF;
+  --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
+  --line:#E4E9E6; --line-strong:#CCD5D0;
+  --good:#2F8F5B; --warn:#B4691A;
+  --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --radius: 8px;
+  --sidebar-w: 248px;
+  --plan-w: 340px;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:14.5px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+}
+::selection{background:var(--mimeo); color:var(--mimeo-ink);}
+a{color:inherit;}
+button{font-family:inherit;}
+svg{display:block;}
+.eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
+}
+
+/* ---------- site topbar: back to Outreach Tools + account ---------- */
+.site-topbar-accent{height:4px; background:#231F2E; flex:0 0 auto;}
+.site-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 20px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  font-family:var(--font-display);
+}
+.site-topbar .back-link{
+  display:flex; align-items:center; gap:6px;
+  color:var(--ink-soft); font-size:13.5px; text-decoration:none; white-space:nowrap;
+}
+.site-topbar .back-link:hover{color:var(--ink);}
+.site-topbar h1{font-size:16px; margin:0; font-weight:700; text-align:center; flex:1 1 auto;}
+.site-topbar .who{display:flex; align-items:center; gap:14px; white-space:nowrap;}
+.site-topbar .who span{color:var(--ink-soft); font-size:13px; font-family:var(--font-body);}
+.site-topbar .signout{
+  background:var(--paper); border:1px solid var(--line-strong); border-radius:6px;
+  padding:6px 12px; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+  font-family:var(--font-body);
+}
+.site-topbar .signout:hover{background:#F7F8F7;}
+
+/* ---------- app shell: full-height sidebar + content + plan ---------- */
+#app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr var(--plan-w);
+  grid-template-areas: "rail main plan";
+  flex:1 1 auto; min-height:0;
+  overflow:hidden;
+}
+@media (max-width: 980px){
+  #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  nav#rail{
+    position:fixed; inset:0 auto 0 0; width:270px; z-index:50;
+    transform:translateX(-100%); transition:transform .2s ease;
+  }
+  nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+  #plan-panel{
+    position:fixed; inset:auto 0 0 0; height:72vh; z-index:50;
+    transform:translateY(100%); transition:transform .25s ease;
+    box-shadow:0 -12px 32px -8px rgba(0,0,0,.35);
+    border-radius:14px 14px 0 0;
+  }
+  #plan-panel.open{transform:translateY(0);}
+}
+
+/* ---------- sidebar ---------- */
+nav#rail{
+  grid-area:rail; background:var(--paper-tab); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden; min-height:0;
+}
+.sidebar-logo{display:flex; align-items:center; gap:10px; padding:18px 18px 4px;}
+.logo-mark{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:28px; height:28px; border-radius:7px; background:var(--stamp); color:var(--stamp-ink);
+  font-family:var(--font-display); font-weight:800; font-size:11.5px;
+}
+.logo-text{line-height:1.25;}
+.logo-name{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); letter-spacing:-.01em;}
+.logo-sub{font-family:var(--font-display); font-size:11.5px; color:var(--ink-faint);}
+.rail-close-mobile{display:none;}
+@media (max-width:980px){.rail-close-mobile{display:flex; margin-left:auto;}}
+.sidebar-progress{padding:12px 18px 6px;}
+.sidebar-progress .pp-label{
+  display:flex; justify-content:space-between; font-family:var(--font-display);
+  font-size:11px; color:var(--ink-faint); margin-bottom:5px;
+}
+.progress-bar{height:6px; background:var(--paper); border:1px solid var(--line); border-radius:3px; overflow:hidden; margin:0 0 4px;}
+.progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s;}
+
+.nav-groups{flex:1 1 auto; min-height:0; padding:10px 10px 10px; overflow-y:auto;}
+.nav-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--ink-faint); padding:6px 8px 6px;
+}
+.step-item{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:9px 8px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:7px; margin-bottom:2px;
+}
+.step-item:hover{background:var(--paper);}
+.step-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600;}
+.step-num{
+  flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-size:10.5px; font-weight:700; color:var(--ink-faint);
+}
+.step-item.progress .step-num{border-color:var(--good); color:var(--good);}
+.step-item.done .step-num{background:var(--stamp); border-color:var(--stamp); color:var(--stamp-ink);}
+.step-item.active .step-num{border-color:var(--stamp);}
+.step-label{flex:1 1 auto;}
+.step-status{font-size:12px; color:var(--good); flex:0 0 auto;}
+
+.sidebar-footer{border-top:1px solid var(--line); padding:10px;}
+.sidebar-footer button{
+  display:none; align-items:center; gap:8px; width:100%; text-align:left;
+  padding:8px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:13px; cursor:pointer; border-radius:7px;
+}
+.sidebar-footer button:hover{background:var(--paper);}
+@media (max-width:980px){.sidebar-footer button{display:flex;}}
+.mobile-topbar{display:none;}
+@media (max-width:980px){
+  .mobile-topbar{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+  }
+}
+.iconbtn{border:1px solid var(--line); background:var(--paper); border-radius:7px; padding:6px 10px; font-size:12px; cursor:pointer;}
+
+/* ---------- main content + page header ---------- */
+main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0; height:100%;}
+#content{
+  flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:0 30px 60px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+}
+@media (max-width:640px){
+  #content{padding:0 16px 50px;}
+  .page-header{padding:18px 16px 14px; margin:0 -16px 16px;}
+}
+.page-header{
+  position:sticky; top:0; z-index:5; background:var(--paper); padding:26px 30px 16px; margin:0 -30px 20px;
+  border-bottom:1px solid var(--line);
+}
+.page-header .ph-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.page-header .ph-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--stamp); margin:0 0 4px;}
+.page-header h1{
+  font-family:var(--font-display); font-weight:800; letter-spacing:-.01em;
+  font-size:23px; margin:0 0 4px; color:var(--ink); text-wrap:balance;
+}
+.page-header .ph-sub{margin:0; color:var(--ink-soft); font-size:13.5px; max-width:64ch;}
+
+.chiprow{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.chip{
+  font-family:var(--font-display); font-size:12.5px; font-weight:700;
+  letter-spacing:.02em; padding:8px 16px; border-radius:999px; border:1.5px solid var(--line);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
+  text-align:center; box-shadow:var(--shadow);
+}
+.chip:hover{border-color:var(--mimeo);}
+.chip.active{background:var(--mimeo); color:var(--mimeo-ink); border-color:var(--mimeo);}
+
+.group-title{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:12px; color:var(--stamp); margin:26px 0 10px; padding-top:14px; border-top:1px solid var(--line);
+}
+.group-title:first-of-type{border-top:none; margin-top:0; padding-top:0;}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); margin-bottom:10px; padding:14px 16px;
+}
+.card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+.card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+
+/* ---------- goods catalog table (inside modal) ---------- */
+.tier-badge{
+  font-family:var(--font-mono); font-size:10.5px; font-weight:700; white-space:nowrap;
+  padding:2.5px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em;
+  display:inline-block; margin-top:4px;
+}
+.tier-badge.tier-low{background:#E6F4EC; color:#1E6B45;}
+.tier-badge.tier-mid{background:#E7F0FB; color:#1E5CA8;}
+.tier-badge.tier-high{background:#FBEEE0; color:#B4691A;}
+.table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:8px; margin-bottom:22px;}
+table.goods-table{width:100%; min-width:640px; border-collapse:collapse; font-size:13px;}
+table.goods-table th{
+  text-align:left; font-family:var(--font-display); text-transform:uppercase; font-size:10.5px;
+  letter-spacing:.04em; color:var(--ink-faint); border-bottom:1px solid var(--line-strong);
+  padding:11px 16px; background:var(--paper);
+}
+table.goods-table td{padding:16px; border-bottom:1px solid var(--line); vertical-align:top;}
+table.goods-table tr:last-child td{border-bottom:none;}
+table.goods-table tr.selected td{background:var(--mimeo-ink,#E6F4EC);}
+table.goods-table .col-name{width:210px;}
+table.goods-table .good-name{font-family:var(--font-display); font-weight:700; font-size:14.5px; color:var(--ink);}
+table.goods-table .col-cost{width:150px; font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); white-space:nowrap;}
+table.goods-table .good-category{margin-top:4px; color:var(--ink-soft); font-family:var(--font-body); font-size:12.5px;}
+table.goods-table .col-desc{font-size:13px; color:var(--ink-soft); line-height:1.55; min-width:280px;}
+table.goods-table .col-desc .when{margin-top:8px; font-style:italic; color:var(--ink-faint); font-size:12px;}
+table.goods-table .col-desc .examples{margin:8px 0 0; padding-left:16px; font-size:12px;}
+table.goods-table .col-desc .examples li{margin:2px 0;}
+table.goods-table .col-action{width:150px; text-align:right;}
+table.goods-table .col-action{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
+table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:center;}
+
+/* ---------- goods catalog: size picker ---------- */
+.size-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+.size-card{
+  text-align:left; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
+  box-shadow:var(--shadow); padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:6px;
+}
+.size-card:hover{border-color:var(--stamp);}
+.size-card-count{
+  align-self:flex-start; font-family:var(--font-mono); font-size:11px; color:var(--stamp);
+  background:var(--mimeo-ink,#E6F4EC); border-radius:999px; padding:2px 10px;
+}
+.size-card-title{font-family:var(--font-display); font-weight:800; font-size:18px; color:var(--ink);}
+.size-card-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.45); z-index:200;
+  align-items:center; justify-content:center; padding:26px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--paper-raised); border-radius:12px; width:100%; max-width:1180px; max-height:85vh;
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+}
+.modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.modal-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);}
+.modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
+.modal-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:0 24px 24px;}
+.modal-scroll .group-title:first-of-type{margin-top:0;}
+@media (max-width:720px){
+  .modal-overlay{padding:0;}
+  .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+}
+
+.btn{
+  font-family:var(--font-display); font-weight:700; letter-spacing:0;
+  font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
+  background:var(--paper-raised); color:var(--ink);
+}
+.btn:hover{border-color:var(--line-strong);}
+.btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
+.btn.primary:hover{filter:brightness(1.06);}
+.btn.primary:disabled{opacity:.5; cursor:not-allowed; filter:none;}
+.btn.ghost{background:transparent;}
+.btn.small{padding:5px 10px; font-size:11px;}
+.btn.full{width:100%; text-align:center;}
+
+/* ---------- quiz ---------- */
+.quiz-q{margin-bottom:22px;}
+.quiz-q .qtext{font-family:var(--font-display); font-weight:700; font-size:14px; margin-bottom:9px;}
+.quiz-opts{display:flex; flex-direction:column; gap:7px;}
+.quiz-opt{
+  display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:8px;
+  padding:10px 12px; cursor:pointer; background:var(--paper-raised);
+}
+.quiz-opt:hover{border-color:var(--line-strong);}
+.quiz-opt.picked{border-color:var(--stamp); background:var(--mimeo-ink);}
+.quiz-opt .dot{
+  flex:0 0 auto; width:15px; height:15px; border-radius:50%; border:2px solid var(--line-strong);
+}
+.quiz-opt.picked .dot{border-color:var(--stamp); background:var(--stamp);}
+.quiz-opt .otext{font-size:13.2px;}
+.quiz-result{
+  border:1.5px solid var(--stamp); border-radius:var(--radius); background:var(--mimeo-ink);
+  padding:18px 20px; margin-top:8px;
+}
+.quiz-result .qr-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:10.5px; color:var(--stamp); margin-bottom:4px;}
+.quiz-result h3{margin:0 0 6px; font-family:var(--font-display); font-weight:800; font-size:18px;}
+.quiz-result p{margin:0 0 12px; font-size:13.2px; color:var(--ink);}
+
+.field-group{margin-top:18px;}
+.field-group label{
+  display:block; font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:6px;
+}
+.field-group textarea{
+  width:100%; border:1px solid var(--line); border-radius:8px; background:var(--paper-raised);
+  color:var(--ink); font-family:var(--font-body); font-size:13.5px; padding:10px 12px;
+  min-height:80px; resize:vertical;
+}
+.field-group textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+
+/* ---------- add-a-good inline form ---------- */
+.add-good-form{
+  border:1px dashed var(--line-strong); border-radius:8px; padding:16px;
+  margin:8px 0 26px; background:var(--paper);
+}
+.add-good-form .row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+@media (max-width:640px){.add-good-form .row{grid-template-columns:1fr;}}
+.add-good-form .field{margin-bottom:12px;}
+.add-good-form .field:last-of-type{margin-bottom:0;}
+.add-good-form label{
+  display:block; font-family:var(--font-display); font-weight:700; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:5px;
+}
+.add-good-form input[type=text], .add-good-form textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:6px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body);
+  font-size:13px; padding:8px 10px;
+}
+.add-good-form textarea{min-height:80px; resize:vertical;}
+.add-good-form input[type=text]:focus, .add-good-form textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.rowbtns{display:flex; gap:8px; margin-top:14px;}
+.btn.danger{color:var(--warn); border-color:var(--warn);}
+.btn.danger:hover{background:var(--warn); color:#fff;}
+
+/* ---------- checklist ---------- */
+.check-item{display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{margin-top:3px; width:16px; height:16px; accent-color:var(--good); cursor:pointer;}
+.check-item label{font-size:13.5px; flex:1; cursor:pointer;}
+.check-item label b{display:block; font-weight:700; margin-bottom:2px;}
+.check-item.done label b{color:var(--ink-faint); text-decoration:line-through;}
+.check-item.done label span{color:var(--ink-faint);}
+
+/* ---------- send methods ---------- */
+.send-methods{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 6px;}
+
+/* ---------- snippet list (follow-up bank) ---------- */
+.snip-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px;}
+.snip{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
+  padding:9px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+}
+.snip .txt{font-size:13px; line-height:1.4; white-space:pre-wrap;}
+.snip button.add{
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--mimeo);
+  background:transparent; color:var(--mimeo); cursor:pointer; font-size:14px; line-height:1;
+}
+.snip button.add:hover{background:var(--mimeo); color:var(--mimeo-ink);}
+
+/* ---------- step nav ---------- */
+.step-nav{display:flex; justify-content:space-between; gap:10px; margin:32px 0 10px; padding-top:18px; border-top:1px solid var(--line);}
+
+/* ---------- plan panel ---------- */
+#plan-panel{
+  grid-area:plan; background:var(--paper-raised); border-left:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#plan-panel .pp-head{
+  padding:14px 16px 10px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;
+}
+#plan-panel .pp-head .eyebrow{color:var(--stamp);}
+#plan-panel .pp-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:14px 16px;}
+#plan-panel .pp-foot{
+  padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; align-items:center;
+}
+.plan-close-mobile{display:none;}
+@media (max-width:980px){.plan-close-mobile{display:inline-flex;}}
+
+.plan-section{border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:var(--paper);}
+.plan-section .ps-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  font-size:10.5px; color:var(--stamp); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;
+}
+.plan-section .ps-label a{font-size:10.5px; color:var(--ink-faint); text-decoration:underline; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;}
+.plan-section .ps-value{font-size:13.2px; color:var(--ink);}
+.plan-section .ps-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+.plan-section .ps-sub{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+.plan-followup{
+  width:100%; border:1px solid var(--line); border-radius:6px; background:var(--paper-raised);
+  color:var(--ink); font-family:var(--font-body); box-sizing:border-box;
+  padding:8px 9px; font-size:12.5px; line-height:1.55; min-height:110px; resize:vertical;
+}
+.plan-followup:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+
+.toast{
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--paper); font-family:var(--font-display); font-weight:700;
+  font-size:12px; letter-spacing:.02em; padding:9px 16px; border-radius:8px;
+  opacity:0; pointer-events:none; transition:all .2s ease; z-index:100;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+</style>
+
+<div class="site-topbar-accent"></div>
+<div class="site-topbar">
+  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <h1>Physical Goods</h1>
+  <div class="who">
+    <span>Signed in as Dan</span>
+    <button class="signout">Sign out</button>
+  </div>
+</div>
+
+<div id="app">
+  <nav id="rail">
+    <div class="sidebar-logo">
+      <span class="logo-mark">PG</span>
+      <div class="logo-text">
+        <div class="logo-name">Physical Goods</div>
+        <div class="logo-sub">Send Builder</div>
+      </div>
+      <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu">Close</button>
+    </div>
+    <div class="sidebar-progress">
+      <div class="pp-label"><span>Plan progress</span><span id="progressLabel">0/6</span></div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <div class="nav-groups" id="navGroups"></div>
+    <div class="sidebar-footer">
+      <button id="planToggleBtn">Open Goods Plan</button>
+    </div>
+  </nav>
+
+  <main id="content-col">
+    <div class="mobile-topbar">
+      <button class="iconbtn" id="railOpenBtn" title="Menu">Menu</button>
+      <span class="logo-name">Physical Goods</span>
+    </div>
+    <div id="content"></div>
+  </main>
+
+  <aside id="plan-panel">
+    <div class="pp-head">
+      <span class="eyebrow">Goods Plan</span>
+      <div style="display:flex; gap:8px;">
+        <button class="btn ghost small" id="clearPlanBtn">Clear</button>
+        <button class="btn ghost small plan-close-mobile" id="planCloseBtn">Close</button>
+      </div>
+    </div>
+    <div class="pp-body" id="ppBody"></div>
+    <div class="pp-foot">
+      <button class="btn primary full" id="copyPlanBtn">Copy Plan</button>
+    </div>
+  </aside>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ DATA — placeholder / seed content. Replace and expand freely.
+ ============================================================ */
+const STEPS = [
+  {id:'catalog',   num:1, label:'Goods Catalog'},
+  {id:'cost',      num:2, label:'Cost Fit'},
+  {id:'research',  num:3, label:'Research Fit'},
+  {id:'checklist', num:4, label:'Package Checklist'},
+  {id:'send',      num:5, label:'How to Send'},
+  {id:'followup',  num:6, label:'Follow-Up'},
+];
+
+const COST_TIERS = [
+  {id:'low',  name:'Low-Cost / Mass',        range:'$1 - $15',   tableLabel:'Low Cost',  principle:'Cheap enough to send to hundreds without a second thought - used to open a lot of doors at once.'},
+  {id:'mid',  name:'Mid-Tier / Targeted',    range:'$15 - $50',  tableLabel:'Mid Cost',  principle:'Reserved for accounts that have shown some signal - a named shortlist, not a mass blast.'},
+  {id:'high', name:'High-Touch / Strategic', range:'$50+',       tableLabel:'High Cost', principle:'Only for accounts worth real 1:1 effort - big deal size or a champion you need to win over.'},
+];
+
+const SIZES = [
+  {id:'small',  name:'Small',  desc:'Fits in an envelope or a small padded mailer - postcards, cards, and other flat or pocket-sized items.'},
+  {id:'medium', name:'Medium', desc:'Ships in a standard box - mugs, books, boxed gadgets, and similar single-item sends.'},
+  {id:'large',  name:'Large',  desc:'Bulkier sends - hampers, multi-item bundles, and anything that needs a bigger box.'},
+];
+
+const SEED_GOODS = [
+  {id:'postcard', name:'Bespoke Postcard', size:'small', tier:'low', costRange:'$1 flat', category:'Opener / Mass', desc:'A custom-designed postcard, printed and mailed for $1 per person - cheap enough to send at real volume while still feeling personal.', whenToUse:'', examples:[]},
+  {id:'burner-phone', name:'Prepaid Disposable Phone', size:'small', tier:'mid', costRange:'Under $30', category:'Timed / High-Impact', desc:'Ship a cheap prepaid phone with a note ("I\'ll call you at 10am") and call it the moment it\'s delivered - control the timing precisely by hand-delivering via FedEx yourself.', whenToUse:'', examples:[]},
+  {id:'rubiks-cube', name:"Rubik's Cube", size:'small', tier:'low', costRange:'$8 - $15', category:'Puzzle / Curiosity', desc:'A classic Rubik\'s Cube, sent solved with a handwritten note tucked inside the box explaining the connection - something like: "Every [problem] looks like an unsolvable puzzle from the outside. I promise it\'s simpler than it looks - got 15 minutes to talk it through?" The puzzle sits on their desk as a reason to keep thinking about you.', whenToUse:'', examples:[]},
+  {id:'candle', name:'Candle', size:'small', tier:'mid', costRange:'$20 - $35', category:'Relationship / Warm-up', desc:'A quality scented candle, sent with a short handwritten card explaining the gesture - something like: "Thought you could use a moment to breathe amid the [X] chaos - lit one for you. Hope it buys you a few minutes to hear me out." Works well as a warm-up send once there\'s already some signal, not a cold opener.', whenToUse:'', examples:[]},
+  {id:'ship-in-bottle', name:'Ship in a Bottle', size:'medium', tier:'low', costRange:'$15 - $30', category:'Novelty / Craft', desc:'A miniature ship-in-a-bottle model, shipped boxed with a handwritten note tying the craft to the pitch - something like: "Built this to remind you - getting [outcome] right takes patience and the right hands. Would love 15 minutes to show you how we do it." The obvious care that goes into it is the point.', whenToUse:'', examples:[]},
+  {id:'compass', name:'Compass', size:'small', tier:'low', costRange:'$10 - $18', category:'Direction / Metaphor', desc:'A small brass or pocket compass, sent with a handwritten note built around a "finding direction" angle - something like: "Figured you could use one more thing pointing you in the right direction this quarter. Got 15 minutes for me to show you where we\'d point yours?" A desk-drawer keepsake that keeps your name attached to a simple, positive idea.', whenToUse:'', examples:[]},
+  {id:'mini-safe', name:'Mini Safe', size:'small', tier:'mid', costRange:'$25 - $45', category:'Security / Intrigue', desc:'A small combination lockbox or mini safe, sent locked with a handwritten note explaining the gimmick - something like: "Didn\'t want to just hand this over, so I locked it. Reply and I\'ll send the combination - it\'s worth the 15 minutes, I promise." Great when you want to add real intrigue to a shortlist send; pair with a small item or gift card inside as the payoff.', whenToUse:'', examples:[]},
+  {id:'yo-yo', name:'Yo-Yo', size:'small', tier:'low', costRange:'$6 - $12', category:'Playful / Curiosity', desc:'A branded or novelty yo-yo, sent with a light, self-aware note - something like: "Sales can feel like this thing - up, down, up, down. Figured I\'d send something to fidget with while you read this. 15 minutes to talk about flattening the curve?" Cheap, memorable, and easy to send at real volume to a broader list.', whenToUse:'', examples:[]},
+  {id:'chess-piece', name:'Chess Piece', size:'small', tier:'low', costRange:'$8 - $15', category:'Strategy / Metaphor', desc:'A single, weighty chess piece (often a knight or king), sent alone with a handwritten note built around a strategy angle - something like: "Every good move starts with seeing a few steps ahead. Wanted to send you this one piece as an opener - happy to bring the rest of the board to a quick call." Works especially well as a first touch to a strategic, senior-level contact.', whenToUse:'', examples:[]},
+  {id:'magnifying-glass', name:'Magnifying Glass', size:'small', tier:'low', costRange:'$7 - $14', category:'Insight / Metaphor', desc:'A classic magnifying glass, sent with a handwritten note built around a "closer look" angle - something like: "Took a closer look at [Company] before reaching out - here\'s what stood out. Worth 15 minutes to see what else we found?" A simple prop that doubles as proof you actually did your research.', whenToUse:'', examples:[]},
+  {id:'lego-kit', name:'Small Lego Kit', size:'medium', tier:'low', costRange:'$15 - $30', category:'Playful / Build Together', desc:'A small, self-contained Lego set, sent with a handwritten note built around a "building something" angle - something like: "Figured we could build something together - starting small. Got 15 minutes to talk through what we\'d build for [Company]?" Playful enough to stand out, and cheap enough to send to a real shortlist rather than just one account.', whenToUse:'', examples:[]},
+  {id:'mini-cactus', name:'Mini Cactus', size:'small', tier:'low', costRange:'$8 - $16', category:'Low-Maintenance / Warm-up', desc:'A small potted cactus, sent with a handwritten note built around a "low-maintenance" angle - something like: "Low-maintenance, like this ask: just 15 minutes, no watering required. Figured this could sit on your desk while you think it over." Hard to throw away and sits in view for weeks, giving you a natural reason to check back in on how it\'s doing.', whenToUse:'', examples:[]},
+  {id:'ai-portrait', name:'Framed AI Portrait', size:'medium', tier:'mid', costRange:'$30 - $50', category:'Personalized / Flattery', desc:'An AI-generated portrait of the recipient (built from a public headshot, styled to reflect something specific about them - their industry, a hobby, or an achievement), printed and framed, sent with a handwritten note explaining it - something like: "Had this made for you based on [specific detail] - hope it\'s a good likeness. Would love 15 minutes to explain why I went to the trouble." A highly personalized, hard-to-ignore piece that proves real research went into the send.', whenToUse:'', examples:[]},
+  {id:'ai-tshirt', name:'Printed T-Shirt with AI Photo', size:'medium', tier:'low', costRange:'$15 - $28', category:'Personalized / Playful', desc:'A t-shirt printed with an AI-generated image of the recipient (styled around something specific to them - their industry, a hobby, or an in-joke from their own LinkedIn posts), sent with a handwritten note explaining it - something like: "Made you a shirt - figured you should have official merch for [specific detail]. Wear it well, and give me 15 minutes to explain myself." Cheaper and more playful than a framed portrait, and easy to send to a wider shortlist.', whenToUse:'', examples:[]},
+  {id:'handwritten-note', name:'Handwritten Note', size:'small', tier:'low', costRange:'$1 - $5', category:'Opener / No-Gift', desc:'Just a genuinely handwritten note, no object attached - sent to explain plainly why you\'re reaching out, something like: "No gift here, just wanted to write this by hand so you know a real person is behind it. Noticed [specific detail about them or their company] and wanted 15 minutes to explain why I thought of you." The cheapest possible send in the whole catalog, and still one of the highest-signal - almost nobody gets real handwritten mail anymore.', whenToUse:'', examples:[]},
+  {id:'flowers', name:'Flowers', size:'medium', tier:'mid', costRange:'$35 - $60', category:'Relationship / Classic', desc:'A flower arrangement delivered to their office, with a card explaining why it\'s showing up - something like: "Saw [specific reason - a win, an anniversary, a tough week] and wanted to send something to mark it. Would love 15 minutes when you have a moment." A classic, low-risk gesture that reads as thoughtful rather than salesy, especially well-timed around a trigger event.', whenToUse:'', examples:[]},
+  {id:'logo-rug', name:'Custom Logo Rug', size:'medium', tier:'mid', costRange:'$40 - $70', category:'Bold / Office Presence', desc:'A custom rug printed or woven with their own company logo, shipped directly to their HQ. Send a card separately with a photo of the rug in place and a note explaining it - something like: "Figured your office could use a little more [Company] in it - sent this over for the entryway. Would love 15 minutes to tell you why." Bold enough to get talked about around the office, and the photo card means you don\'t have to wait to find out if it landed.', whenToUse:'', examples:[]},
+  {id:'hamper', name:'Hamper', size:'large', tier:'mid', costRange:'$50 - $90', category:'Shared / Team', desc:'A curated hamper (snacks, drinks, or a themed mix) shipped to their office for the whole team to share, with a card explaining the gesture - something like: "This one\'s for the team, not just you - figured a hard week deserved something to share. Would still love 15 minutes of your time when things calm down." Built to be opened and passed around, so your name ends up mentioned to more people than just the recipient.', whenToUse:'', examples:[]},
+  {id:'branded-merch', name:'Branded Merchandise', size:'medium', tier:'mid', costRange:'$25 - $45', category:'Bundle / Introduction', desc:'A small bundle of your own company\'s branded merch (e.g. a hoodie, water bottle, or notebook set), sent with a card explaining why - something like: "Wanted you to have a little [Your Company] gear before we\'ve even had a proper conversation. Would love 15 minutes to make it worth wearing." Doubles as quiet brand exposure every time they use it, and works well once you\'ve got some signal but haven\'t met yet.', whenToUse:'', examples:[]},
+  {id:'rubber-duck', name:'Rubber Duck', size:'small', tier:'low', costRange:'£5 - £10', category:'Playful / Icebreaker', desc:'A simple rubber duck, sent with a light, self-aware note explaining it - something like: "Getting a straight answer out of [industry/problem] can feel like herding these things. Sent you one to keep on your desk - 15 minutes to talk through the real answer?" Cheap, silly, and disarming enough to get a reply even from a genuinely cold contact.', whenToUse:'', examples:[]},
+  {id:'bobblehead', name:'Bobblehead', size:'medium', tier:'mid', costRange:'£40 - £70', category:'Personalization', desc:'A custom bobblehead made to look like the recipient, sent with a handwritten note explaining it - something like: "Had this made to look like you - hope it\'s a fair likeness. Would love 15 minutes to explain what prompted it." Unmistakably personal and impossible to mix up with generic swag, which makes it hard to ignore and easy to remember.', whenToUse:'', examples:[]},
+  {id:'neon-sign', name:'Neon Sign', size:'large', tier:'mid', costRange:'$55+', category:'Bold / Office Statement', desc:'A custom LED neon-style sign (their name, company, or a short line tied to your pitch), shipped to their office with a note explaining it - something like: "Figured [Company] deserved something that lights up the room - literally. Would love 15 minutes to tell you why I sent it." Big, bold, and genuinely display-worthy, so it tends to stay up and keep getting noticed long after it arrives.', whenToUse:'', examples:[]},
+  {id:'office-flag', name:'Custom Office Flag', size:'large', tier:'high', costRange:'£100 - £200', category:'Company Branding', desc:'A custom flag printed with their own company logo/colors, sized for an office flagpole or lobby stand, shipped with a note explaining the gesture - something like: "Wanted [Company] to have a flag worth flying - hope it earns a spot in the lobby. Would love 15 minutes to tell you why I went to the trouble." A high-effort, high-visibility send reserved for accounts worth the investment - the scale and permanence of it signal how seriously you take the relationship.', whenToUse:'', examples:[]},
+  {id:'caricature', name:'Caricature', size:'medium', tier:'mid', costRange:'£35 - £60', category:'Personalization / Humor', desc:'A custom drawn (or AI-generated) caricature of the recipient, framed or printed, sent with a handwritten note explaining it - something like: "Had an artist take a crack at you - hope you can laugh at it as much as I did. Would love 15 minutes to make up for it." Playful rather than flattering, which makes it a good pick for lightening up a relationship that\'s felt a bit too formal.', whenToUse:'', examples:[]},
+];
+
+const COST_QUESTIONS = [
+  {id:'q1', prompt:'How many prospects are you sending this to?', options:[
+    {label:'50+ at once - a list', points:{low:3}},
+    {label:'A shortlist of 10-30 named accounts', points:{mid:3}},
+    {label:'A handful of accounts I really care about (under 10)', points:{high:3}},
+  ]},
+  {id:'q2', prompt:"What's the deal size for this account (annual contract value)?", options:[
+    {label:'Under $5k, or unknown', points:{low:3}},
+    {label:'$5k - $25k', points:{mid:3}},
+    {label:'$25k+', points:{high:3}},
+  ]},
+  {id:'q3', prompt:'Where are they in the relationship?', options:[
+    {label:'Cold - no contact yet', points:{low:2, mid:1}},
+    {label:'Warm - replied or engaged once', points:{mid:2, high:1}},
+    {label:'Active deal in motion, or a champion I need to keep warm', points:{high:2, mid:1}},
+  ]},
+];
+
+const RESEARCH_ANGLES = [
+  {id:'company-trigger', name:'Company Trigger Event', description:'Tie the note to something that just happened at their company - funding round, launch, award, expansion, a relevant new hire.', whereToFind:'LinkedIn company page, press releases, Google News alerts, Crunchbase.', examples:['"Saw you just closed your Series B - congrats. Wanted to send something small before the inbound floods in."']},
+  {id:'personal-signal',  name:'Personal / Hobby Signal', description:'Tie it to something specific to them as a person - a hobby, a team they support, a recent post, their alma mater.', whereToFind:'Their LinkedIn/X activity, personal website, podcast appearances, About/Bio sections.', examples:['A gift tied to their favorite sports team or a hobby mentioned in a recent post.']},
+  {id:'role-pain',        name:'Role-Based Pain Point', description:"No personal signal available yet - lean on a pain point that's near-universal for their role and industry instead.", whereToFind:'Job title + industry, case studies from similar roles, recent job postings on their team.', examples:['A note referencing a challenge common to their role, backed by a relevant case study.']},
+  {id:'no-signal',        name:'Warm Generic Opener', description:'Truly nothing to go on yet - let the gift itself earn the right to a first conversation, no forced personalization.', whereToFind:'N/A - lead with curiosity, not false personalization.', examples:['A short, honest note: "Don\'t know much about you yet - wanted to send something small and just ask for 15 minutes."']},
+];
+
+const RESEARCH_QUESTIONS = [
+  {id:'r1', prompt:'What do you actually know about this person or company right now?', options:[
+    {label:'A recent company event (funding, launch, award, expansion)', points:{'company-trigger':3}},
+    {label:'Something personal (a hobby, a post, their background)', points:{'personal-signal':3}},
+    {label:'Just their job title and industry', points:{'role-pain':3}},
+    {label:'Almost nothing yet', points:{'no-signal':3}},
+  ]},
+  {id:'r2', prompt:'How much time can you spend researching this specific person before you send?', options:[
+    {label:'15+ minutes - I can dig', points:{'company-trigger':2,'personal-signal':2}},
+    {label:'A few minutes - quick scan only', points:{'role-pain':2}},
+    {label:'None - this is part of a batch send', points:{'no-signal':2,'role-pain':1}},
+  ]},
+];
+
+const PACKAGE_CHECKLIST = [
+  {h:'Handwritten note', b:'A short, genuinely handwritten (or handwriting-font) note beats a printed card every time.'},
+  {h:'No overt pitch inside the box', b:'The gift should feel like a gift, not a brochure. Save the pitch for the follow-up.'},
+  {h:'One clear next step', b:'A single, low-friction CTA on the note - a specific date/time or a simple reply, not a hard sell.'},
+  {h:'Sender identified clearly', b:'Your name, company, and a way to reach you should be obvious without digging.'},
+  {h:'Shipping address confirmed', b:'Verify the address (and that the recipient still works there) before you ship - check LinkedIn first.'},
+  {h:'Tracking number logged', b:'Log the tracking number and expected delivery date against the account so follow-up timing is exact.'},
+];
+
+const SEND_GUIDE = [
+  {h:'Carriers', b:'For US domestic, USPS Priority (2-3 days) is the default for most sends. Use FedEx/UPS for anything time-sensitive or over $75 in value so it stays trackable and insured.'},
+  {h:'Packaging', b:'Match the box to the gift - an unbranded, well-packed box outperforms an oversized shipping carton. Avoid loud outer branding that screams "vendor mailer."'},
+  {h:'Timing', b:'Avoid shipping on a Friday - it sits over the weekend. Aim to land Tuesday-Thursday so your follow-up call or email lands the same week.'},
+  {h:'Address collection', b:'Never ask for a home or office address cold. Confirm it via a short, low-friction email or call first - "Where should I send this?"'},
+];
+
+const SEND_METHODS = [
+  {id:'usps',    label:'USPS Priority'},
+  {id:'fedex',   label:'FedEx / UPS Express'},
+  {id:'courier', label:'Local courier / hand-delivered'},
+  {id:'other',   label:'Other'},
+];
+
+const FOLLOWUP_BANK = [
+  {cat:'Voicemail (Before It Lands)', items:[
+    {t:"Hey {{FirstName}}, it's {{You}} - you should have a little something land on your desk this week from me. Wanted to give you a heads up so it doesn't just look like random mail. Talk soon."},
+  ]},
+  {cat:'Follow-Up Call Opener', items:[
+    {t:'Hey {{FirstName}}, did the {{gift}} I sent over land okay? Wanted to give you a real reason to actually open it - here\'s the 30-second version of why I sent it...'},
+    {t:'Hi {{FirstName}}, following up on the {{gift}} - no pressure if it\'s not useful, just didn\'t want it to feel random without context.'},
+  ]},
+  {cat:'Nudge Email After It Lands', items:[
+    {t:"Subject: did it arrive?\n\n{{FirstName}}, just checking the {{gift}} made it to you okay - tracking says it landed on {{date}}. Would love 15 minutes if it's useful, otherwise no worries at all."},
+  ]},
+];
+
+/* ============================================================
+ STATE
+ ============================================================ */
+function defaultPlan(){
+  return {
+    good:null, costTier:null, costAnswers:{},
+    researchAngle:null, researchAnswers:{}, researchNotes:'',
+    checklist:{}, sendMethod:null, sendNotes:'', followup:'',
+  };
+}
+function loadPlan(){
+  try{
+    const p = JSON.parse(localStorage.getItem('physicalgoods_plan'));
+    if(p && typeof p==='object') return Object.assign(defaultPlan(), p);
+  }catch(e){}
+  return defaultPlan();
+}
+function persistPlan(){ localStorage.setItem('physicalgoods_plan', JSON.stringify(plan)); }
+
+function loadCustomGoods(){
+  try{
+    const c = JSON.parse(localStorage.getItem('physicalgoods_custom_goods'));
+    if(c && typeof c==='object') return {added: Array.isArray(c.added)?c.added:[], removed: Array.isArray(c.removed)?c.removed:[]};
+  }catch(e){}
+  return {added:[], removed:[]};
+}
+function persistCustomGoods(){ localStorage.setItem('physicalgoods_custom_goods', JSON.stringify(customGoods)); }
+function getGoods(){ return SEED_GOODS.filter(g=> customGoods.removed.indexOf(g.id)===-1).concat(customGoods.added); }
+function addGood(g){ customGoods.added.push(g); persistCustomGoods(); }
+function deleteGood(id){
+  if(SEED_GOODS.some(g=> g.id===id)){
+    if(customGoods.removed.indexOf(id)===-1) customGoods.removed.push(id);
+  } else {
+    customGoods.added = customGoods.added.filter(g=> g.id!==id);
+  }
+  if(plan.good && plan.good.id===id){ plan.good = null; persistPlan(); }
+  persistCustomGoods();
+}
+function slugify(s){
+  return (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'good';
+}
+
+let customGoods = loadCustomGoods();
+let plan = loadPlan();
+let activeStep = 'catalog';
+let goodsModal = null;
+
+/* ============================================================
+ HELPERS
+ ============================================================ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+function copyText(s){
+  navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+}
+function tierById(id){ return COST_TIERS.find(t=>t.id===id); }
+function angleById(id){ return RESEARCH_ANGLES.find(a=>a.id===id); }
+function checklistKey(item){ return item.h.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+
+/* ============================================================
+ SIDEBAR: nav + progress
+ ============================================================ */
+function stepStatus(id){
+  if(id==='catalog')   return plan.good ? 'done' : 'pending';
+  if(id==='cost')      return plan.costTier ? 'done' : 'pending';
+  if(id==='research')  return plan.researchAngle ? 'done' : 'pending';
+  if(id==='checklist'){
+    const n = Object.values(plan.checklist).filter(Boolean).length;
+    if(n===0) return 'pending';
+    return n>=PACKAGE_CHECKLIST.length ? 'done' : 'progress';
+  }
+  if(id==='send')      return plan.sendMethod ? 'done' : 'pending';
+  if(id==='followup')  return (plan.followup||'').trim() ? 'done' : 'pending';
+  return 'pending';
+}
+function doneStepCount(){ return STEPS.filter(s=>stepStatus(s.id)==='done').length; }
+
+function renderNav(){
+  const html = `<div class="nav-group">
+    <div class="nav-group-label">Builder</div>
+    ${STEPS.map(s=>{
+      const status = stepStatus(s.id);
+      const mark = status==='done' ? '✓' : (status==='progress' ? '•' : '');
+      return `<button class="step-item ${status} ${s.id===activeStep?'active':''}" data-step="${s.id}">
+        <span class="step-num">${mark || s.num}</span>
+        <span class="step-label">${esc(s.label)}</span>
+      </button>`;
+    }).join('')}
+  </div>`;
+  document.getElementById('navGroups').innerHTML = html;
+  document.querySelectorAll('.step-item').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.step)));
+}
+function renderProgress(){
+  const n = doneStepCount();
+  document.getElementById('progressLabel').textContent = n + '/' + STEPS.length;
+  document.getElementById('progressFill').style.width = (n/STEPS.length*100) + '%';
+}
+function setActiveStep(id){
+  activeStep = id;
+  render();
+  document.getElementById('content').scrollTop = 0;
+  if(window.innerWidth <= 980){ document.getElementById('rail').classList.remove('open'); }
+}
+
+/* ============================================================
+ SHARED PAGE HEADER + STEP NAV
+ ============================================================ */
+function pageHeaderHtml(eyebrow, title, sub){
+  return `<div class="page-header">
+    <div class="ph-eyebrow">${esc(eyebrow)}</div>
+    <div class="ph-top"><div><h1>${esc(title)}</h1><p class="ph-sub">${esc(sub)}</p></div></div>
+  </div>`;
+}
+function stepNavHtml(){
+  const idx = STEPS.findIndex(s=>s.id===activeStep);
+  const prev = STEPS[idx-1], next = STEPS[idx+1];
+  return `<div class="step-nav">
+    <div>${prev ? `<button class="btn" data-nav="${prev.id}">&larr; ${esc(prev.label)}</button>` : ''}</div>
+    <div>${next ? `<button class="btn primary" data-nav="${next.id}">${esc(next.label)} &rarr;</button>` : ''}</div>
+  </div>`;
+}
+function wireStepNav(box){
+  box.querySelectorAll('[data-nav]').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.nav)));
+}
+
+/* ============================================================
+ STEP 1: GOODS CATALOG
+ ============================================================ */
+function renderCatalogStep(){
+  let html = pageHeaderHtml('Step 1 of 6', 'Goods Catalog', 'Pick a size to browse the goods that fit it, grouped by cost.');
+
+  html += `<div class="size-grid">` + SIZES.map(s=>{
+    const count = getGoods().filter(g=> g.size===s.id).length;
+    return `<button class="size-card" data-size="${escAttr(s.id)}">
+      <span class="size-card-count">${count} good${count===1?'':'s'}</span>
+      <span class="size-card-title">${esc(s.name)}</span>
+      <span class="size-card-desc">${esc(s.desc)}</span>
+    </button>`;
+  }).join('') + `</div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  document.querySelectorAll('[data-size]').forEach(b=> b.addEventListener('click', ()=> openGoodsModal(b.dataset.size)));
+}
+
+function goodRowHtml(g){
+  const selected = plan.good && plan.good.id===g.id;
+  const tier = tierById(g.tier);
+  return `<tr class="${selected?'selected':''}">
+    <td class="col-name">
+      <div class="good-name">${esc(g.name)}</div>
+      <span class="tier-badge tier-${g.tier}">${esc(tier.name.split(' ')[0])}</span>
+    </td>
+    <td class="col-cost">${esc(g.costRange)}<div class="good-category">${esc(g.category)}</div></td>
+    <td class="col-desc">
+      ${esc(g.desc)}
+      ${g.whenToUse ? `<div class="when">${esc(g.whenToUse)}</div>` : ''}
+      ${g.examples && g.examples.length ? `<ul class="examples">${g.examples.map(e=>`<li>${esc(e)}</li>`).join('')}</ul>` : ''}
+    </td>
+    <td class="col-action">
+      <button class="btn ${selected?'primary':''}" data-pick-good="${escAttr(g.id)}">${selected?'Selected ✓':'Use this good'}</button>
+      <button class="btn ghost small danger" data-delete-good="${escAttr(g.id)}" title="Delete">Delete</button>
+    </td>
+  </tr>`;
+}
+
+function openGoodsModal(sizeId){
+  goodsModal = sizeId;
+  renderGoodsModal();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeGoodsModal(){
+  goodsModal = null;
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function renderGoodsModal(){
+  const size = SIZES.find(s=> s.id===goodsModal);
+  if(!size) return;
+  let html = `<div class="modal-head">
+    <div><div class="modal-eyebrow">Goods Catalog</div><h2>${esc(size.name)} Physical Goods</h2></div>
+    <button class="btn ghost small" id="modalCloseBtn">Close</button>
+  </div>`;
+  html += `<div class="modal-scroll">`;
+  const allGoods = getGoods();
+  COST_TIERS.forEach(tier=>{
+    const items = allGoods.filter(g=> g.size===size.id && g.tier===tier.id);
+    html += `<div class="group-title">${esc(tier.tableLabel)}</div>`;
+    html += items.length
+      ? `<div class="table-wrap"><table class="goods-table">
+          <thead><tr><th>Good</th><th>Cost</th><th>Description</th><th></th></tr></thead>
+          <tbody>${items.map(goodRowHtml).join('')}</tbody>
+        </table></div>`
+      : `<p style="color:var(--ink-faint); font-size:13px; margin:0 0 12px;">No ${esc(size.name.toLowerCase())} goods in this tier yet.</p>`;
+    html += addGoodFormHtml(size.id, tier.id);
+  });
+  html += `</div>`;
+
+  const box = document.getElementById('modalBox');
+  box.innerHTML = html;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+
+  box.querySelectorAll('[data-pick-good]').forEach(b=> b.addEventListener('click', ()=>{
+    const g = getGoods().find(x=>x.id===b.dataset.pickGood);
+    plan.good = {id:g.id, name:g.name, tier:g.tier, costRange:g.costRange};
+    persistPlan();
+    toast('Set as the good for this plan');
+    renderGoodsModal();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  box.querySelectorAll('[data-delete-good]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.deleteGood;
+    const g = getGoods().find(x=>x.id===id);
+    if(!confirm(`Delete "${g ? g.name : 'this good'}" from the catalog?`)) return;
+    deleteGood(id);
+    toast('Deleted');
+    renderGoodsModal();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  wireAddGoodForms(box, size.id);
+}
+
+function addGoodFormHtml(sizeId, tierId){
+  const key = sizeId + '-' + tierId;
+  return `
+    <button class="btn ghost small" data-add-toggle="${key}">+ Add a good</button>
+    <form class="add-good-form" id="addForm-${key}" style="display:none;">
+      <div class="row">
+        <div class="field"><label>Name</label><input type="text" id="addName-${key}" placeholder="e.g. Branded Notebook"></div>
+        <div class="field"><label>Cost range</label><input type="text" id="addCost-${key}" placeholder="e.g. $10 - $20"></div>
+      </div>
+      <div class="field"><label>Category</label><input type="text" id="addCategory-${key}" placeholder="e.g. Opener / Mass"></div>
+      <div class="field"><label>Description &amp; note explainer</label><textarea id="addDesc-${key}" placeholder="What it is, and what the accompanying note says..."></textarea></div>
+      <div class="rowbtns">
+        <button type="button" class="btn primary small" data-add-save="${key}">Add to ${esc(COST_TIERS.find(t=>t.id===tierId).tableLabel)}</button>
+        <button type="button" class="btn ghost small" data-add-cancel="${key}">Cancel</button>
+      </div>
+    </form>`;
+}
+function wireAddGoodForms(box, sizeId){
+  COST_TIERS.forEach(tier=>{
+    const key = sizeId + '-' + tier.id;
+    const toggleBtn = box.querySelector(`[data-add-toggle="${key}"]`);
+    const form = box.querySelector(`#addForm-${key}`);
+    if(!toggleBtn || !form) return;
+    toggleBtn.addEventListener('click', ()=>{
+      form.style.display = 'block';
+      toggleBtn.style.display = 'none';
+      document.getElementById(`addName-${key}`).focus();
+    });
+    box.querySelector(`[data-add-cancel="${key}"]`).addEventListener('click', ()=>{
+      form.style.display = 'none';
+      toggleBtn.style.display = '';
+    });
+    box.querySelector(`[data-add-save="${key}"]`).addEventListener('click', ()=>{
+      const name = document.getElementById(`addName-${key}`).value.trim();
+      const costRange = document.getElementById(`addCost-${key}`).value.trim();
+      const category = document.getElementById(`addCategory-${key}`).value.trim();
+      const desc = document.getElementById(`addDesc-${key}`).value.trim();
+      if(!name){ toast('Give it a name first'); return; }
+      let id = slugify(name);
+      const existingIds = getGoods().map(g=>g.id);
+      if(existingIds.includes(id)) id = id + '-' + Date.now().toString(36);
+      addGood({id, name, size:sizeId, tier:tier.id, costRange: costRange || 'TBD', category: category || '', desc: desc || '', whenToUse:'', examples:[]});
+      toast('Added to catalog');
+      renderGoodsModal();
+      renderNav(); renderProgress();
+    });
+  });
+}
+
+/* ============================================================
+ GENERIC QUIZ ENGINE (used by Cost Fit + Research Fit)
+ ============================================================ */
+function scoreQuiz(questions, answers){
+  const scores = {};
+  questions.forEach(q=>{
+    const picked = answers[q.id];
+    if(picked==null) return;
+    const opt = q.options[picked];
+    Object.entries(opt.points||{}).forEach(([k,v])=>{ scores[k] = (scores[k]||0) + v; });
+  });
+  return scores;
+}
+function topScoreId(scores, orderedIds){
+  let best = null, bestScore = -1;
+  orderedIds.forEach(id=>{
+    const s = scores[id] || 0;
+    if(s > bestScore){ best = id; bestScore = s; }
+  });
+  return best;
+}
+
+/* ============================================================
+ STEP 2: COST FIT
+ ============================================================ */
+function renderCostStep(){
+  let html = pageHeaderHtml('Step 2 of 6', 'Cost Fit', 'Answer a few quick questions to land on the right budget tier for this account.');
+  html += quizQuestionsHtml(COST_QUESTIONS, plan.costAnswers, 'cost');
+
+  const allAnswered = COST_QUESTIONS.every(q=> plan.costAnswers[q.id]!=null);
+  html += `<button class="btn primary" id="costSeeResult" ${allAnswered?'':'disabled'}>See recommendation</button>`;
+  html += `<div id="costResult"></div>`;
+  html += stepNavHtml();
+
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  wireQuizOptions('cost', COST_QUESTIONS, renderCostStep);
+  document.getElementById('costSeeResult').addEventListener('click', ()=>{
+    const scores = scoreQuiz(COST_QUESTIONS, plan.costAnswers);
+    const tierId = topScoreId(scores, COST_TIERS.map(t=>t.id));
+    const tier = tierById(tierId);
+    document.getElementById('costResult').innerHTML = `<div class="quiz-result">
+      <div class="qr-eyebrow">Recommended tier</div>
+      <h3>${esc(tier.name)} &middot; ${esc(tier.range)}</h3>
+      <p>${esc(tier.principle)}</p>
+      <button class="btn primary" id="useCostTier">Use this tier</button>
+    </div>`;
+    document.getElementById('useCostTier').addEventListener('click', ()=>{
+      plan.costTier = tier.id;
+      persistPlan();
+      toast('Cost tier set to ' + tier.name);
+      render();
+    });
+  });
+}
+
+/* ============================================================
+ STEP 3: RESEARCH FIT
+ ============================================================ */
+function renderResearchStep(){
+  let html = pageHeaderHtml('Step 3 of 6', 'Research Fit', 'Figure out which personalization angle actually fits what you know about this prospect.');
+  html += quizQuestionsHtml(RESEARCH_QUESTIONS, plan.researchAnswers, 'research');
+
+  const allAnswered = RESEARCH_QUESTIONS.every(q=> plan.researchAnswers[q.id]!=null);
+  html += `<button class="btn primary" id="researchSeeResult" ${allAnswered?'':'disabled'}>See recommendation</button>`;
+  html += `<div id="researchResult"></div>`;
+
+  html += `<div class="field-group">
+    <label>Research notes for this prospect</label>
+    <textarea id="researchNotes" placeholder="e.g. mentioned running a half-marathon in a recent LinkedIn post...">${esc(plan.researchNotes)}</textarea>
+  </div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  wireQuizOptions('research', RESEARCH_QUESTIONS, renderResearchStep);
+
+  document.getElementById('researchNotes').addEventListener('input', (e)=>{
+    plan.researchNotes = e.target.value;
+    persistPlan();
+    renderPlanPanel();
+  });
+
+  document.getElementById('researchSeeResult').addEventListener('click', ()=>{
+    const scores = scoreQuiz(RESEARCH_QUESTIONS, plan.researchAnswers);
+    const angleId = topScoreId(scores, RESEARCH_ANGLES.map(a=>a.id));
+    const angle = angleById(angleId);
+    document.getElementById('researchResult').innerHTML = `<div class="quiz-result">
+      <div class="qr-eyebrow">Recommended angle</div>
+      <h3>${esc(angle.name)}</h3>
+      <p>${esc(angle.description)}</p>
+      <p><b>Where to find it:</b> ${esc(angle.whereToFind)}</p>
+      ${angle.examples && angle.examples.length ? `<p><b>Example:</b> ${esc(angle.examples[0])}</p>` : ''}
+      <button class="btn primary" id="useAngle">Use this angle</button>
+    </div>`;
+    document.getElementById('useAngle').addEventListener('click', ()=>{
+      plan.researchAngle = angle.id;
+      persistPlan();
+      toast('Research angle set to ' + angle.name);
+      render();
+    });
+  });
+}
+
+function quizQuestionsHtml(questions, answers, prefix){
+  return questions.map(q=>`
+    <div class="quiz-q">
+      <div class="qtext">${esc(q.prompt)}</div>
+      <div class="quiz-opts">
+        ${q.options.map((o,i)=>`
+          <div class="quiz-opt ${answers[q.id]===i?'picked':''}" data-q="${escAttr(q.id)}" data-opt="${i}">
+            <span class="dot"></span><span class="otext">${esc(o.label)}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+function wireQuizOptions(prefix, questions, rerenderFn){
+  document.querySelectorAll('.quiz-opt').forEach(el=> el.addEventListener('click', ()=>{
+    const answers = prefix==='cost' ? plan.costAnswers : plan.researchAnswers;
+    answers[el.dataset.q] = parseInt(el.dataset.opt, 10);
+    persistPlan();
+    rerenderFn();
+  }));
+}
+
+/* ============================================================
+ STEP 4: PACKAGE CHECKLIST
+ ============================================================ */
+function renderChecklistStep(){
+  let html = pageHeaderHtml('Step 4 of 6', 'Package Checklist', 'What has to be true about the box before it ships.');
+  const done = Object.values(plan.checklist).filter(Boolean).length;
+  html += `<div class="progress-bar" style="max-width:420px;"><div class="fill" style="width:${done/PACKAGE_CHECKLIST.length*100}%"></div></div>`;
+  html += `<p style="font-size:12.5px; color:var(--ink-faint); margin:0 0 14px;">${done}/${PACKAGE_CHECKLIST.length} checked</p>`;
+  html += `<div class="card" style="padding:6px 16px;">` + PACKAGE_CHECKLIST.map(item=>{
+    const key = checklistKey(item);
+    const checked = !!plan.checklist[key];
+    return `<div class="check-item ${checked?'done':''}">
+      <input type="checkbox" id="chk-${key}" data-key="${key}" ${checked?'checked':''}>
+      <label for="chk-${key}"><b>${esc(item.h)}</b><span>${esc(item.b)}</span></label>
+    </div>`;
+  }).join('') + `</div>`;
+  html += stepNavHtml();
+
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  document.querySelectorAll('.check-item input').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.checklist[cb.dataset.key] = cb.checked;
+    persistPlan();
+    renderChecklistStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 5: HOW TO SEND
+ ============================================================ */
+function renderSendStep(){
+  let html = pageHeaderHtml('Step 5 of 6', 'How to Send', 'Carrier, packaging, and timing guidance, plus the method for this send.');
+  html += SEND_GUIDE.map(s=> `<div class="card"><h3>${esc(s.h)}</h3><p>${esc(s.b)}</p></div>`).join('');
+
+  html += `<div class="group-title">Send Method</div>`;
+  html += `<div class="send-methods">${SEND_METHODS.map(m=>
+    `<button class="chip ${plan.sendMethod===m.id?'active':''}" data-send="${escAttr(m.id)}">${esc(m.label)}</button>`
+  ).join('')}</div>`;
+
+  html += `<div class="field-group">
+    <label>Send notes (address, tracking #, expected delivery)</label>
+    <textarea id="sendNotes" placeholder="e.g. confirmed office address via email 7/24, USPS tracking 9400...">${esc(plan.sendNotes)}</textarea>
+  </div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  document.querySelectorAll('[data-send]').forEach(b=> b.addEventListener('click', ()=>{
+    plan.sendMethod = b.dataset.send;
+    persistPlan();
+    render();
+  }));
+  document.getElementById('sendNotes').addEventListener('input', (e)=>{
+    plan.sendNotes = e.target.value;
+    persistPlan();
+    renderPlanPanel();
+  });
+}
+
+/* ============================================================
+ STEP 6: FOLLOW-UP (DIRECT MAIL)
+ ============================================================ */
+function renderFollowupStep(){
+  let html = pageHeaderHtml('Step 6 of 6', 'Follow-Up (Direct Mail)', 'Lines and scripts for following up once the good has landed. Click + to add a line to your plan.');
+  html += FOLLOWUP_BANK.map(g=> `
+    <div class="group-title">${esc(g.cat)}</div>
+    <div class="snip-grid">${g.items.map(it=>`
+      <div class="snip">
+        <div class="txt">${esc(it.t)}</div>
+        <button class="add" data-text="${encodeURIComponent(it.t)}" title="Add to plan">+</button>
+      </div>`).join('')}</div>`).join('');
+  html += stepNavHtml();
+
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+  document.querySelectorAll('.snip .add').forEach(b=> b.addEventListener('click', ()=>{
+    const cur = plan.followup || '';
+    const sep = cur.trim().length ? '\n\n' : '';
+    plan.followup = cur + sep + decodeURIComponent(b.dataset.text);
+    persistPlan();
+    toast('Added to plan');
+    render();
+  }));
+}
+
+/* ============================================================
+ PLAN PANEL
+ ============================================================ */
+function renderPlanPanel(){
+  let html = '';
+
+  html += planSectionHtml('Good', plan.good ? `${esc(plan.good.name)} <span class="tier-badge tier-${plan.good.tier}" style="margin-left:6px;">${esc(plan.good.costRange)}</span>` : null, 'Not selected yet', 'catalog');
+
+  html += planSectionHtml('Cost Tier', plan.costTier ? `${esc(tierById(plan.costTier).name)} &middot; ${esc(tierById(plan.costTier).range)}` : null, 'Not set yet', 'cost');
+
+  let researchVal = null;
+  if(plan.researchAngle){
+    researchVal = esc(angleById(plan.researchAngle).name);
+    if(plan.researchNotes.trim()) researchVal += `<div class="ps-sub">"${esc(plan.researchNotes.trim())}"</div>`;
+  }
+  html += planSectionHtml('Research Angle', researchVal, 'Not set yet', 'research');
+
+  const doneCount = Object.values(plan.checklist).filter(Boolean).length;
+  html += planSectionHtml('Package Checklist', `${doneCount}/${PACKAGE_CHECKLIST.length} checked`, null, 'checklist');
+
+  let sendVal = null;
+  if(plan.sendMethod){
+    sendVal = esc(SEND_METHODS.find(m=>m.id===plan.sendMethod).label);
+    if(plan.sendNotes.trim()) sendVal += `<div class="ps-sub">${esc(plan.sendNotes.trim())}</div>`;
+  }
+  html += planSectionHtml('Send Method', sendVal, 'Not set yet', 'send');
+
+  html += `<div class="plan-section">
+    <div class="ps-label"><span>Follow-Up</span><a data-jump="followup">Bank &rarr;</a></div>
+    <textarea class="plan-followup" id="planFollowupBox" placeholder="Add lines from the Follow-Up bank, or write your own here.">${esc(plan.followup)}</textarea>
+  </div>`;
+
+  document.getElementById('ppBody').innerHTML = html;
+  document.querySelectorAll('[data-jump]').forEach(a=> a.addEventListener('click', ()=> setActiveStep(a.dataset.jump)));
+  const box = document.getElementById('planFollowupBox');
+  box.addEventListener('input', (e)=>{
+    plan.followup = e.target.value;
+    persistPlan();
+  });
+}
+function planSectionHtml(label, value, emptyText, jumpTo){
+  return `<div class="plan-section">
+    <div class="ps-label"><span>${esc(label)}</span><a data-jump="${escAttr(jumpTo)}">${value?'Change':'Set'} &rarr;</a></div>
+    <div class="ps-value">${value ? value : `<span class="ps-empty">${esc(emptyText||'Not set yet')}</span>`}</div>
+  </div>`;
+}
+function planText(){
+  const lines = [];
+  lines.push('PHYSICAL GOODS PLAN');
+  lines.push('');
+  lines.push('Good: ' + (plan.good ? `${plan.good.name} (${plan.good.costRange})` : 'Not selected'));
+  lines.push('Cost Tier: ' + (plan.costTier ? `${tierById(plan.costTier).name} (${tierById(plan.costTier).range})` : 'Not set'));
+  lines.push('Research Angle: ' + (plan.researchAngle ? angleById(plan.researchAngle).name : 'Not set'));
+  if(plan.researchNotes.trim()) lines.push('Research Notes: ' + plan.researchNotes.trim());
+  lines.push('');
+  lines.push('Package Checklist:');
+  PACKAGE_CHECKLIST.forEach(item=>{
+    const checked = !!plan.checklist[checklistKey(item)];
+    lines.push(`  [${checked?'x':' '}] ${item.h}`);
+  });
+  lines.push('');
+  lines.push('Send Method: ' + (plan.sendMethod ? SEND_METHODS.find(m=>m.id===plan.sendMethod).label : 'Not set'));
+  if(plan.sendNotes.trim()) lines.push('Send Notes: ' + plan.sendNotes.trim());
+  lines.push('');
+  lines.push('Follow-Up:');
+  lines.push(plan.followup.trim() || '(none yet)');
+  return lines.join('\n');
+}
+
+/* ============================================================
+ RENDER ALL
+ ============================================================ */
+function renderStepContent(){
+  if(activeStep==='catalog')   return renderCatalogStep();
+  if(activeStep==='cost')      return renderCostStep();
+  if(activeStep==='research')  return renderResearchStep();
+  if(activeStep==='checklist') return renderChecklistStep();
+  if(activeStep==='send')      return renderSendStep();
+  if(activeStep==='followup')  return renderFollowupStep();
+}
+function render(){
+  renderNav();
+  renderProgress();
+  renderStepContent();
+  renderPlanPanel();
+}
+
+render();
+
+document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
+document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('planToggleBtn').addEventListener('click', ()=> document.getElementById('plan-panel').classList.toggle('open'));
+document.getElementById('planCloseBtn').addEventListener('click', ()=> document.getElementById('plan-panel').classList.remove('open'));
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeGoodsModal(); });
+document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
+document.getElementById('clearPlanBtn').addEventListener('click', ()=>{
+  if(confirm('Clear the whole Goods Plan? This cannot be undone.')){
+    plan = defaultPlan();
+    persistPlan();
+    render();
+  }
+});
+</script>
