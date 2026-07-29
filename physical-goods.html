@@ -189,6 +189,26 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
 .card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
 
+/* ---------- research: where to look ---------- */
+.source-tip{margin:-4px 0 14px; font-size:12.5px; color:var(--ink-faint); font-style:italic; line-height:1.5; max-width:70ch;}
+.source-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:22px;}
+.source-card{
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
+  box-shadow:var(--shadow); padding:14px 16px;
+}
+.source-card h4{
+  margin:0 0 10px; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.04em; font-size:11px; color:var(--stamp);
+}
+.source-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.source-chip{
+  font-size:12px; padding:4px 10px; border-radius:999px; background:var(--paper);
+  border:1px solid var(--line); color:var(--ink-soft); white-space:nowrap;
+}
+
+/* ---------- research: outreach angle hint ---------- */
+.opp-hint{margin:-4px 0 12px; font-size:13px; color:var(--ink-soft); line-height:1.5;}
+
 /* ---------- goods catalog table (inside modal) ---------- */
 .tier-badge{
   font-family:var(--font-mono); font-size:10.5px; font-weight:700; white-space:nowrap;
@@ -211,13 +231,15 @@ table.goods-table tr.selected td{background:var(--mimeo-ink,#E6F4EC);}
 table.goods-table .col-name{width:210px;}
 table.goods-table .good-name{font-family:var(--font-display); font-weight:700; font-size:14.5px; color:var(--ink);}
 table.goods-table .col-cost{width:150px; font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); white-space:nowrap;}
-table.goods-table .good-category{margin-top:4px; color:var(--ink-soft); font-family:var(--font-body); font-size:12.5px;}
+table.goods-table .col-cost .cost-block{display:flex; flex-direction:column; align-items:flex-start; gap:6px;}
+table.goods-table .col-cost .tier-badge{margin-top:0;}
+table.goods-table .good-category{color:var(--ink-soft); font-family:var(--font-body); font-size:12.5px;}
 table.goods-table .col-desc{font-size:13px; color:var(--ink-soft); line-height:1.55; min-width:280px;}
 table.goods-table .col-desc .when{margin-top:8px; font-style:italic; color:var(--ink-faint); font-size:12px;}
 table.goods-table .col-desc .examples{margin:8px 0 0; padding-left:16px; font-size:12px;}
 table.goods-table .col-desc .examples li{margin:2px 0;}
-table.goods-table .col-action{width:150px; text-align:right;}
-table.goods-table .col-action{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
+table.goods-table .col-action{width:120px;}
+table.goods-table .col-action .action-btns{display:flex; flex-direction:column; align-items:stretch; gap:6px;}
 table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:center;}
 
 /* ---------- goods catalog: size picker ---------- */
@@ -257,16 +279,131 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
   .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
 }
 
+/* ---------- messaging: template bank trigger + modal ---------- */
+.tpl-trigger{
+  width:100%; display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer;
+  border:1.5px dashed var(--line-strong); border-radius:9px; background:var(--paper);
+  padding:11px 14px; margin-bottom:14px; font-family:inherit; transition:border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.tpl-trigger:hover{border-color:var(--stamp); border-style:solid; background:var(--mimeo-ink); transform:translateY(-1px);}
+.tpl-trigger-icon{
+  flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--stamp); color:var(--stamp-ink);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.tpl-trigger-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px;}
+.tpl-trigger-title{font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);}
+.tpl-trigger-sub{font-size:11.5px; color:var(--ink-faint);}
+.tpl-trigger-arrow{flex:0 0 auto; color:var(--stamp); font-size:15px;}
+
+.tpl-modal-box{max-width:980px;}
+.tpl-modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:22px 26px 16px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.tpl-modal-head-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.tpl-modal-sub{margin:6px 0 0; font-size:13px; color:var(--ink-soft); max-width:64ch; line-height:1.5;}
+.tpl-modal-controls{
+  flex:0 0 auto; padding:16px 26px; border-bottom:1px solid var(--line); background:var(--paper);
+  display:flex; flex-direction:column; gap:12px;
+}
+.tpl-search{
+  width:100%; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:9px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:10px 14px;
+}
+.tpl-search:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-chips{display:flex; flex-wrap:wrap; gap:7px;}
+.chip.small{padding:5px 12px; font-size:11.5px;}
+.tpl-chip-count{opacity:.65; font-weight:600; margin-left:2px;}
+.tpl-cat-manage-toggle{margin-left:auto;}
+.tpl-cat-manage{
+  border:1px solid var(--line); border-radius:9px; background:var(--paper-raised);
+  padding:12px 14px; display:flex; flex-direction:column; gap:8px;
+}
+.tpl-cat-manage-row{display:flex; align-items:center; gap:8px; padding:4px 0;}
+.tpl-cat-manage-name{flex:1 1 auto; font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-cat-manage-row-editing{align-items:center;}
+.tpl-cat-rename-input, .tpl-cat-new-input{
+  flex:1 1 auto; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:7px 10px;
+}
+.tpl-cat-rename-input:focus, .tpl-cat-new-input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-manage-add{display:flex; gap:8px; padding-top:6px; border-top:1px dashed var(--line);}
+.tpl-modal-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:20px 26px 26px;}
+.tpl-group{margin-bottom:22px;}
+.tpl-group:last-child{margin-bottom:0;}
+.tpl-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:11px; color:var(--stamp); margin-bottom:10px;
+}
+.tpl-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
+.tpl-card{
+  display:flex; flex-direction:column; gap:9px; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper-raised); box-shadow:var(--shadow); padding:14px 15px;
+}
+.tpl-card-top-row{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+.tpl-card-top-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.tpl-card-add, .tpl-card-edit, .tpl-card-delete{
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--stamp);
+  background:var(--mimeo-ink); color:var(--stamp); font-family:var(--font-display); font-weight:800;
+  font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; transition:background-color .15s ease, transform .12s ease;
+}
+.tpl-card-edit{font-size:11px; border-color:var(--line-strong); color:var(--ink-soft);}
+.tpl-card-delete{border-color:var(--warn); color:var(--warn); font-size:16px;}
+.tpl-card-add:hover{background:var(--stamp); color:var(--stamp-ink); transform:scale(1.08);}
+.tpl-card-edit:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:scale(1.08);}
+.tpl-card-delete:hover{background:var(--warn); color:#fff; transform:scale(1.08);}
+.tpl-card-title{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-card-subject{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--stamp);}
+
+.tpl-card-editing{gap:9px;}
+.tpl-edit-title, .tpl-edit-subject, .tpl-edit-cat{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:8px 10px;
+}
+.tpl-edit-title{font-family:var(--font-display); font-weight:700;}
+.tpl-edit-cat{font-family:var(--font-display); font-weight:700; color:var(--stamp); cursor:pointer;}
+.tpl-edit-title:focus, .tpl-edit-subject:focus, .tpl-edit-text:focus, .tpl-edit-cat:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-edit-text{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px;
+  padding:8px 10px; min-height:120px; resize:vertical; line-height:1.5;
+}
+.tpl-edit-actions{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.tpl-edit-actions-right{display:flex; gap:8px;}
+.tpl-edit-delete{
+  border:1px solid var(--warn); color:var(--warn); background:transparent; border-radius:999px;
+  font-family:var(--font-display); font-weight:700; font-size:11px; padding:5px 10px; cursor:pointer;
+}
+.tpl-edit-delete:hover{background:var(--warn); color:#fff;}
+.tpl-card-text{
+  font-size:12.5px; color:var(--ink-soft); line-height:1.5; white-space:pre-wrap;
+  max-height:150px; overflow-y:auto; flex:1 1 auto;
+}
+.tpl-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  gap:6px; padding:50px 20px; color:var(--ink-soft);
+}
+.tpl-empty-icon{
+  width:44px; height:44px; border-radius:50%; background:var(--mimeo-ink); color:var(--stamp);
+  display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:6px;
+}
+.tpl-empty h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink);}
+.tpl-empty p{margin:0; font-size:13px; max-width:44ch; line-height:1.5;}
+
 .btn{
   font-family:var(--font-display); font-weight:700; letter-spacing:0;
   font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
   background:var(--paper-raised); color:var(--ink);
 }
+.btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease;}
 .btn:hover{border-color:var(--line-strong);}
 .btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
-.btn.primary:hover{filter:brightness(1.06);}
+.btn.primary:hover{filter:brightness(1.1); transform:translateY(-1px);}
 .btn.primary:disabled{opacity:.5; cursor:not-allowed; filter:none;}
 .btn.ghost{background:transparent;}
+table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px);}
 .btn.small{padding:5px 10px; font-size:11px;}
 .btn.full{width:100%; text-align:center;}
 
@@ -274,6 +411,10 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
 .quiz-q{margin-bottom:22px;}
 .quiz-q .qtext{font-family:var(--font-display); font-weight:700; font-size:14px; margin-bottom:9px;}
 .quiz-opts{display:flex; flex-direction:column; gap:7px;}
+.quiz-opts.row{flex-direction:row;}
+.quiz-opts.row .quiz-opt{flex:1 1 0; justify-content:center; text-align:center;}
+.qsub{font-size:12px; color:var(--ink-faint); margin:-4px 0 9px;}
+.quiz-text{width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; padding:9px 11px; font:inherit; font-size:13px; background:var(--paper-raised); resize:vertical;}
 .quiz-opt{
   display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:8px;
   padding:10px 12px; cursor:pointer; background:var(--paper-raised);
@@ -318,16 +459,16 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
   display:block; font-family:var(--font-display); font-weight:700; font-size:10.5px;
   text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:5px;
 }
-.add-good-form input[type=text], .add-good-form textarea{
+.add-good-form input[type=text], .add-good-form textarea, .add-good-form select{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:6px;
   background:var(--paper-raised); color:var(--ink); font-family:var(--font-body);
   font-size:13px; padding:8px 10px;
 }
 .add-good-form textarea{min-height:80px; resize:vertical;}
-.add-good-form input[type=text]:focus, .add-good-form textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.add-good-form input[type=text]:focus, .add-good-form textarea:focus, .add-good-form select:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
 .rowbtns{display:flex; gap:8px; margin-top:14px;}
 .btn.danger{color:var(--warn); border-color:var(--warn);}
-.btn.danger:hover{background:var(--warn); color:#fff;}
+.btn.danger:hover{background:var(--warn); color:#fff; transform:translateY(-1px);}
 
 /* ---------- checklist ---------- */
 .check-item{display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line);}
@@ -337,22 +478,72 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
 .check-item label b{display:block; font-weight:700; margin-bottom:2px;}
 .check-item.done label b{color:var(--ink-faint); text-decoration:line-through;}
 .check-item.done label span{color:var(--ink-faint);}
+.check-bullets{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:2px;}
+.check-item.done label .check-bullets{color:var(--ink-faint);}
 
 /* ---------- send methods ---------- */
-.send-methods{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 6px;}
+.send-methods{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 28px;}
 
-/* ---------- snippet list (follow-up bank) ---------- */
-.snip-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:8px;}
-.snip{
-  background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
-  padding:9px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+/* ---------- messaging: before / inside / follow-up ---------- */
+.msg-sections{display:flex; flex-direction:column; gap:22px; margin-bottom:28px;}
+.msg-card{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+  box-shadow:var(--shadow); padding:24px 26px 20px; overflow:hidden;
+  transition:box-shadow .18s ease, transform .18s ease;
 }
-.snip .txt{font-size:13px; line-height:1.4; white-space:pre-wrap;}
-.snip button.add{
-  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--mimeo);
-  background:transparent; color:var(--mimeo); cursor:pointer; font-size:14px; line-height:1;
+.msg-card:hover{box-shadow:0 10px 28px -12px rgba(0,0,0,.22); transform:translateY(-1px);}
+.msg-card::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--stamp), var(--mimeo));
 }
-.snip button.add:hover{background:var(--mimeo); color:var(--mimeo-ink);}
+.msg-card-top{display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;}
+.msg-num{
+  flex:0 0 auto; width:34px; height:34px; border-radius:9px; background:var(--mimeo-ink);
+  color:var(--stamp); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.msg-heading{flex:1 1 auto; min-width:0;}
+.msg-title-row{display:flex; align-items:center; gap:9px; flex-wrap:wrap;}
+.msg-title-row h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:15.5px; color:var(--ink);}
+.msg-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--stamp); background:var(--mimeo-ink); border-radius:999px; padding:3px 9px;
+}
+.msg-desc{margin:4px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.5; max-width:70ch;}
+.msg-subject{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:11px 14px; margin-bottom:12px; transition:border-color .15s ease;
+}
+.msg-subject:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.msg-textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:13px 14px; min-height:120px; resize:vertical; line-height:1.6; transition:border-color .15s ease;
+}
+.msg-textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.msg-foot{display:flex; justify-content:space-between; align-items:center; margin-top:14px;}
+.msg-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+
+.fe-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:4px;}
+@media (max-width:640px){.fe-grid{grid-template-columns:1fr;}}
+.fe-box{
+  display:flex; flex-direction:column; gap:7px; text-align:left; cursor:pointer;
+  border:1.5px dashed var(--line-strong); border-radius:10px; background:var(--paper);
+  padding:16px 17px; font-family:inherit; transition:border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.fe-box:hover{border-color:var(--stamp); background:var(--mimeo-ink); transform:translateY(-1px);}
+.fe-box.filled{border-style:solid; border-color:var(--line);}
+.fe-box-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--stamp);
+}
+.fe-box-subject{font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);}
+.fe-box-body{
+  font-size:12px; color:var(--ink-soft); line-height:1.5; max-height:54px; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+}
+.fe-modal-body{min-height:200px;}
 
 /* ---------- step nav ---------- */
 .step-nav{display:flex; justify-content:space-between; gap:10px; margin:32px 0 10px; padding-top:18px; border-top:1px solid var(--line);}
@@ -465,12 +656,12 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
  DATA — placeholder / seed content. Replace and expand freely.
  ============================================================ */
 const STEPS = [
-  {id:'catalog',   num:1, label:'Goods Catalog'},
+  {id:'research',  num:1, label:'Research Fit'},
   {id:'cost',      num:2, label:'Cost Fit'},
-  {id:'research',  num:3, label:'Research Fit'},
+  {id:'catalog',   num:3, label:'Goods Catalog'},
   {id:'checklist', num:4, label:'Package Checklist'},
   {id:'send',      num:5, label:'How to Send'},
-  {id:'followup',  num:6, label:'Follow-Up'},
+  {id:'followup',  num:6, label:'Messaging'},
 ];
 
 const COST_TIERS = [
@@ -510,53 +701,72 @@ const SEED_GOODS = [
   {id:'neon-sign', name:'Neon Sign', size:'large', tier:'mid', costRange:'$55+', category:'Bold / Office Statement', desc:'A custom LED neon-style sign (their name, company, or a short line tied to your pitch), shipped to their office with a note explaining it - something like: "Figured [Company] deserved something that lights up the room - literally. Would love 15 minutes to tell you why I sent it." Big, bold, and genuinely display-worthy, so it tends to stay up and keep getting noticed long after it arrives.', whenToUse:'', examples:[]},
   {id:'office-flag', name:'Custom Office Flag', size:'large', tier:'high', costRange:'£100 - £200', category:'Company Branding', desc:'A custom flag printed with their own company logo/colors, sized for an office flagpole or lobby stand, shipped with a note explaining the gesture - something like: "Wanted [Company] to have a flag worth flying - hope it earns a spot in the lobby. Would love 15 minutes to tell you why I went to the trouble." A high-effort, high-visibility send reserved for accounts worth the investment - the scale and permanence of it signal how seriously you take the relationship.', whenToUse:'', examples:[]},
   {id:'caricature', name:'Caricature', size:'medium', tier:'mid', costRange:'£35 - £60', category:'Personalization / Humor', desc:'A custom drawn (or AI-generated) caricature of the recipient, framed or printed, sent with a handwritten note explaining it - something like: "Had an artist take a crack at you - hope you can laugh at it as much as I did. Would love 15 minutes to make up for it." Playful rather than flattering, which makes it a good pick for lightening up a relationship that\'s felt a bit too formal.', whenToUse:'', examples:[]},
+  {id:'vinyl-record', name:'Vinyl Record', size:'medium', tier:'mid', costRange:'$25 - $45', category:'Personalized / Flattery', desc:'A vinyl record curated to match their taste (sourced from a music mention in their bio, posts, or a podcast appearance), sent with a handwritten note explaining it - something like: "Saw you mentioned [artist/album] - figured you\'d want this on wax. Would love 15 minutes to talk shop once you\'ve given it a spin." A well-chosen record shows real research went into the send and tends to stay on display rather than get filed away.', whenToUse:'', examples:[]},
+  {id:'branded-company-bags', name:'Branded Company Bags', size:'large', tier:'high', costRange:'$100+', category:'Bulk / Branding', desc:'Send a ton of branded bags their custom logo on the bags with a note attached', whenToUse:'', examples:[]},
 ];
 
 const COST_QUESTIONS = [
-  {id:'q1', prompt:'How many prospects are you sending this to?', options:[
-    {label:'50+ at once - a list', points:{low:3}},
-    {label:'A shortlist of 10-30 named accounts', points:{mid:3}},
-    {label:'A handful of accounts I really care about (under 10)', points:{high:3}},
+  {id:'q1', type:'text', optional:true, prompt:'How has the prospect responded to the other forms of outreach? (if applicable)', placeholder:'e.g. opened every email but hasn’t replied yet...'},
+  {id:'q2', row:true, prompt:'How large of an account do you believe this can be?', options:[
+    {label:'Smaller', points:{low:3}},
+    {label:'Medium', points:{mid:3}},
+    {label:'Huge', points:{high:3}},
   ]},
-  {id:'q2', prompt:"What's the deal size for this account (annual contract value)?", options:[
-    {label:'Under $5k, or unknown', points:{low:3}},
-    {label:'$5k - $25k', points:{mid:3}},
-    {label:'$25k+', points:{high:3}},
+  {id:'q3', sub:'Does the founder seem very narrow, or are they a company that would likely appreciate a grand gesture? Research should give an accurate ‘vibe’ of the company as a whole.', prompt:'What is the general vibe of the company?', options:[
+    {label:'Narrow - keep it modest', points:{low:2, mid:1}},
+    {label:'Would likely appreciate a grand gesture', points:{high:2, mid:1}},
   ]},
-  {id:'q3', prompt:'Where are they in the relationship?', options:[
-    {label:'Cold - no contact yet', points:{low:2, mid:1}},
-    {label:'Warm - replied or engaged once', points:{mid:2, high:1}},
-    {label:'Active deal in motion, or a champion I need to keep warm', points:{high:2, mid:1}},
+  {id:'q4', prompt:'What is the revenue tier of the business?', options:[
+    {label:'$1+ million', points:{low:3}},
+    {label:'$5 - $10 million', points:{low:3}},
+    {label:'$10 - $25 million', points:{mid:3}},
+    {label:'$50 - $70 million', points:{mid:2, high:1}},
+    {label:'$70+ million', points:{high:3}},
+  ]},
+  {id:'q5', prompt:'Do you truly believe you can close this account with a grand gesture?', options:[
+    {label:'Unsure...', points:{mid:1}},
+    {label:'Yes, it’s worth a shot!', points:{high:3}},
   ]},
 ];
 
-const RESEARCH_ANGLES = [
-  {id:'company-trigger', name:'Company Trigger Event', description:'Tie the note to something that just happened at their company - funding round, launch, award, expansion, a relevant new hire.', whereToFind:'LinkedIn company page, press releases, Google News alerts, Crunchbase.', examples:['"Saw you just closed your Series B - congrats. Wanted to send something small before the inbound floods in."']},
-  {id:'personal-signal',  name:'Personal / Hobby Signal', description:'Tie it to something specific to them as a person - a hobby, a team they support, a recent post, their alma mater.', whereToFind:'Their LinkedIn/X activity, personal website, podcast appearances, About/Bio sections.', examples:['A gift tied to their favorite sports team or a hobby mentioned in a recent post.']},
-  {id:'role-pain',        name:'Role-Based Pain Point', description:"No personal signal available yet - lean on a pain point that's near-universal for their role and industry instead.", whereToFind:'Job title + industry, case studies from similar roles, recent job postings on their team.', examples:['A note referencing a challenge common to their role, backed by a relevant case study.']},
-  {id:'no-signal',        name:'Warm Generic Opener', description:'Truly nothing to go on yet - let the gift itself earn the right to a first conversation, no forced personalization.', whereToFind:'N/A - lead with curiosity, not false personalization.', examples:['A short, honest note: "Don\'t know much about you yet - wanted to send something small and just ask for 15 minutes."']},
+const RESEARCH_PROMPTS = [
+  {id:'priorities6to12',  lens:'strategic', key:'priorities6to12',  label:'What are they obviously trying to accomplish in the next 6-12 months?', placeholder:'e.g. stated goal to expand into enterprise, mentioned in a recent interview...'},
+  {id:'recentLaunches',   lens:'strategic', key:'recentLaunches',   label:'What have they recently launched, or are visibly doubling down on?', placeholder:'e.g. shipped a new pricing tier last month, posting about it weekly...'},
+  {id:'growthSignals',    lens:'strategic', key:'growthSignals',    label:'What growth signals show where they’re investing? (hiring, fundraising, new markets, exec hires, rebrand)', placeholder:'e.g. hiring 3 AEs, raised a seed round in March...'},
+
+  {id:'workingWell',      lens:'business', key:'workingWell',      label:'What’s working extremely well for them right now?', placeholder:'e.g. a specific channel or product line clearly outperforming others...'},
+  {id:'contrarianBelief', lens:'business', key:'contrarianBelief', label:'Founder or business beliefs that they speak about over & over?', placeholder:'e.g. publicly dismisses a tactic most competitors swear by...'},
+  {id:'customerSignal',   lens:'business', key:'customerSignal',   label:'What are customers/reviews saying they love about that the company?', placeholder:'e.g. reviews repeatedly praise X but complain about slow support...'},
+
+  {id:'obsessions',       lens:'personal', key:'obsessions',       label:'What does the founder repeatedly talk about outside of work (hobby, cause, story, metaphor)?', placeholder:'e.g. mentions running marathons in nearly every interview...'},
+  {id:'recurringStory',   lens:'personal', key:'recurringStory',   label:'What stories does the founder tell?', placeholder:'e.g. always tells the story of bootstrapping the first version alone...'},
+  {id:'frustrations',     lens:'personal', key:'frustrations',     label:'What frustrates the business/founder in their personal life or business life ?', placeholder:'e.g. visibly annoyed by people assuming they’re VC-backed...'},
+  {id:'trueCares',        lens:'personal', key:'trueCares',        label:'What does the founder truly care about? (hobbies, books, media, sports)', placeholder:'e.g. constantly references sci-fi novels, plays competitive chess...'},
 ];
 
-const RESEARCH_QUESTIONS = [
-  {id:'r1', prompt:'What do you actually know about this person or company right now?', options:[
-    {label:'A recent company event (funding, launch, award, expansion)', points:{'company-trigger':3}},
-    {label:'Something personal (a hobby, a post, their background)', points:{'personal-signal':3}},
-    {label:'Just their job title and industry', points:{'role-pain':3}},
-    {label:'Almost nothing yet', points:{'no-signal':3}},
-  ]},
-  {id:'r2', prompt:'How much time can you spend researching this specific person before you send?', options:[
-    {label:'15+ minutes - I can dig', points:{'company-trigger':2,'personal-signal':2}},
-    {label:'A few minutes - quick scan only', points:{'role-pain':2}},
-    {label:'None - this is part of a batch send', points:{'no-signal':2,'role-pain':1}},
-  ]},
+const RESEARCH_LENSES = [
+  {id:'strategic', name:'Strategic', description:'Direction and worldview - what they’re heading toward, and why.'},
+  {id:'business',  name:'Business',  description:'Mechanics, bottleneck, and edge - how the business actually works, and where the friction is.'},
+  {id:'personal',  name:'Personal',  description:'The human, not the bio - what makes them notice you as a person, not a vendor.'},
+];
+
+const RESEARCH_SOURCES_TIP = "Recency beats breadth - a founder's last podcast appearance usually tells you more about current priorities than a 2-year-old About page. Work newest-first, then go back for historical context.";
+
+const RESEARCH_SOURCE_GROUPS = [
+  {label:'Company', items:['Careers page & job posts','Docs / help centre','Investor info','Landing / product pages']},
+  {label:'First-Hand', items:['Ask employee on email','Ask employee on LinkedIn']},
+  {label:'Long-form', items:['Conference talks','Email sequences','Guest interviews','Newsletter archive','Podcast appearances','Webinars']},
+  {label:'News', items:['News articles','Press releases']},
+  {label:'Public presence', items:['Facebook','Instagram','Landing Page','LinkedIn','TikTok','X / Twitter','YouTube']},
+  {label:'Voice of customer', items:['Landing Page Reviews','Reddit','Social Media Case Studies','Trustpilot','YouTube comments']},
 ];
 
 const PACKAGE_CHECKLIST = [
   {h:'Handwritten note', b:'A short, genuinely handwritten (or handwriting-font) note beats a printed card every time.'},
   {h:'No overt pitch inside the box', b:'The gift should feel like a gift, not a brochure. Save the pitch for the follow-up.'},
   {h:'One clear next step', b:'A single, low-friction CTA on the note - a specific date/time or a simple reply, not a hard sell.'},
-  {h:'Sender identified clearly', b:'Your name, company, and a way to reach you should be obvious without digging.'},
-  {h:'Shipping address confirmed', b:'Verify the address (and that the recipient still works there) before you ship - check LinkedIn first.'},
+  {h:'Sender identified clearly', bullets:['Your name','Email address','Phone Number','Company','LinkedIn profile (shortened via Bitly)','QR code to a book call (if possible).']},
+  {h:'Shipping address confirmed', b:'Verify the address (and that the recipient still works there) before you ship - check all available sources.'},
   {h:'Tracking number logged', b:'Log the tracking number and expected delivery date against the account so follow-up timing is exact.'},
 ];
 
@@ -574,18 +784,108 @@ const SEND_METHODS = [
   {id:'other',   label:'Other'},
 ];
 
-const FOLLOWUP_BANK = [
-  {cat:'Voicemail (Before It Lands)', items:[
-    {t:"Hey {{FirstName}}, it's {{You}} - you should have a little something land on your desk this week from me. Wanted to give you a heads up so it doesn't just look like random mail. Talk soon."},
-  ]},
-  {cat:'Follow-Up Call Opener', items:[
-    {t:'Hey {{FirstName}}, did the {{gift}} I sent over land okay? Wanted to give you a real reason to actually open it - here\'s the 30-second version of why I sent it...'},
-    {t:'Hi {{FirstName}}, following up on the {{gift}} - no pressure if it\'s not useful, just didn\'t want it to feel random without context.'},
-  ]},
-  {cat:'Nudge Email After It Lands', items:[
-    {t:"Subject: did it arrive?\n\n{{FirstName}}, just checking the {{gift}} made it to you okay - tracking says it landed on {{date}}. Would love 15 minutes if it's useful, otherwise no worries at all."},
-  ]},
+const MESSAGE_SECTIONS = [
+  {id:'beforeLanding', num:'01', tag:'Optional', label:'Before Landing Message', desc:'A quick heads-up - voicemail, text, or email - sent before the gift arrives, so it doesn\'t land looking like random mail.', placeholder:'Write the before-landing message...', hasSubject:true, subjectPlaceholder:'Subject line...'},
+  {id:'insideMessage', num:'02', tag:'In The Box', label:'Message Inside', desc:'What the handwritten note actually says once they open the box.', placeholder:'Write the message that goes inside the box...', hasSubject:false},
+  {id:'publicPosting', num:'03', tag:'Optional', label:'Public Posting', desc:'A social post about the send - LinkedIn, X, etc. - if you plan to make the gift public.', placeholder:'Write the public post...', hasSubject:false},
+  {id:'followup', num:'04', tag:'After It Lands', label:'Follow-Up Message', desc:'Your call opener or nudge email once tracking shows it\'s delivered.', placeholder:'Write the follow-up message...', hasSubject:true, subjectPlaceholder:'Subject line...'},
 ];
+
+/* Template bank per message section - {cat, items:[{id, title, subject, text}]}. Fill freely. */
+const TEMPLATE_BANK = {
+  beforeLanding: [
+    {cat:'General', items:[
+      {id:'get-ready-for-this', title:'Get Ready For This', subject:'get ready for this...', text:'Willing to bet 5 inches of height (that I absolutely need) that we are going to blow you away in 48 hours...\nWe are sending something absolutely awesome your way to {insert address}.\nGet prepared to check it out {name}.\n\nLove,\n{Your Name}'},
+    ]},
+  ],
+  insideMessage: [],
+  followup: [],
+  publicPosting: [],
+};
+(function ensureTemplateIds(){
+  Object.keys(TEMPLATE_BANK).forEach(sectionId=>{
+    (TEMPLATE_BANK[sectionId]||[]).forEach(g=>{
+      g.items.forEach((it,idx)=>{
+        if(!it.id) it.id = sectionId + '__' + g.cat.replace(/\s+/g,'_') + '__' + idx;
+      });
+    });
+  });
+})();
+function getAllTemplateItems(sectionId){
+  const edits = customTemplateEdits[sectionId] || {};
+  const deletes = customTemplateDeletes[sectionId] || [];
+  const items = [];
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:g.cat}, it, edits[it.id]||{});
+    items.push(eff);
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:'General'}, it, edits[it.id]||{}, {custom:true});
+    items.push(eff);
+  });
+  return items;
+}
+function getCategoryList(sectionId){
+  const set = new Set();
+  getAllTemplateItems(sectionId).forEach(it=> set.add(it.cat||'General'));
+  (customCategories[sectionId]||[]).forEach(c=> set.add(c));
+  if(!set.size) set.add('General');
+  return Array.from(set);
+}
+function getTemplateGroups(sectionId){
+  const items = getAllTemplateItems(sectionId);
+  return getCategoryList(sectionId).map(cat=> ({
+    cat,
+    items: items.filter(it=> (it.cat||'General')===cat),
+  }));
+}
+function renameCategory(sectionId, oldName, newName){
+  newName = (newName||'').trim();
+  if(!newName || newName===oldName) return false;
+  if(getCategoryList(sectionId).indexOf(newName)!==-1){ toast('That category already exists'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===oldName){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:newName});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===oldName) it.cat = newName;
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).map(c=> c===oldName?newName:c);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function deleteCategory(sectionId, name){
+  if(name==='General'){ toast('General is the default category and can\'t be deleted'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===name){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:'General'});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===name) it.cat = 'General';
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).filter(c=> c!==name);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function addCategory(sectionId, name){
+  name = (name||'').trim();
+  if(!name){ toast('Give the category a name first'); return false; }
+  if(getCategoryList(sectionId).indexOf(name)!==-1){ toast('That category already exists'); return false; }
+  if(!customCategories[sectionId]) customCategories[sectionId] = [];
+  customCategories[sectionId].push(name);
+  persistCustomCategories();
+  return true;
+}
 
 /* ============================================================
  STATE
@@ -593,14 +893,28 @@ const FOLLOWUP_BANK = [
 function defaultPlan(){
   return {
     good:null, costTier:null, costAnswers:{},
-    researchAngle:null, researchAnswers:{}, researchNotes:'',
-    checklist:{}, sendMethod:null, sendNotes:'', followup:'',
+    research:{
+      strategic:{priorities6to12:[], recentLaunches:[], growthSignals:[]},
+      business:{workingWell:[], customerSignal:[], contrarianBelief:[]},
+      personal:{obsessions:[], recurringStory:[], frustrations:[], trueCares:[]},
+      opportunity:{angle:''},
+    },
+    checklist:{}, sendMethod:null, sendNotes:'', beforeLanding:'', insideMessage:'',
+    beforeLandingSubject:'', publicPosting:'',
+    followupEmails:[{subject:'', body:''},{subject:'', body:''},{subject:'', body:''},{subject:'', body:''}],
   };
 }
 function loadPlan(){
   try{
     const p = JSON.parse(localStorage.getItem('physicalgoods_plan'));
-    if(p && typeof p==='object') return Object.assign(defaultPlan(), p);
+    if(p && typeof p==='object'){
+      delete p.researchAngle; delete p.researchAnswers; delete p.researchNotes;
+      const merged = Object.assign(defaultPlan(), p);
+      const emails = Array.isArray(merged.followupEmails) ? merged.followupEmails.slice(0,4) : [];
+      while(emails.length < 4) emails.push({subject:'', body:''});
+      merged.followupEmails = emails.map(em=> ({subject: (em&&em.subject)||'', body:(em&&em.body)||''}));
+      return merged;
+    }
   }catch(e){}
   return defaultPlan();
 }
@@ -609,12 +923,19 @@ function persistPlan(){ localStorage.setItem('physicalgoods_plan', JSON.stringif
 function loadCustomGoods(){
   try{
     const c = JSON.parse(localStorage.getItem('physicalgoods_custom_goods'));
-    if(c && typeof c==='object') return {added: Array.isArray(c.added)?c.added:[], removed: Array.isArray(c.removed)?c.removed:[]};
+    if(c && typeof c==='object') return {
+      added: Array.isArray(c.added)?c.added:[],
+      removed: Array.isArray(c.removed)?c.removed:[],
+      edited: (c.edited && typeof c.edited==='object') ? c.edited : {},
+    };
   }catch(e){}
-  return {added:[], removed:[]};
+  return {added:[], removed:[], edited:{}};
 }
 function persistCustomGoods(){ localStorage.setItem('physicalgoods_custom_goods', JSON.stringify(customGoods)); }
-function getGoods(){ return SEED_GOODS.filter(g=> customGoods.removed.indexOf(g.id)===-1).concat(customGoods.added); }
+function getGoods(){
+  return SEED_GOODS.filter(g=> customGoods.removed.indexOf(g.id)===-1).concat(customGoods.added)
+    .map(g=> customGoods.edited[g.id] ? Object.assign({}, g, customGoods.edited[g.id]) : g);
+}
 function addGood(g){ customGoods.added.push(g); persistCustomGoods(); }
 function deleteGood(id){
   if(SEED_GOODS.some(g=> g.id===id)){
@@ -622,17 +943,79 @@ function deleteGood(id){
   } else {
     customGoods.added = customGoods.added.filter(g=> g.id!==id);
   }
+  delete customGoods.edited[id];
   if(plan.good && plan.good.id===id){ plan.good = null; persistPlan(); }
   persistCustomGoods();
+}
+function editGood(id, updates){
+  const addedIdx = customGoods.added.findIndex(g=> g.id===id);
+  if(addedIdx !== -1){
+    customGoods.added[addedIdx] = Object.assign({}, customGoods.added[addedIdx], updates);
+  } else {
+    customGoods.edited[id] = Object.assign({}, customGoods.edited[id], updates);
+  }
+  persistCustomGoods();
+  if(plan.good && plan.good.id===id){
+    plan.good = Object.assign({}, plan.good, {name: updates.name, tier: updates.tier, costRange: updates.costRange});
+    persistPlan();
+  }
 }
 function slugify(s){
   return (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || 'good';
 }
 
+function loadCustomTemplateEdits(){
+  try{
+    const c = JSON.parse(localStorage.getItem('physicalgoods_template_edits'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateEdits(){ localStorage.setItem('physicalgoods_template_edits', JSON.stringify(customTemplateEdits)); }
+
+function loadCustomTemplateAdds(){
+  try{
+    const c = JSON.parse(localStorage.getItem('physicalgoods_template_adds'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateAdds(){ localStorage.setItem('physicalgoods_template_adds', JSON.stringify(customTemplateAdds)); }
+
+function loadCustomTemplateDeletes(){
+  try{
+    const c = JSON.parse(localStorage.getItem('physicalgoods_template_deletes'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateDeletes(){ localStorage.setItem('physicalgoods_template_deletes', JSON.stringify(customTemplateDeletes)); }
+
+function loadCustomCategories(){
+  try{
+    const c = JSON.parse(localStorage.getItem('physicalgoods_template_cats'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomCategories(){ localStorage.setItem('physicalgoods_template_cats', JSON.stringify(customCategories)); }
+
 let customGoods = loadCustomGoods();
+let customTemplateEdits = loadCustomTemplateEdits();
+let customTemplateAdds = loadCustomTemplateAdds();
+let customTemplateDeletes = loadCustomTemplateDeletes();
+let customCategories = loadCustomCategories();
 let plan = loadPlan();
-let activeStep = 'catalog';
+let activeStep = 'research';
 let goodsModal = null;
+let editingGoodId = null;
+let templateModalSection = null;
+let templateCatManageOpen = false;
+let templateCatEditing = null;
+let templateEditingId = null;
+let followupModalIdx = null;
+let templateModalCat = null;
+let templateModalSearch = '';
 
 /* ============================================================
  HELPERS
@@ -649,8 +1032,25 @@ function copyText(s){
   navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
 }
 function tierById(id){ return COST_TIERS.find(t=>t.id===id); }
-function angleById(id){ return RESEARCH_ANGLES.find(a=>a.id===id); }
 function checklistKey(item){ return item.h.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+function promptById(id){ return RESEARCH_PROMPTS.find(p=>p.id===id); }
+function findingsCount(){
+  let n = 0;
+  ['strategic','business','personal'].forEach(lens=>{
+    Object.values(plan.research[lens]).forEach(arr=> n += arr.length);
+  });
+  return n;
+}
+function newFindingId(){ return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function sourceGroupsHtml(){
+  let html = `<p class="source-tip">${esc(RESEARCH_SOURCES_TIP)}</p>`;
+  html += `<div class="source-grid">` + RESEARCH_SOURCE_GROUPS.map(g=>`
+    <div class="source-card">
+      <h4>${esc(g.label)}</h4>
+      <div class="source-chips">${g.items.map(i=>`<span class="source-chip">${esc(i)}</span>`).join('')}</div>
+    </div>`).join('') + `</div>`;
+  return html;
+}
 
 /* ============================================================
  SIDEBAR: nav + progress
@@ -658,14 +1058,23 @@ function checklistKey(item){ return item.h.toLowerCase().replace(/[^a-z0-9]+/g,'
 function stepStatus(id){
   if(id==='catalog')   return plan.good ? 'done' : 'pending';
   if(id==='cost')      return plan.costTier ? 'done' : 'pending';
-  if(id==='research')  return plan.researchAngle ? 'done' : 'pending';
+  if(id==='research'){
+    if(plan.research.opportunity.angle.trim()) return 'done';
+    return findingsCount()>0 ? 'progress' : 'pending';
+  }
   if(id==='checklist'){
     const n = Object.values(plan.checklist).filter(Boolean).length;
     if(n===0) return 'pending';
     return n>=PACKAGE_CHECKLIST.length ? 'done' : 'progress';
   }
   if(id==='send')      return plan.sendMethod ? 'done' : 'pending';
-  if(id==='followup')  return (plan.followup||'').trim() ? 'done' : 'pending';
+  if(id==='followup'){
+    const total = MESSAGE_SECTIONS.filter(s=> s.id!=='followup').length + 1;
+    let filled = MESSAGE_SECTIONS.filter(s=> s.id!=='followup' && (plan[s.id]||'').trim()).length;
+    if(plan.followupEmails.some(em=> em.subject.trim() || em.body.trim())) filled++;
+    if(filled===0) return 'pending';
+    return filled>=total ? 'done' : 'progress';
+  }
   return 'pending';
 }
 function doneStepCount(){ return STEPS.filter(s=>stepStatus(s.id)==='done').length; }
@@ -722,7 +1131,7 @@ function wireStepNav(box){
  STEP 1: GOODS CATALOG
  ============================================================ */
 function renderCatalogStep(){
-  let html = pageHeaderHtml('Step 1 of 6', 'Goods Catalog', 'Pick a size to browse the goods that fit it, grouped by cost.');
+  let html = pageHeaderHtml('Step 3 of 6', 'Goods Catalog', 'Pick a size to browse the goods that fit it, grouped by cost.');
 
   html += `<div class="size-grid">` + SIZES.map(s=>{
     const count = getGoods().filter(g=> g.size===s.id).length;
@@ -740,33 +1149,80 @@ function renderCatalogStep(){
 }
 
 function goodRowHtml(g){
+  if(editingGoodId === g.id) return editGoodRowHtml(g);
   const selected = plan.good && plan.good.id===g.id;
   const tier = tierById(g.tier);
   return `<tr class="${selected?'selected':''}">
     <td class="col-name">
       <div class="good-name">${esc(g.name)}</div>
-      <span class="tier-badge tier-${g.tier}">${esc(tier.name.split(' ')[0])}</span>
     </td>
-    <td class="col-cost">${esc(g.costRange)}<div class="good-category">${esc(g.category)}</div></td>
+    <td class="col-cost">
+      <div class="cost-block">
+        <span class="tier-badge tier-${g.tier}">${esc(tier.name.split(' ')[0])}</span>
+        <div>${esc(g.costRange)}</div>
+        <div class="good-category">${esc(g.category)}</div>
+      </div>
+    </td>
     <td class="col-desc">
       ${esc(g.desc)}
       ${g.whenToUse ? `<div class="when">${esc(g.whenToUse)}</div>` : ''}
       ${g.examples && g.examples.length ? `<ul class="examples">${g.examples.map(e=>`<li>${esc(e)}</li>`).join('')}</ul>` : ''}
     </td>
     <td class="col-action">
-      <button class="btn ${selected?'primary':''}" data-pick-good="${escAttr(g.id)}">${selected?'Selected ✓':'Use this good'}</button>
-      <button class="btn ghost small danger" data-delete-good="${escAttr(g.id)}" title="Delete">Delete</button>
+      <div class="action-btns">
+        <button class="btn primary small" data-pick-good="${escAttr(g.id)}">${selected?'Selected ✓':'Use this good'}</button>
+        <button class="btn ghost small" data-edit-good="${escAttr(g.id)}" title="Edit">Edit</button>
+        <button class="btn ghost small danger" data-delete-good="${escAttr(g.id)}" title="Delete">Delete</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function editGoodRowHtml(g){
+  return `<tr class="editing-row">
+    <td colspan="4">
+      <form class="add-good-form" data-edit-form="${escAttr(g.id)}">
+        <div class="row">
+          <div class="field"><label>Name</label><input type="text" id="editName-${escAttr(g.id)}" value="${escAttr(g.name)}"></div>
+          <div class="field"><label>Cost range</label><input type="text" id="editCost-${escAttr(g.id)}" value="${escAttr(g.costRange)}"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Size</label>
+            <select id="editSize-${escAttr(g.id)}">
+              ${SIZES.map(s=>`<option value="${escAttr(s.id)}" ${s.id===g.size?'selected':''}>${esc(s.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>Cost tier</label>
+            <select id="editTier-${escAttr(g.id)}">
+              ${COST_TIERS.map(t=>`<option value="${escAttr(t.id)}" ${t.id===g.tier?'selected':''}>${esc(t.tableLabel)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Category</label><input type="text" id="editCategory-${escAttr(g.id)}" value="${escAttr(g.category)}"></div>
+        <div class="field"><label>Description &amp; note explainer</label><textarea id="editDesc-${escAttr(g.id)}">${esc(g.desc)}</textarea></div>
+        <div class="rowbtns">
+          <button type="button" class="btn primary small" data-edit-save="${escAttr(g.id)}">Save changes</button>
+          <button type="button" class="btn ghost small" data-edit-cancel="${escAttr(g.id)}">Cancel</button>
+        </div>
+      </form>
     </td>
   </tr>`;
 }
 
 function openGoodsModal(sizeId){
   goodsModal = sizeId;
+  editingGoodId = null;
   renderGoodsModal();
   document.getElementById('modalOverlay').classList.add('open');
 }
 function closeGoodsModal(){
   goodsModal = null;
+  editingGoodId = null;
+  templateModalSection = null;
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  followupModalIdx = null;
   document.getElementById('modalOverlay').classList.remove('open');
 }
 function renderGoodsModal(){
@@ -792,6 +1248,7 @@ function renderGoodsModal(){
   html += `</div>`;
 
   const box = document.getElementById('modalBox');
+  box.className = 'modal-box';
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
 
@@ -809,6 +1266,32 @@ function renderGoodsModal(){
     if(!confirm(`Delete "${g ? g.name : 'this good'}" from the catalog?`)) return;
     deleteGood(id);
     toast('Deleted');
+    renderGoodsModal();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  box.querySelectorAll('[data-edit-good]').forEach(b=> b.addEventListener('click', ()=>{
+    editingGoodId = b.dataset.editGood;
+    renderGoodsModal();
+  }));
+  box.querySelectorAll('[data-edit-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    editingGoodId = null;
+    renderGoodsModal();
+  }));
+  box.querySelectorAll('[data-edit-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.editSave;
+    const name = document.getElementById(`editName-${id}`).value.trim();
+    if(!name){ toast('Give it a name first'); return; }
+    const updates = {
+      name,
+      costRange: document.getElementById(`editCost-${id}`).value.trim() || 'TBD',
+      size: document.getElementById(`editSize-${id}`).value,
+      tier: document.getElementById(`editTier-${id}`).value,
+      category: document.getElementById(`editCategory-${id}`).value.trim(),
+      desc: document.getElementById(`editDesc-${id}`).value.trim(),
+    };
+    editGood(id, updates);
+    editingGoodId = null;
+    toast('Saved changes');
     renderGoodsModal();
     renderNav(); renderProgress(); renderPlanPanel();
   }));
@@ -870,6 +1353,7 @@ function wireAddGoodForms(box, sizeId){
 function scoreQuiz(questions, answers){
   const scores = {};
   questions.forEach(q=>{
+    if(q.type==='text') return;
     const picked = answers[q.id];
     if(picked==null) return;
     const opt = q.options[picked];
@@ -891,16 +1375,16 @@ function topScoreId(scores, orderedIds){
  ============================================================ */
 function renderCostStep(){
   let html = pageHeaderHtml('Step 2 of 6', 'Cost Fit', 'Answer a few quick questions to land on the right budget tier for this account.');
-  html += quizQuestionsHtml(COST_QUESTIONS, plan.costAnswers, 'cost');
+  html += quizQuestionsHtml(COST_QUESTIONS, plan.costAnswers);
 
-  const allAnswered = COST_QUESTIONS.every(q=> plan.costAnswers[q.id]!=null);
+  const allAnswered = COST_QUESTIONS.every(q=> q.optional || plan.costAnswers[q.id]!=null);
   html += `<button class="btn primary" id="costSeeResult" ${allAnswered?'':'disabled'}>See recommendation</button>`;
   html += `<div id="costResult"></div>`;
   html += stepNavHtml();
 
   document.getElementById('content').innerHTML = html;
   wireStepNav(document);
-  wireQuizOptions('cost', COST_QUESTIONS, renderCostStep);
+  wireQuizOptions(COST_QUESTIONS, plan.costAnswers, renderCostStep);
   document.getElementById('costSeeResult').addEventListener('click', ()=>{
     const scores = scoreQuiz(COST_QUESTIONS, plan.costAnswers);
     const tierId = topScoreId(scores, COST_TIERS.map(t=>t.id));
@@ -921,71 +1405,155 @@ function renderCostStep(){
 }
 
 /* ============================================================
- STEP 3: RESEARCH FIT
+ STEP 3: RESEARCH FIT (Intelligence Brief)
  ============================================================ */
+let addingFindingFor = null;
+
+const CONFIDENCE_LABELS = {low:'Low', medium:'Medium', high:'High'};
+const CONFIDENCE_BADGE = {low:'tier-high', medium:'tier-mid', high:'tier-low'};
+
+function findingRowHtml(prompt, finding){
+  const meta = [finding.source, finding.confidence?CONFIDENCE_LABELS[finding.confidence]:'', finding.date].filter(Boolean).join(' &middot; ');
+  return `<div style="display:flex; gap:8px; align-items:flex-start; padding:7px 0; border-top:1px solid var(--line);">
+    <div style="flex:1 1 auto; min-width:0;">
+      <div style="font-size:13px; color:var(--ink);">&bull; ${esc(finding.text)}</div>
+      ${meta ? `<div class="ps-sub">${meta}${finding.confidence ? ` <span class="tier-badge ${CONFIDENCE_BADGE[finding.confidence]}" style="margin-left:4px;">${esc(CONFIDENCE_LABELS[finding.confidence])}</span>` : ''}</div>` : ''}
+    </div>
+    <button class="btn ghost small danger" data-remove-finding="${escAttr(prompt.id)}::${escAttr(finding.id)}" title="Remove">&times;</button>
+  </div>`;
+}
+
+function findingFormHtml(prompt){
+  const pid = escAttr(prompt.id);
+  return `<div class="add-good-form" style="margin:10px 0 0;">
+    <div class="field"><label>Finding</label><textarea id="findingText-${pid}" placeholder="${escAttr(prompt.placeholder)}"></textarea></div>
+    <div class="row">
+      <div class="field"><label>Source (optional)</label><input type="text" id="findingSource-${pid}" placeholder="e.g. LinkedIn post, 3 May 2026"></div>
+      <div class="field"><label>Date observed (optional)</label><input type="text" id="findingDate-${pid}" placeholder="e.g. May 2026"></div>
+    </div>
+    <div class="field"><label>Confidence</label>
+      <select id="findingConf-${pid}">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="rowbtns">
+      <button type="button" class="btn primary small" data-save-finding="${pid}">Save finding</button>
+      <button type="button" class="btn ghost small" data-cancel-finding="${pid}">Cancel</button>
+    </div>
+  </div>`;
+}
+
+function researchCardHtml(prompt){
+  const findings = plan.research[prompt.lens][prompt.key];
+  let html = `<div class="card">
+    <h3>${esc(prompt.label)}</h3>
+    ${findings.map(f=> findingRowHtml(prompt, f)).join('')}`;
+  if(addingFindingFor === prompt.id){
+    html += findingFormHtml(prompt);
+  } else {
+    html += `<div style="margin-top:${findings.length?8:4}px;"><button class="btn ghost small" data-add-finding="${escAttr(prompt.id)}">+ Add finding</button></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 function renderResearchStep(){
-  let html = pageHeaderHtml('Step 3 of 6', 'Research Fit', 'Figure out which personalization angle actually fits what you know about this prospect.');
-  html += quizQuestionsHtml(RESEARCH_QUESTIONS, plan.researchAnswers, 'research');
+  let html = pageHeaderHtml('Step 1 of 6', 'Research Fit', 'Understand this prospect from three angles, then land on one outreach idea worth sending.');
 
-  const allAnswered = RESEARCH_QUESTIONS.every(q=> plan.researchAnswers[q.id]!=null);
-  html += `<button class="btn primary" id="researchSeeResult" ${allAnswered?'':'disabled'}>See recommendation</button>`;
-  html += `<div id="researchResult"></div>`;
+  RESEARCH_LENSES.forEach(lens=>{
+    html += `<div class="group-title">${esc(lens.name)}</div>`;
+    html += `<p style="margin:-4px 0 12px; font-size:13px; color:var(--ink-soft);">${esc(lens.description)}</p>`;
+    RESEARCH_PROMPTS.filter(p=> p.lens===lens.id).forEach(p=>{ html += researchCardHtml(p); });
+  });
 
+  html += `<div class="group-title">Where to look</div>`;
+  html += sourceGroupsHtml();
+
+  html += `<div class="group-title">Outreach Angle</div>`;
+  html += `<p class="opp-hint">What's the absolute best thing worth saying to this company given all of the above?</p>`;
   html += `<div class="field-group">
-    <label>Research notes for this prospect</label>
-    <textarea id="researchNotes" placeholder="e.g. mentioned running a half-marathon in a recent LinkedIn post...">${esc(plan.researchNotes)}</textarea>
+    <textarea id="oppAngle" placeholder="The outreach angle...">${esc(plan.research.opportunity.angle)}</textarea>
   </div>`;
 
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
   wireStepNav(document);
-  wireQuizOptions('research', RESEARCH_QUESTIONS, renderResearchStep);
 
-  document.getElementById('researchNotes').addEventListener('input', (e)=>{
-    plan.researchNotes = e.target.value;
+  document.querySelectorAll('[data-add-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    addingFindingFor = b.dataset.addFinding;
+    renderResearchStep();
+  }));
+  document.querySelectorAll('[data-cancel-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    addingFindingFor = null;
+    renderResearchStep();
+  }));
+  document.querySelectorAll('[data-save-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    const pid = b.dataset.saveFinding;
+    const prompt = promptById(pid);
+    const text = document.getElementById(`findingText-${pid}`).value.trim();
+    if(!text){ toast('Add some finding text first'); return; }
+    const source = document.getElementById(`findingSource-${pid}`).value.trim();
+    const date = document.getElementById(`findingDate-${pid}`).value.trim();
+    const confidence = document.getElementById(`findingConf-${pid}`).value;
+    plan.research[prompt.lens][prompt.key].push({id:newFindingId(), text, source, date, confidence, addedAt:Date.now()});
     persistPlan();
-    renderPlanPanel();
-  });
+    addingFindingFor = null;
+    toast('Finding added');
+    render();
+  }));
+  document.querySelectorAll('[data-remove-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    const [pid, fid] = b.dataset.removeFinding.split('::');
+    const prompt = promptById(pid);
+    const arr = plan.research[prompt.lens][prompt.key];
+    const idx = arr.findIndex(f=> f.id===fid);
+    if(idx !== -1) arr.splice(idx, 1);
+    persistPlan();
+    render();
+  }));
 
-  document.getElementById('researchSeeResult').addEventListener('click', ()=>{
-    const scores = scoreQuiz(RESEARCH_QUESTIONS, plan.researchAnswers);
-    const angleId = topScoreId(scores, RESEARCH_ANGLES.map(a=>a.id));
-    const angle = angleById(angleId);
-    document.getElementById('researchResult').innerHTML = `<div class="quiz-result">
-      <div class="qr-eyebrow">Recommended angle</div>
-      <h3>${esc(angle.name)}</h3>
-      <p>${esc(angle.description)}</p>
-      <p><b>Where to find it:</b> ${esc(angle.whereToFind)}</p>
-      ${angle.examples && angle.examples.length ? `<p><b>Example:</b> ${esc(angle.examples[0])}</p>` : ''}
-      <button class="btn primary" id="useAngle">Use this angle</button>
-    </div>`;
-    document.getElementById('useAngle').addEventListener('click', ()=>{
-      plan.researchAngle = angle.id;
-      persistPlan();
-      toast('Research angle set to ' + angle.name);
-      render();
-    });
+  document.getElementById('oppAngle').addEventListener('input', (e)=>{
+    plan.research.opportunity.angle = e.target.value;
+    persistPlan();
+    renderNav();
+    renderProgress();
+    renderPlanPanel();
   });
 }
 
-function quizQuestionsHtml(questions, answers, prefix){
-  return questions.map(q=>`
+function quizQuestionsHtml(questions, answers){
+  return questions.map(q=>{
+    const sub = q.sub ? `<div class="qsub">${esc(q.sub)}</div>` : '';
+    if(q.type==='text'){
+      return `<div class="quiz-q">
+        <div class="qtext">${esc(q.prompt)}</div>
+        ${sub}
+        <textarea class="quiz-text" rows="2" data-q="${escAttr(q.id)}" placeholder="${escAttr(q.placeholder||'')}">${esc(answers[q.id]||'')}</textarea>
+      </div>`;
+    }
+    return `
     <div class="quiz-q">
       <div class="qtext">${esc(q.prompt)}</div>
-      <div class="quiz-opts">
+      ${sub}
+      <div class="quiz-opts ${q.row?'row':''}">
         ${q.options.map((o,i)=>`
           <div class="quiz-opt ${answers[q.id]===i?'picked':''}" data-q="${escAttr(q.id)}" data-opt="${i}">
             <span class="dot"></span><span class="otext">${esc(o.label)}</span>
           </div>`).join('')}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
-function wireQuizOptions(prefix, questions, rerenderFn){
+function wireQuizOptions(questions, answers, rerenderFn){
   document.querySelectorAll('.quiz-opt').forEach(el=> el.addEventListener('click', ()=>{
-    const answers = prefix==='cost' ? plan.costAnswers : plan.researchAnswers;
     answers[el.dataset.q] = parseInt(el.dataset.opt, 10);
     persistPlan();
     rerenderFn();
+  }));
+  document.querySelectorAll('.quiz-text').forEach(el=> el.addEventListener('input', ()=>{
+    answers[el.dataset.q] = el.value;
+    persistPlan();
   }));
 }
 
@@ -1002,7 +1570,7 @@ function renderChecklistStep(){
     const checked = !!plan.checklist[key];
     return `<div class="check-item ${checked?'done':''}">
       <input type="checkbox" id="chk-${key}" data-key="${key}" ${checked?'checked':''}>
-      <label for="chk-${key}"><b>${esc(item.h)}</b><span>${esc(item.b)}</span></label>
+      <label for="chk-${key}"><b>${esc(item.h)}</b>${item.bullets ? `<ul class="check-bullets">${item.bullets.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : `<span>${esc(item.b)}</span>`}</label>
     </div>`;
   }).join('') + `</div>`;
   html += stepNavHtml();
@@ -1052,25 +1620,422 @@ function renderSendStep(){
 /* ============================================================
  STEP 6: FOLLOW-UP (DIRECT MAIL)
  ============================================================ */
+function msgCardHtml(s){
+  const val = plan[s.id] || '';
+  const count = val.length;
+  const tplCount = getTemplateGroups(s.id).reduce((n,g)=> n+g.items.length, 0);
+  const subjectKey = s.id + 'Subject';
+  return `<div class="msg-card">
+    <div class="msg-card-top">
+      <div class="msg-num">${esc(s.num)}</div>
+      <div class="msg-heading">
+        <div class="msg-title-row">
+          <h3>${esc(s.label)}</h3>
+          <span class="msg-tag">${esc(s.tag)}</span>
+        </div>
+        <p class="msg-desc">${esc(s.desc)}</p>
+      </div>
+    </div>
+    <button type="button" class="tpl-trigger" data-tpl-open="${escAttr(s.id)}">
+      <span class="tpl-trigger-icon">&#9776;</span>
+      <span class="tpl-trigger-text">
+        <span class="tpl-trigger-title">Browse Template Bank</span>
+        <span class="tpl-trigger-sub">${tplCount} template${tplCount===1?'':'s'} available - pick one to start from</span>
+      </span>
+      <span class="tpl-trigger-arrow">&rarr;</span>
+    </button>
+    ${s.hasSubject ? `<input type="text" class="msg-subject" id="msgSubject-${escAttr(s.id)}" data-msg-subject="${escAttr(s.id)}" placeholder="${escAttr(s.subjectPlaceholder||'Subject line...')}" value="${escAttr(plan[subjectKey]||'')}">` : ''}
+    <textarea class="msg-textarea" id="msg-${escAttr(s.id)}" data-msg="${escAttr(s.id)}" placeholder="${escAttr(s.placeholder)}">${esc(val)}</textarea>
+    <div class="msg-foot">
+      <span class="msg-count" id="msgCount-${escAttr(s.id)}">${count} character${count===1?'':'s'}</span>
+      <button type="button" class="btn primary small" data-msg-save="${escAttr(s.id)}">Save Email</button>
+    </div>
+  </div>`;
+}
 function renderFollowupStep(){
-  let html = pageHeaderHtml('Step 6 of 6', 'Follow-Up (Direct Mail)', 'Lines and scripts for following up once the good has landed. Click + to add a line to your plan.');
-  html += FOLLOWUP_BANK.map(g=> `
-    <div class="group-title">${esc(g.cat)}</div>
-    <div class="snip-grid">${g.items.map(it=>`
-      <div class="snip">
-        <div class="txt">${esc(it.t)}</div>
-        <button class="add" data-text="${encodeURIComponent(it.t)}" title="Add to plan">+</button>
-      </div>`).join('')}</div>`).join('');
+  let html = pageHeaderHtml('Step 6 of 6', 'Messaging', 'The three moments of contact around the send - before it lands, inside the box, and after it lands.');
+
+  html += `<div class="msg-sections">` + MESSAGE_SECTIONS.filter(s=> s.id!=='followup' && s.id!=='publicPosting').map(msgCardHtml).join('') + `</div>`;
+
+  html += `<div class="msg-sections">` + msgCardHtml(MESSAGE_SECTIONS.find(s=> s.id==='publicPosting')) + `</div>`;
+
+  html += `<div class="msg-sections">` + renderFollowupEmailsHtml() + `</div>`;
+
   html += stepNavHtml();
 
   document.getElementById('content').innerHTML = html;
   wireStepNav(document);
-  document.querySelectorAll('.snip .add').forEach(b=> b.addEventListener('click', ()=>{
-    const cur = plan.followup || '';
-    const sep = cur.trim().length ? '\n\n' : '';
-    plan.followup = cur + sep + decodeURIComponent(b.dataset.text);
+  document.querySelectorAll('[data-tpl-open]').forEach(b=> b.addEventListener('click', ()=> openTemplateModal(b.dataset.tplOpen)));
+  document.querySelectorAll('[data-followup-open]').forEach(b=> b.addEventListener('click', ()=> openFollowupEmailModal(parseInt(b.dataset.followupOpen,10))));
+  MESSAGE_SECTIONS.filter(s=> s.id!=='followup').forEach(s=>{
+    const el = document.getElementById(`msg-${s.id}`);
+    el.addEventListener('input', ()=>{
+      plan[s.id] = el.value;
+      persistPlan();
+      document.getElementById(`msgCount-${s.id}`).textContent = el.value.length + ' character' + (el.value.length===1?'':'s');
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+    if(s.hasSubject){
+      const subjEl = document.getElementById(`msgSubject-${s.id}`);
+      subjEl.addEventListener('input', ()=>{
+        plan[s.id + 'Subject'] = subjEl.value;
+        persistPlan();
+      });
+    }
+  });
+  document.querySelectorAll('[data-msg-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.msgSave;
+    const section = MESSAGE_SECTIONS.find(s=> s.id===id);
+    if(section.hasSubject) plan[id + 'Subject'] = document.getElementById(`msgSubject-${id}`).value;
+    plan[id] = document.getElementById(`msg-${id}`).value;
     persistPlan();
-    toast('Added to plan');
+    toast('Email saved');
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ FOLLOW-UP EMAILS (4 boxes, each edited in a modal)
+ ============================================================ */
+function renderFollowupEmailsHtml(){
+  const section = MESSAGE_SECTIONS.find(s=> s.id==='followup');
+  let html = `<div class="msg-card followup-card">
+    <div class="msg-card-top">
+      <div class="msg-num">${esc(section.num)}</div>
+      <div class="msg-heading">
+        <div class="msg-title-row">
+          <h3>${esc(section.label)}</h3>
+          <span class="msg-tag">${esc(section.tag)}</span>
+        </div>
+        <p class="msg-desc">${esc(section.desc)} Four emails, spaced out over the follow-up sequence - click a box to write or edit it.</p>
+      </div>
+    </div>
+    <div class="fe-grid">`;
+
+  plan.followupEmails.forEach((em, i)=>{
+    const hasContent = em.subject.trim() || em.body.trim();
+    html += `<button type="button" class="fe-box ${hasContent?'filled':''}" data-followup-open="${i}">
+      <div class="fe-box-label">Email ${i+1}</div>
+      <div class="fe-box-subject">${em.subject.trim() ? esc(em.subject) : '<span class="ps-empty">Subject line...</span>'}</div>
+      <div class="fe-box-body">${em.body.trim() ? esc(em.body) : '<span class="ps-empty">Click to write this follow-up email...</span>'}</div>
+    </button>`;
+  });
+
+  html += `</div></div>`;
+  return html;
+}
+function openFollowupEmailModal(idx){
+  followupModalIdx = idx;
+  renderFollowupEmailModal();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function renderFollowupEmailModal(){
+  const idx = followupModalIdx;
+  const em = plan.followupEmails[idx];
+  const tplCount = getTemplateGroups('followup').reduce((n,g)=> n+g.items.length, 0);
+
+  let html = `<div class="modal-head">
+    <div><div class="modal-eyebrow">Follow-Up Message</div><h2>Email ${idx+1} of ${plan.followupEmails.length}</h2></div>
+    <button class="btn ghost small" id="modalCloseBtn">Close</button>
+  </div>`;
+  html += `<div class="modal-scroll">
+    <button type="button" class="tpl-trigger" id="feModalTplBtn">
+      <span class="tpl-trigger-icon">&#9776;</span>
+      <span class="tpl-trigger-text">
+        <span class="tpl-trigger-title">Browse Template Bank</span>
+        <span class="tpl-trigger-sub">${tplCount} template${tplCount===1?'':'s'} available - pick one to start from</span>
+      </span>
+      <span class="tpl-trigger-arrow">&rarr;</span>
+    </button>
+    <input type="text" class="msg-subject" id="feModalSubject" placeholder="Subject line..." value="${escAttr(em.subject)}">
+    <textarea class="msg-textarea fe-modal-body" id="feModalBody" placeholder="Write this follow-up email...">${esc(em.body)}</textarea>
+    <div class="msg-foot">
+      <span class="msg-count" id="feModalCount">${em.body.length} character${em.body.length===1?'':'s'}</span>
+      <button type="button" class="btn primary" id="feModalSaveBtn">Save Email</button>
+    </div>
+  </div>`;
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal-box';
+  box.innerHTML = html;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+  document.getElementById('feModalTplBtn').addEventListener('click', ()=> openTemplateModal('followup'));
+  const bodyEl = document.getElementById('feModalBody');
+  bodyEl.addEventListener('input', ()=>{
+    document.getElementById('feModalCount').textContent = bodyEl.value.length + ' character' + (bodyEl.value.length===1?'':'s');
+  });
+  document.getElementById('feModalSaveBtn').addEventListener('click', ()=>{
+    plan.followupEmails[idx] = {
+      subject: document.getElementById('feModalSubject').value,
+      body: document.getElementById('feModalBody').value,
+    };
+    persistPlan();
+    toast('Email saved');
+    closeGoodsModal();
+    renderFollowupStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+}
+
+/* ============================================================
+ TEMPLATE BANK MODAL
+ ============================================================ */
+function openTemplateModal(sectionId){
+  templateModalSection = sectionId;
+  templateModalCat = null;
+  templateModalSearch = '';
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  renderTemplateModal();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function templateMatches(item, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  return (item.title||'').toLowerCase().includes(q) || (item.subject||'').toLowerCase().includes(q) || (item.text||'').toLowerCase().includes(q);
+}
+function findTemplateById(groups, id){
+  for(const g of groups){
+    const item = g.items.find(it=> it.id===id);
+    if(item) return item;
+  }
+  return null;
+}
+function templateEditFormHtml(section, it, catList){
+  const catOptions = catList.map(c=> `<option value="${escAttr(c)}" ${((it.cat||'General')===c)?'selected':''}>${esc(c)}</option>`).join('');
+  return `<div class="tpl-card tpl-card-editing">
+    <input type="text" class="tpl-edit-title" id="tplEditTitle" placeholder="Template name..." value="${escAttr(it.title||'')}">
+    <select class="tpl-edit-cat" id="tplEditCat">${catOptions}</select>
+    <input type="text" class="tpl-edit-subject" id="tplEditSubject" placeholder="Subject line..." value="${escAttr(it.subject||'')}">
+    <textarea class="tpl-edit-text" id="tplEditText" placeholder="Template body...">${esc(it.text||'')}</textarea>
+    <div class="tpl-edit-actions">
+      ${it.id!=='NEW' ? `<button type="button" class="tpl-edit-delete" data-tpl-delete="${escAttr(it.id)}" title="Delete this template">Delete</button>` : `<span></span>`}
+      <div class="tpl-edit-actions-right">
+        <button type="button" class="btn ghost small" data-tpl-edit-cancel="${escAttr(it.id)}">Cancel</button>
+        <button type="button" class="btn primary small" data-tpl-edit-save="${escAttr(it.id)}">Save Template</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderTemplateModal(){
+  const section = MESSAGE_SECTIONS.find(s=> s.id===templateModalSection);
+  if(!section) return;
+  const groups = getTemplateGroups(section.id);
+  const catList = getCategoryList(section.id);
+  const q = templateModalSearch.trim();
+  const activeCat = templateModalCat && groups.some(g=> g.cat===templateModalCat) ? templateModalCat : null;
+
+  const visibleGroups = groups
+    .filter(g=> !activeCat || g.cat===activeCat)
+    .map(g=> ({cat:g.cat, items: g.items.filter(it=> templateMatches(it, q))}))
+    .filter(g=> g.items.length);
+  const totalCount = groups.reduce((n,g)=> n+g.items.length, 0);
+
+  let html = `<div class="tpl-modal-head">
+    <div>
+      <div class="modal-eyebrow">Template Bank</div>
+      <h2>${esc(section.label)}</h2>
+      <p class="tpl-modal-sub">${esc(section.desc)}</p>
+    </div>
+    <div class="tpl-modal-head-actions">
+      <button class="btn primary small" id="tplNewBtn">+ New Template</button>
+      <button class="btn ghost small" id="modalCloseBtn">Close</button>
+    </div>
+  </div>`;
+
+  html += `<div class="tpl-modal-controls">
+    <input type="text" class="tpl-search" id="tplSearch" placeholder="Search templates..." value="${escAttr(templateModalSearch)}">
+    <div class="tpl-cat-chips">
+      <button class="chip small ${!activeCat?'active':''}" data-tpl-cat="">All <span class="tpl-chip-count">${totalCount}</span></button>
+      ${groups.map(g=> `<button class="chip small ${activeCat===g.cat?'active':''}" data-tpl-cat="${escAttr(g.cat)}">${esc(g.cat)} <span class="tpl-chip-count">${g.items.length}</span></button>`).join('')}
+      <button class="chip small tpl-cat-manage-toggle ${templateCatManageOpen?'active':''}" id="tplCatManageBtn">&#9881; Manage Categories</button>
+    </div>
+    ${templateCatManageOpen ? `<div class="tpl-cat-manage">
+      ${catList.map(c=>{
+        if(c===templateCatEditing){
+          return `<div class="tpl-cat-manage-row tpl-cat-manage-row-editing">
+            <input type="text" class="tpl-cat-rename-input" id="tplCatRenameInput" value="${escAttr(c)}">
+            <button type="button" class="btn ghost small" data-tpl-cat-rename-cancel="1">Cancel</button>
+            <button type="button" class="btn primary small" data-tpl-cat-rename-save="${escAttr(c)}">Save</button>
+          </div>`;
+        }
+        return `<div class="tpl-cat-manage-row">
+          <span class="tpl-cat-manage-name">${esc(c)}</span>
+          <button type="button" class="tpl-card-edit" data-tpl-cat-rename="${escAttr(c)}" title="Rename category">&#9998;</button>
+          ${c!=='General' ? `<button type="button" class="tpl-card-delete" data-tpl-cat-delete="${escAttr(c)}" title="Delete category">&times;</button>` : ''}
+        </div>`;
+      }).join('')}
+      <div class="tpl-cat-manage-add">
+        <input type="text" class="tpl-cat-new-input" id="tplCatNewInput" placeholder="New category name...">
+        <button type="button" class="btn primary small" id="tplCatAddBtn">+ Add Category</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+
+  html += `<div class="tpl-modal-body">`;
+  if(templateEditingId === 'NEW'){
+    html += `<div class="tpl-group">
+      <div class="tpl-group-label">New Template</div>
+      <div class="tpl-grid">${templateEditFormHtml(section, {id:'NEW', cat:catList[0]}, catList)}</div>
+    </div>`;
+  }
+  if(!totalCount){
+    html += `<div class="tpl-empty">
+      <div class="tpl-empty-icon">&#9998;</div>
+      <h3>No templates yet</h3>
+      <p>Add some to the <b>${esc(section.label)}</b> bank and they'll show up here, ready to pick and drop straight into your plan.</p>
+    </div>`;
+  } else if(!visibleGroups.length){
+    html += `<div class="tpl-empty">
+      <div class="tpl-empty-icon">&#128269;</div>
+      <h3>No matches</h3>
+      <p>Nothing found for "${esc(q)}" - try a different search term.</p>
+    </div>`;
+  } else {
+    visibleGroups.forEach(g=>{
+      html += `<div class="tpl-group">
+        <div class="tpl-group-label">${esc(g.cat)}</div>
+        <div class="tpl-grid">${g.items.map(it=>{
+          if(it.id === templateEditingId){
+            return templateEditFormHtml(section, it, catList);
+          }
+          return `<div class="tpl-card">
+            <div class="tpl-card-top-row">
+              ${it.title ? `<div class="tpl-card-title">${esc(it.title)}</div>` : `<div></div>`}
+              <div class="tpl-card-top-actions">
+                <button type="button" class="tpl-card-edit" data-tpl-edit="${escAttr(it.id)}" title="Edit this template">&#9998;</button>
+                <button type="button" class="tpl-card-add" data-tpl-use="${escAttr(it.id)}" title="Add to ${esc(section.label)}">+</button>
+              </div>
+            </div>
+            ${it.subject ? `<div class="tpl-card-subject">${esc(it.subject)}</div>` : ''}
+            <div class="tpl-card-text">${esc(it.text)}</div>
+            <button class="btn primary small full" data-tpl-use="${escAttr(it.id)}">Use this template</button>
+          </div>`;
+        }).join('')}
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal-box tpl-modal-box';
+  box.innerHTML = html;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+  document.getElementById('tplNewBtn').addEventListener('click', ()=>{
+    templateEditingId = 'NEW';
+    renderTemplateModal();
+  });
+  document.getElementById('tplSearch').addEventListener('input', (e)=>{
+    templateModalSearch = e.target.value;
+    renderTemplateModal();
+    document.getElementById('tplSearch').focus();
+    const v = document.getElementById('tplSearch').value;
+    document.getElementById('tplSearch').setSelectionRange(v.length, v.length);
+  });
+  box.querySelectorAll('[data-tpl-cat]').forEach(b=> b.addEventListener('click', ()=>{
+    templateModalCat = b.dataset.tplCat || null;
+    renderTemplateModal();
+  }));
+  const catManageBtn = document.getElementById('tplCatManageBtn');
+  if(catManageBtn) catManageBtn.addEventListener('click', ()=>{
+    templateCatManageOpen = !templateCatManageOpen;
+    templateCatEditing = null;
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-cat-rename]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = b.dataset.tplCatRename;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const oldName = b.dataset.tplCatRenameSave;
+    const newName = document.getElementById('tplCatRenameInput').value;
+    if(renameCategory(section.id, oldName, newName)){
+      if(templateModalCat === oldName) templateModalCat = newName.trim();
+      toast('Category renamed');
+    }
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-delete]').forEach(b=> b.addEventListener('click', ()=>{
+    const name = b.dataset.tplCatDelete;
+    if(deleteCategory(section.id, name)){
+      if(templateModalCat === name) templateModalCat = null;
+      toast('Category deleted');
+    }
+    renderTemplateModal();
+  }));
+  const catAddBtn = document.getElementById('tplCatAddBtn');
+  if(catAddBtn) catAddBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('tplCatNewInput');
+    if(addCategory(section.id, input.value)) toast('Category added');
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-edit]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = b.dataset.tplEdit;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-delete]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.tplDelete;
+    customTemplateAdds[section.id] = (customTemplateAdds[section.id]||[]).filter(it=> it.id!==id);
+    if(!customTemplateDeletes[section.id]) customTemplateDeletes[section.id] = [];
+    if(customTemplateDeletes[section.id].indexOf(id)===-1) customTemplateDeletes[section.id].push(id);
+    if(customTemplateEdits[section.id]) delete customTemplateEdits[section.id][id];
+    persistCustomTemplateAdds();
+    persistCustomTemplateEdits();
+    persistCustomTemplateDeletes();
+    templateEditingId = null;
+    toast('Template deleted');
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.tplEditSave;
+    const title = document.getElementById('tplEditTitle').value;
+    const subject = document.getElementById('tplEditSubject').value;
+    const text = document.getElementById('tplEditText').value;
+    const cat = document.getElementById('tplEditCat').value;
+    if(id === 'NEW'){
+      if(!title.trim() && !text.trim()){ toast('Add a name or body first'); return; }
+      if(!customTemplateAdds[section.id]) customTemplateAdds[section.id] = [];
+      const newId = section.id + '__custom__' + Date.now();
+      customTemplateAdds[section.id].push({id:newId, title, subject, text, cat});
+      persistCustomTemplateAdds();
+      toast('Template added');
+    } else {
+      if(!customTemplateEdits[section.id]) customTemplateEdits[section.id] = {};
+      customTemplateEdits[section.id][id] = {title, subject, text, cat};
+      persistCustomTemplateEdits();
+      toast('Template updated');
+    }
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-use]').forEach(b=> b.addEventListener('click', ()=>{
+    const item = findTemplateById(groups, b.dataset.tplUse);
+    if(!item) return;
+    if(section.id==='followup' && followupModalIdx!==null){
+      const idxSave = followupModalIdx;
+      plan.followupEmails[idxSave].body = item.text;
+      if(item.subject) plan.followupEmails[idxSave].subject = item.subject;
+      persistPlan();
+      toast('Template applied');
+      openFollowupEmailModal(idxSave);
+      return;
+    }
+    plan[section.id] = item.text;
+    if(section.hasSubject && item.subject) plan[section.id + 'Subject'] = item.subject;
+    persistPlan();
+    closeGoodsModal();
+    toast('Template applied');
     render();
   }));
 }
@@ -1086,9 +2051,12 @@ function renderPlanPanel(){
   html += planSectionHtml('Cost Tier', plan.costTier ? `${esc(tierById(plan.costTier).name)} &middot; ${esc(tierById(plan.costTier).range)}` : null, 'Not set yet', 'cost');
 
   let researchVal = null;
-  if(plan.researchAngle){
-    researchVal = esc(angleById(plan.researchAngle).name);
-    if(plan.researchNotes.trim()) researchVal += `<div class="ps-sub">"${esc(plan.researchNotes.trim())}"</div>`;
+  const fCount = findingsCount();
+  if(plan.research.opportunity.angle.trim()){
+    researchVal = esc(plan.research.opportunity.angle.trim());
+    if(fCount) researchVal += `<div class="ps-sub">${fCount} finding${fCount===1?'':'s'} across 3 lenses</div>`;
+  } else if(fCount){
+    researchVal = `<span class="ps-empty">${fCount} finding${fCount===1?'':'s'} logged - angle not set yet</span>`;
   }
   html += planSectionHtml('Research Angle', researchVal, 'Not set yet', 'research');
 
@@ -1102,18 +2070,21 @@ function renderPlanPanel(){
   }
   html += planSectionHtml('Send Method', sendVal, 'Not set yet', 'send');
 
+  MESSAGE_SECTIONS.filter(s=> s.id!=='followup').forEach(s=>{
+    html += `<div class="plan-section">
+      <div class="ps-label"><span>${esc(s.label)}</span><a data-jump="followup">Edit &rarr;</a></div>
+      <div class="ps-value">${(plan[s.id]||'').trim() ? esc(plan[s.id].trim()) : `<span class="ps-empty">Not written yet</span>`}</div>
+    </div>`;
+  });
+
+  const filledFollowups = plan.followupEmails.filter(em=> em.subject.trim() || em.body.trim()).length;
   html += `<div class="plan-section">
-    <div class="ps-label"><span>Follow-Up</span><a data-jump="followup">Bank &rarr;</a></div>
-    <textarea class="plan-followup" id="planFollowupBox" placeholder="Add lines from the Follow-Up bank, or write your own here.">${esc(plan.followup)}</textarea>
+    <div class="ps-label"><span>Follow-Up Emails</span><a data-jump="followup">Edit &rarr;</a></div>
+    <div class="ps-value">${filledFollowups ? `${filledFollowups}/4 written` : `<span class="ps-empty">Not written yet</span>`}</div>
   </div>`;
 
   document.getElementById('ppBody').innerHTML = html;
   document.querySelectorAll('[data-jump]').forEach(a=> a.addEventListener('click', ()=> setActiveStep(a.dataset.jump)));
-  const box = document.getElementById('planFollowupBox');
-  box.addEventListener('input', (e)=>{
-    plan.followup = e.target.value;
-    persistPlan();
-  });
 }
 function planSectionHtml(label, value, emptyText, jumpTo){
   return `<div class="plan-section">
@@ -1127,8 +2098,27 @@ function planText(){
   lines.push('');
   lines.push('Good: ' + (plan.good ? `${plan.good.name} (${plan.good.costRange})` : 'Not selected'));
   lines.push('Cost Tier: ' + (plan.costTier ? `${tierById(plan.costTier).name} (${tierById(plan.costTier).range})` : 'Not set'));
-  lines.push('Research Angle: ' + (plan.researchAngle ? angleById(plan.researchAngle).name : 'Not set'));
-  if(plan.researchNotes.trim()) lines.push('Research Notes: ' + plan.researchNotes.trim());
+  lines.push('RESEARCH');
+  RESEARCH_LENSES.forEach(lens=>{
+    const prompts = RESEARCH_PROMPTS.filter(p=> p.lens===lens.id);
+    const withFindings = prompts.filter(p=> plan.research[lens.id][p.key].length);
+    if(!withFindings.length) return;
+    lines.push('');
+    lines.push(lens.name.toUpperCase() + ':');
+    withFindings.forEach(p=>{
+      lines.push('  ' + p.label);
+      plan.research[lens.id][p.key].forEach(f=>{
+        const meta = [f.source, f.confidence?CONFIDENCE_LABELS[f.confidence]:'', f.date].filter(Boolean).join(', ');
+        lines.push(`    - ${f.text}${meta ? ` (${meta})` : ''}`);
+      });
+    });
+  });
+  const opp = plan.research.opportunity;
+  if(opp.angle.trim()){
+    lines.push('');
+    lines.push('OUTREACH ANGLE:');
+    lines.push('  ' + opp.angle.trim());
+  }
   lines.push('');
   lines.push('Package Checklist:');
   PACKAGE_CHECKLIST.forEach(item=>{
@@ -1138,9 +2128,19 @@ function planText(){
   lines.push('');
   lines.push('Send Method: ' + (plan.sendMethod ? SEND_METHODS.find(m=>m.id===plan.sendMethod).label : 'Not set'));
   if(plan.sendNotes.trim()) lines.push('Send Notes: ' + plan.sendNotes.trim());
+  MESSAGE_SECTIONS.filter(s=> s.id!=='followup').forEach(s=>{
+    lines.push('');
+    lines.push(s.label.toUpperCase() + ':');
+    if(s.hasSubject) lines.push('Subject: ' + ((plan[s.id+'Subject']||'').trim() || '(none yet)'));
+    lines.push((plan[s.id]||'').trim() || '(none yet)');
+  });
   lines.push('');
-  lines.push('Follow-Up:');
-  lines.push(plan.followup.trim() || '(none yet)');
+  lines.push('FOLLOW-UP EMAILS:');
+  plan.followupEmails.forEach((em,i)=>{
+    lines.push(`  Email ${i+1}`);
+    lines.push('    Subject: ' + (em.subject.trim() || '(none yet)'));
+    lines.push('    ' + (em.body.trim() || '(none yet)'));
+  });
   return lines.join('\n');
 }
 
