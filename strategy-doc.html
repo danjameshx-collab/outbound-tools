@@ -1,0 +1,1269 @@
+<title>Strategy Doc</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style id="app-styles">
+:root{
+  --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-tab:#FFFFFF;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#757E78;
+  --stamp:#1E6B45; --stamp-ink:#FFFFFF;
+  --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
+  --line:#E4E9E6; --line-strong:#CCD5D0;
+  --good:#2F8F5B; --warn:#B4691A;
+  --danger-bg:#FBEAE7; --danger-ink:#B23A2E;
+  --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --shadow-hover: 0 1px 0 rgba(20,24,27,.03), 0 14px 30px -14px rgba(20,24,27,.22);
+  --radius: 8px;
+  --sidebar-w: 372px;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --dur-fast: .12s; --dur-base: .18s;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:14.5px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+}
+::selection{background:var(--mimeo); color:var(--mimeo-ink);}
+a{color:inherit;}
+button{font-family:inherit;}
+svg{display:block;}
+:focus-visible{outline:2px solid var(--stamp); outline-offset:2px; border-radius:4px;}
+.eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
+}
+
+/* ---------- site topbar ---------- */
+.site-topbar-accent{height:4px; background:#231F2E; flex:0 0 auto;}
+.site-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 20px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  font-family:var(--font-display);
+}
+.site-topbar .back-link{
+  display:flex; align-items:center; gap:6px;
+  color:var(--ink-soft); font-size:13.5px; text-decoration:none; white-space:nowrap;
+}
+.site-topbar .back-link:hover{color:var(--ink);}
+.site-topbar h1{font-size:16px; margin:0; font-weight:700; text-align:center; flex:1 1 auto;}
+.site-topbar .who{display:flex; align-items:center; gap:14px; white-space:nowrap;}
+.site-topbar .who span{color:var(--ink-soft); font-size:13px; font-family:var(--font-body);}
+.site-topbar .signout{
+  background:var(--paper); border:1px solid var(--line-strong); border-radius:6px;
+  padding:6px 12px; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+  font-family:var(--font-body);
+}
+.site-topbar .signout:hover{background:#F7F8F7;}
+
+/* ---------- app shell ---------- */
+#app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas: "rail main";
+  flex:1 1 auto; min-height:0;
+  overflow:hidden;
+}
+@media (max-width: 980px){
+  #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  nav#rail{
+    position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
+    transform:translateX(-100%); transition:transform .2s ease;
+  }
+  nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+}
+
+/* ---------- sidebar ---------- */
+nav#rail{
+  grid-area:rail; background:var(--paper-tab); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden; min-height:0;
+}
+.sidebar-logo{display:flex; align-items:center; gap:10px; padding:18px 18px 4px;}
+.logo-mark{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:28px; height:28px; border-radius:7px; background:var(--stamp); color:var(--stamp-ink);
+  font-family:var(--font-display); font-weight:800; font-size:11.5px;
+}
+.logo-text{line-height:1.25;}
+.logo-name{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); letter-spacing:-.01em;}
+.logo-sub{font-family:var(--font-display); font-size:11.5px; color:var(--ink-faint);}
+.rail-close-mobile{display:none;}
+@media (max-width:980px){.rail-close-mobile{display:flex; margin-left:auto;}}
+.sidebar-progress{padding:12px 18px 6px;}
+.sidebar-progress .pp-label{
+  display:flex; justify-content:space-between; font-family:var(--font-display);
+  font-size:11px; color:var(--ink-faint); margin-bottom:5px;
+}
+.progress-bar{height:6px; background:var(--paper); border:1px solid var(--line); border-radius:3px; overflow:hidden; margin:0 0 4px;}
+.progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s;}
+
+.rail-scroll{flex:1 1 auto; min-height:0; overflow-y:auto;}
+.nav-groups{padding:12px 10px 4px;}
+.nav-group{margin-bottom:10px;}
+.nav-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--ink-faint); padding:6px 8px 6px;
+}
+.step-item{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:9px 8px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:7px; margin-bottom:2px;
+  transition:background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.step-item:hover{background:var(--paper);}
+.step-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600; box-shadow:inset 3px 0 0 var(--stamp);}
+.step-item.locked{opacity:.55; cursor:not-allowed;}
+.step-num{
+  flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-size:10.5px; font-weight:700; color:var(--ink-faint);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.step-item.done .step-num{background:var(--stamp); border-color:var(--stamp); color:var(--stamp-ink);}
+.step-item.active .step-num{border-color:var(--stamp);}
+.step-label{flex:1 1 auto;}
+
+.toc-item{
+  display:flex; align-items:baseline; gap:8px; width:100%; text-align:left;
+  padding:6px 8px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:12.5px; cursor:pointer; border-radius:6px; margin-bottom:1px;
+}
+.toc-item:hover{background:var(--paper); color:var(--ink);}
+.toc-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600;}
+.toc-item .tn{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); flex:0 0 auto; width:14px;}
+.toc-item.active .tn{color:var(--stamp);}
+
+.rail-divider{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:14px 14px 10px; padding-top:18px; border-top:1.5px solid var(--line-strong);
+}
+.rail-divider::before{
+  content:''; position:absolute; top:-1.5px; left:0; width:38px; height:1.5px; background:var(--stamp);
+}
+.rail-divider .eyebrow{color:var(--stamp); font-size:11px;}
+.rail-divider .rd-clear{
+  font-family:var(--font-display); font-weight:700; font-size:10.5px; color:var(--ink-faint);
+  background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.rail-divider .rd-clear:hover{border-color:var(--warn); color:var(--warn);}
+
+.snap-body{padding:2px 14px 16px;}
+.snap-row{border:1px solid var(--line); border-radius:8px; padding:9px 11px; margin-bottom:8px; background:var(--paper);}
+.snap-row .sr-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  font-size:10px; color:var(--stamp); margin-bottom:3px; display:flex; justify-content:space-between; align-items:center;
+}
+.snap-row .sr-label a{font-size:10.5px; color:var(--ink-faint); text-decoration:underline; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;}
+.snap-row .sr-label a:hover{color:var(--stamp);}
+.snap-row .sr-value{font-size:13px; color:var(--ink); line-height:1.4; word-break:break-word;}
+.snap-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+
+.sidebar-footer{flex:0 0 auto; border-top:1px solid var(--line); padding:12px 14px; background:var(--paper-tab); display:flex; flex-direction:column; gap:8px;}
+.sidebar-footer .btn{width:100%;}
+.mobile-topbar{display:none;}
+.mobile-topbar-title{display:flex; flex-direction:column; gap:0; min-width:0;}
+.mobile-topbar-step{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:10px; color:var(--stamp);
+}
+.mobile-topbar-name{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+@media (max-width:980px){
+  .mobile-topbar{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+  }
+}
+.iconbtn{border:1px solid var(--line); background:var(--paper); border-radius:7px; padding:6px 10px; font-size:12px; cursor:pointer;}
+
+/* ---------- main content ---------- */
+main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0; height:100%;}
+#content{
+  flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:0 30px 70px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+}
+@media (max-width:640px){
+  #content{padding:0 16px 60px;}
+  .page-header{padding:18px 16px 14px; margin:0 -16px 16px;}
+}
+.page-header{
+  position:sticky; top:0; z-index:5; background:var(--paper); padding:26px 30px 16px; margin:0 -30px 20px;
+  border-bottom:1px solid var(--line);
+}
+.page-header .ph-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.page-header .ph-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--stamp); margin:0 0 4px;}
+.page-header h1{
+  font-family:var(--font-display); font-weight:800; letter-spacing:-.01em;
+  font-size:23px; margin:0 0 4px; color:var(--ink); text-wrap:balance;
+}
+.page-header .ph-sub{margin:0; color:var(--ink-soft); font-size:13.5px; max-width:64ch;}
+.ph-actions{display:flex; gap:8px; flex:0 0 auto;}
+
+.btn{
+  font-family:var(--font-display); font-weight:700; letter-spacing:0;
+  font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
+  background:var(--paper-raised); color:var(--ink);
+  transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.btn:hover{border-color:var(--line-strong); background:#F7F8F7;}
+.btn:active{transform:translateY(0); filter:brightness(.97);}
+.btn:disabled{opacity:.5; cursor:not-allowed; filter:none; transform:none;}
+.btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
+.btn.primary:hover{filter:brightness(1.1); transform:translateY(-1px); background:var(--stamp);}
+.btn.ghost{background:transparent;}
+.btn.ghost:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px);}
+.btn.small{padding:5px 10px; font-size:11px;}
+.btn.full{width:100%; text-align:center;}
+
+/* ---------- setup form ---------- */
+.setup-wrap{max-width:760px;}
+.setup-intro{
+  background:var(--mimeo-ink); border:1px solid var(--line); border-radius:14px;
+  padding:18px 22px; margin:0 0 26px;
+}
+.setup-intro h3{margin:0 0 6px; font-family:var(--font-display); font-weight:800; font-size:14.5px; color:var(--stamp);}
+.setup-intro p{margin:0 0 8px; font-size:13px; line-height:1.6; color:var(--ink);}
+.setup-intro p:last-child{margin-bottom:0;}
+.setup-card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+  box-shadow:var(--shadow); padding:26px 28px 22px; margin-bottom:22px;
+}
+.setup-card h2{margin:0 0 3px; font-family:var(--font-display); font-weight:800; font-size:16px;}
+.setup-card .sc-sub{margin:0 0 18px; font-size:12.5px; color:var(--ink-soft);}
+.field-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;}
+@media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+.field-group{margin-bottom:16px;}
+.field-group label{
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:6px;
+}
+.field-group label .req{color:var(--warn); font-size:13px;}
+.field-group label .opt{font-weight:600; text-transform:none; letter-spacing:0; color:var(--ink-faint); font-size:11px;}
+.field-group input[type=text], .field-group input[type=url], .field-group textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:10px 12px; transition:border-color .15s ease;
+}
+.field-group textarea{min-height:64px; resize:vertical; line-height:1.55;}
+.field-group input:focus, .field-group textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.field-hint{margin:5px 0 0; font-size:11.5px; color:var(--ink-faint); line-height:1.4;}
+.setup-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:6px;}
+
+/* ---------- generated document ---------- */
+.doc-shell{max-width:740px;}
+.doc-hero{text-align:center; padding:8px 0 36px; border-bottom:1px solid var(--line); margin-bottom:40px;}
+.doc-kicker{
+  display:inline-block; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; font-size:10.5px; color:var(--stamp); background:var(--mimeo-ink);
+  border-radius:999px; padding:5px 14px; margin-bottom:16px;
+}
+.doc-h1{font-family:var(--font-display); font-weight:800; font-size:30px; letter-spacing:-.015em; line-height:1.2; margin:0 0 14px; text-wrap:balance;}
+.doc-hero .doc-sub{font-size:15px; color:var(--ink-soft); line-height:1.6; max-width:56ch; margin:0 auto 16px;}
+.doc-meta{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint);}
+
+.doc-section{margin:0 0 56px; scroll-margin-top:20px;}
+.doc-section-num{
+  display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:700;
+  text-transform:uppercase; letter-spacing:.06em; font-size:11px; color:var(--stamp); margin:0 0 10px;
+}
+.doc-section-num .dot{width:6px; height:6px; border-radius:50%; background:var(--stamp); flex:0 0 auto;}
+.doc-h2{font-family:var(--font-display); font-weight:800; font-size:22px; letter-spacing:-.01em; margin:0 0 14px; text-wrap:balance;}
+.doc-body p{margin:0 0 13px; font-size:14.5px; line-height:1.7; color:var(--ink);}
+.doc-body p:last-child{margin-bottom:0;}
+.doc-body strong{color:var(--ink);}
+
+.doc-callout{border-radius:12px; padding:16px 20px; margin:16px 0; font-size:13.5px; line-height:1.65;}
+.doc-callout.good{background:var(--mimeo-ink); border:1px solid #BFE3CE; color:#124A30;}
+.doc-callout.warn{background:var(--danger-bg); border:1px solid #EFC9C1; color:#7A281E;}
+.doc-callout.neutral{background:var(--paper); border:1px solid var(--line-strong); color:var(--ink);}
+.doc-callout b{display:block; font-family:var(--font-display); font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px;}
+
+.doc-steps{display:flex; flex-direction:column; gap:10px; margin:16px 0;}
+.doc-step{
+  display:flex; gap:14px; border:1px solid var(--line); border-radius:10px; background:var(--paper-raised);
+  padding:14px 16px; box-shadow:var(--shadow);
+}
+.doc-step-num{
+  flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--mimeo-ink); color:var(--stamp);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:12px;
+}
+.doc-step-body h4{margin:0 0 3px; font-family:var(--font-display); font-weight:700; font-size:13.5px;}
+.doc-step-body p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+
+.doc-card{border:1px solid var(--line); border-radius:12px; background:var(--paper-raised); box-shadow:var(--shadow); padding:18px 20px; margin-bottom:14px;}
+
+.loom-card{display:flex; gap:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px;}
+.loom-thumb{flex:0 0 200px; background:linear-gradient(135deg,#1d2430,#0d1117); position:relative; min-height:120px;}
+@media (max-width:560px){.loom-thumb{flex-basis:120px;}}
+.loom-play{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+.loom-play svg{width:34px; height:34px; color:#fff; opacity:.9;}
+.loom-dur{position:absolute; right:8px; bottom:8px; background:rgba(0,0,0,.65); color:#fff; font-family:var(--font-mono); font-size:11px; padding:2px 7px; border-radius:5px;}
+.loom-meta{flex:1 1 auto; padding:14px 18px; background:var(--paper); min-width:0;}
+.loom-meta .lm-src{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-faint); margin-bottom:6px;}
+.loom-meta .lm-title{font-family:var(--font-display); font-weight:700; font-size:14px; margin-bottom:4px;}
+.loom-meta .lm-sub{font-size:12.5px; color:var(--ink-soft); line-height:1.5;}
+.dont-skip{
+  background:var(--danger-bg); color:var(--danger-ink); border-radius:10px; text-align:center;
+  padding:12px 16px; font-family:var(--font-display); font-weight:800; font-size:14.5px; margin:14px 0;
+}
+
+.calendly-card{display:flex; gap:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); margin:14px 0;}
+.calendly-thumb{flex:0 0 96px; background:var(--mimeo-ink); display:flex; align-items:center; justify-content:center;}
+.calendly-thumb svg{width:34px; height:34px; color:var(--stamp);}
+.calendly-meta{flex:1 1 auto; padding:14px 18px; min-width:0;}
+.calendly-meta .cm-src{font-size:11.5px; color:var(--ink-faint); margin-bottom:4px;}
+.calendly-meta .cm-title{font-family:var(--font-display); font-weight:700; font-size:14px; margin-bottom:3px;}
+.calendly-meta .cm-sub{font-size:12.5px; color:var(--ink-soft); line-height:1.5; margin-bottom:10px;}
+.offer-two-way{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0;}
+@media (max-width:640px){.offer-two-way{grid-template-columns:1fr;}}
+.offer-way{border:1px solid var(--line); border-radius:12px; padding:18px; text-align:center; background:var(--paper);}
+.offer-way svg{width:26px; height:26px; margin:0 auto 10px; color:var(--stamp);}
+.offer-way h4{margin:0 0 4px; font-family:var(--font-display); font-weight:800; font-size:14px;}
+.offer-way p{margin:0; font-size:12px; color:var(--ink-soft);}
+
+.proof-card{border:1px solid var(--line); border-radius:12px; background:var(--paper-raised); box-shadow:var(--shadow); padding:18px 20px; margin-bottom:14px;}
+.proof-name{font-family:var(--font-display); font-weight:800; font-size:15px; margin-bottom:10px;}
+.proof-ba{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+@media (max-width:560px){.proof-ba{grid-template-columns:1fr;}}
+.proof-ba .pb{border-radius:8px; padding:10px 12px; font-size:12.5px; line-height:1.5;}
+.proof-ba .before{background:var(--danger-bg); color:#7A281E;}
+.proof-ba .after{background:var(--mimeo-ink); color:#124A30;}
+.proof-ba .pb b{display:block; font-family:var(--font-display); font-size:10px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;}
+.proof-quote{font-size:13px; font-style:italic; color:var(--ink-soft); line-height:1.6; border-left:3px solid var(--stamp); padding-left:12px;}
+
+.doc-divider{border:none; border-top:1px solid var(--line); margin:0 0 40px;}
+
+/* ---------- deliverables / campaign ---------- */
+.campaign-track{display:flex; align-items:flex-start; margin:22px 0 30px;}
+.campaign-step{flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center;}
+.campaign-node{
+  flex:0 0 auto; width:42px; height:42px; border-radius:50%; margin-bottom:9px;
+  display:flex; align-items:center; justify-content:center; background:var(--stamp); color:#fff; border:2px solid var(--stamp);
+}
+.campaign-node svg{width:19px; height:19px;}
+.campaign-label{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--ink); line-height:1.3;}
+.campaign-day{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); margin-top:2px;}
+.campaign-connector{flex:1 1 30px; height:2px; background:var(--line-strong); margin-top:20px; position:relative; min-width:10px;}
+.campaign-connector::after{
+  content:'\2192'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:var(--ink-faint); font-size:13px; background:var(--paper); padding:0 3px; line-height:1;
+}
+@media (max-width:640px){
+  .campaign-track{flex-direction:column; align-items:stretch;}
+  .campaign-step{flex-direction:row; text-align:left; align-items:center; gap:12px;}
+  .campaign-node{margin-bottom:0;}
+  .campaign-connector{flex:0 0 auto; width:2px; height:18px; margin:0 0 0 20px;}
+  .campaign-connector::after{content:'\2193';}
+}
+
+.tp-card{border:1px solid var(--line); border-radius:14px; background:var(--paper-raised); box-shadow:var(--shadow); padding:22px 24px 20px; margin-bottom:20px;}
+.tp-head{display:flex; align-items:flex-start; gap:14px; margin-bottom:14px;}
+.tp-icon{flex:0 0 auto; width:38px; height:38px; border-radius:10px; background:var(--mimeo-ink); color:var(--stamp); display:flex; align-items:center; justify-content:center;}
+.tp-icon svg{width:19px; height:19px;}
+.tp-head-text{flex:1 1 auto; min-width:0;}
+.tp-head-text h3{margin:0 0 2px; font-family:var(--font-display); font-weight:800; font-size:16.5px;}
+.tp-tag-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px;}
+.tp-tag{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:9.5px; color:var(--stamp); background:var(--mimeo-ink); border-radius:999px; padding:3px 9px;}
+.tp-explain{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+@media (max-width:640px){.tp-explain{grid-template-columns:1fr;}}
+.tp-explain .te{border:1px solid var(--line); border-radius:8px; padding:11px 13px; font-size:12.5px; line-height:1.55; color:var(--ink-soft); background:var(--paper);}
+.tp-explain .te b{display:block; font-family:var(--font-display); font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--stamp); margin-bottom:4px;}
+.tp-artifact{border:1.5px dashed var(--line-strong); border-radius:10px; background:var(--paper); padding:13px 15px; margin-bottom:16px;}
+.tp-artifact .ta-label{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:10px; color:var(--ink-faint); margin-bottom:6px;}
+.tp-artifact p{margin:0 0 6px; font-size:13px; line-height:1.55; color:var(--ink);}
+.tp-artifact p:last-child{margin-bottom:0;}
+.tp-artifact .quoted{font-style:italic; color:var(--ink-soft);}
+
+.tp-touches-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+.tp-touches-head .th-label{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;}
+.tp-touches-toggle{font-family:var(--font-display); font-weight:700; font-size:11px; color:var(--stamp); background:transparent; border:none; cursor:pointer; padding:2px 4px;}
+.tp-touches{display:none; flex-direction:column; gap:2px;}
+.tp-touches.open{display:flex;}
+.touch-row{display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px; transition:background .12s ease;}
+.touch-row:hover{background:var(--paper);}
+.touch-row.done{background:var(--mimeo-ink);}
+.touch-row input[type=checkbox]{
+  appearance:none; -webkit-appearance:none; flex:0 0 auto; margin:0;
+  width:18px; height:18px; border-radius:5px; border:2px solid var(--line-strong);
+  background:var(--paper-raised); cursor:pointer; position:relative;
+  transition:background-color .15s ease, border-color .15s ease;
+}
+.touch-row input[type=checkbox]:hover{border-color:var(--good);}
+.touch-row input[type=checkbox]:checked{background:var(--good); border-color:var(--good);}
+.touch-row input[type=checkbox]:checked::after{
+  content:''; position:absolute; left:5px; top:1px; width:5px; height:9px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+.touch-row label{flex:1 1 auto; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.touch-row.done label{color:var(--ink-faint); text-decoration:line-through;}
+.touch-pill{font-family:var(--font-display); font-weight:700; font-size:9.5px; text-transform:uppercase; letter-spacing:.04em; padding:2px 8px; border-radius:999px;}
+.touch-pill.new{background:#FBEEE0; color:var(--warn);}
+.touch-pill.of{background:var(--paper); border:1px solid var(--line); color:var(--ink-faint);}
+.touch-day{margin-left:auto; flex:0 0 auto; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint); padding-left:8px;}
+
+.faq-item{border:1px solid var(--line); border-radius:10px; background:var(--paper-raised); padding:16px 18px; margin-bottom:10px;}
+.faq-item h4{margin:0 0 6px; font-family:var(--font-display); font-weight:700; font-size:14px;}
+.faq-item p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.6;}
+
+.about-wrap{display:flex; gap:20px; align-items:flex-start;}
+@media (max-width:560px){.about-wrap{flex-direction:column;}}
+.about-avatar{flex:0 0 auto; width:64px; height:64px; border-radius:50%; background:var(--mimeo-ink); color:var(--stamp); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:20px;}
+.about-links{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
+.about-links a{display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:999px; padding:6px 13px; font-size:12px; color:var(--ink-soft); text-decoration:none;}
+.about-links a:hover{border-color:var(--stamp); color:var(--stamp);}
+
+.toast{
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:var(--paper); font-family:var(--font-display); font-weight:700;
+  font-size:12px; letter-spacing:.02em; padding:9px 16px; border-radius:8px;
+  opacity:0; pointer-events:none; transition:all .2s ease; z-index:100;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+.confirm-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:300;
+  align-items:center; justify-content:center; padding:20px;
+}
+.confirm-overlay.open{display:flex;}
+.confirm-box{
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:380px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.4); padding:24px 24px 20px;
+}
+.confirm-icon{
+  width:36px; height:36px; border-radius:50%; background:#FBEEE0; color:var(--warn);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-weight:800; font-size:16px; margin-bottom:14px;
+}
+.confirm-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink); margin:0 0 6px;}
+.confirm-message{font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin:0 0 20px;}
+.confirm-actions{display:flex; justify-content:flex-end; gap:8px;}
+.btn.primary.danger{background:var(--warn); border-color:var(--warn);}
+.btn.primary.danger:hover{background:var(--warn); filter:brightness(1.08); transform:translateY(-1px);}
+
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+</style>
+
+<div class="site-topbar-accent"></div>
+<div class="site-topbar">
+  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <h1>Strategy Doc</h1>
+  <div class="who">
+    <span>Signed in as Dan</span>
+    <button class="signout">Sign out</button>
+  </div>
+</div>
+
+<div id="app">
+  <nav id="rail">
+    <div class="sidebar-logo">
+      <span class="logo-mark">SD</span>
+      <div class="logo-text">
+        <div class="logo-name">Strategy Doc</div>
+        <div class="logo-sub">Whale Campaign Builder</div>
+      </div>
+      <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu">Close</button>
+    </div>
+    <div class="sidebar-progress">
+      <div class="pp-label"><span>Campaign progress</span><span id="progressLabel">0/29</span></div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <div class="rail-scroll">
+      <div class="nav-groups" id="navGroups"></div>
+      <div class="rail-divider">
+        <span class="eyebrow">Campaign Snapshot</span>
+        <button class="rd-clear" id="clearBtn" title="Clear everything and start over">Clear</button>
+      </div>
+      <div class="snap-body" id="snapBody"></div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn primary full" id="copyDocBtn">Copy Full Doc</button>
+    </div>
+  </nav>
+
+  <main id="content-col">
+    <div class="mobile-topbar">
+      <button class="iconbtn" id="railOpenBtn" title="Menu">Menu</button>
+      <div class="mobile-topbar-title">
+        <span class="mobile-topbar-step" id="mobileStepEyebrow">Step 1 of 2</span>
+        <span class="mobile-topbar-name" id="mobileStepName">Target &amp; Whale</span>
+      </div>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+  <div class="confirm-box">
+    <div class="confirm-icon">!</div>
+    <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn" id="confirmCancelBtn">Cancel</button>
+      <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ DATA
+ ============================================================ */
+const STEPS = [
+  {id:'setup', num:1, label:'Target & Whale'},
+  {id:'doc',   num:2, label:'Strategy Doc'},
+];
+
+const DOC_SECTIONS = [
+  {id:'sec-headline',     n:1,  label:'Headline'},
+  {id:'sec-loom',         n:2,  label:'Loom Video'},
+  {id:'sec-why',          n:3,  label:'Why We Reached Out'},
+  {id:'sec-toc',          n:4,  label:'Table Of Contents'},
+  {id:'sec-proof',        n:5,  label:'Social Proof'},
+  {id:'sec-offer1',       n:6,  label:'The Offer'},
+  {id:'sec-problem',      n:7,  label:'The Problem'},
+  {id:'sec-deliverables', n:8,  label:'The Campaign'},
+  {id:'sec-faq',          n:9,  label:'FAQs'},
+  {id:'sec-about',        n:10, label:'About Me'},
+  {id:'sec-offer2',       n:11, label:"Let's Talk"},
+];
+
+const ICONS = {
+  loom:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="8,6 19,12 8,18" fill="currentColor" stroke="none"/></svg>`,
+  video:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/></svg>`,
+  doc:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg>`,
+  gift:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18"/><path d="M12 8v13"/><path d="M12 8c-1.8 0-3.2-1.4-3.2-3.1C8.8 3.4 10 2.2 11.6 2.2c1.8 0 2.9 1.6 3.4 3.1M12 8c1.8 0 3.2-1.4 3.2-3.1 0-1.5-1.2-2.7-2.8-2.7-1.8 0-2.9 1.6-3.4 3.1"/></svg>`,
+  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h4l2 5-2.5 1.6a12 12 0 0 0 6 6L15 14l5 2v4a2 2 0 0 1-2 2C9.6 22 2 14.4 2 5a2 2 0 0 1 2-2z"/></svg>`,
+  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>`,
+  calendar:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>`,
+  reply:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 5h18v10H8l-5 4z"/></svg>`,
+  play:`<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8,5 19,12 8,19"/></svg>`,
+};
+
+const CAMPAIGN_DEFS = [
+  {id:'superloom', num:1, name:'Super Loom', touches:6, startDay:1, newThread:[3,5], manualEach:false, icon:'video',
+    what:'A bespoke, one-take video sent straight to a specific person at {{whale}} - no template, no automation, filmed for them and no one else.',
+    why:"Video breaks the pattern before a single word is read. It proves a real person spent real time on this one account - the exact opposite of everything else landing in that inbox this week."},
+  {id:'strategydoc', num:2, name:'Strategy Doc', touches:6, startDay:19, newThread:[3,5], manualEach:false, icon:'doc',
+    what:'The detailed, one-page breakdown of exactly how {{prospect}} would work with {{whale}} - the same format as the document you are reading right now.',
+    why:'By the time {{whale}}’s team opens this, the video already earned their attention. The doc turns that attention into belief - it removes every reason to say "I don’t get what you’re offering."'},
+  {id:'physicalgood', num:3, name:'Physical Good', touches:5, startDay:37, newThread:[3,5], manualEach:false, icon:'gift',
+    what:'Something physical, shipped straight to the office - fun, interactive, and built around a detail specific to {{whale}}.',
+    why:"Nobody ignores a package. It's impossible to auto-delete, it usually gets shown to other people in the office, and it proves - again - this isn't a mail-merge."},
+  {id:'coldcall', num:4, name:'Cold Call', touches:6, startDay:52, newThread:[], manualEach:true, icon:'phone',
+    what:'A short, no-script call timed for maximum pattern interrupt - not a pitch, just a direct, human check-in.',
+    why:"By week seven, {{whale}}'s team has seen the video, read the doc, and unboxed the package. A real voice on the phone is the one channel a templated sequence can never fake."},
+  {id:'coldemail', num:5, name:'Cold Email', touches:6, startDay:70, newThread:[3,5], manualEach:false, icon:'mail',
+    what:'A short, plain-text email - easy to write, easy to read, and impossible to misinterpret.',
+    why:'After four channels of proof, the ask can finally be this simple. It works because everything before it already did the heavy lifting.'},
+];
+
+const FAQS = [
+  {q:'Why does landing {{whale}} take 85 days?', a:"Because whales don't reply to the first message - they reply to proof, repeated across five different channels. Every touchpoint below earns the right to the next one. Rush it and {{prospect}} looks like everyone else in {{whale}}'s inbox."},
+  {q:'What if {{whale}} replies before day 85?', a:'Then the campaign is over and we move straight to the call. 85 days is the maximum, not the goal - most of the campaigns we run close long before the last touch.'},
+  {q:'Do I need to do any of this myself?', a:'No. We script the Super Loom, write every email, design the physical send, and brief the caller. The only thing we need from {{contact}} is 15 minutes to sign off on the angle before Day 1.'},
+  {q:'What happens after {{whale}} says yes?', a:'You get the meeting. What you do with it from there is on you - but we will have already given {{whale}}’s team five reasons to believe {{prospect}} is worth their time before you say a word.'},
+  {q:'Why not just cold email {{whale}} 500 times instead?', a:"Because the math is worse, not better. A 0.6% reply rate on 1,000 generic sends gets you 6 conversations. A campaign built entirely around one qualified whale routinely closes at several times that rate - with a bigger deal on the other end of it."},
+  {q:'What do you need from me to start?', a:'Exactly what you filled in on the last page - who {{prospect}} is, who {{whale}} is, and anything specific you already know about them. We turn that into the five deliverables below.'},
+];
+
+/* ============================================================
+ STATE
+ ============================================================ */
+function defaultInput(){
+  return {prospect:'', contact:'', prospectWhat:'', whale:'', whaleWhat:'', whaleContact:'', signal:'', calendly:''};
+}
+function loadInput(){
+  try{
+    const i = JSON.parse(localStorage.getItem('strategydoc_input'));
+    if(i && typeof i==='object') return Object.assign(defaultInput(), i);
+  }catch(e){}
+  return defaultInput();
+}
+function persistInput(){ localStorage.setItem('strategydoc_input', JSON.stringify(input)); }
+
+function loadDone(){
+  try{
+    const d = JSON.parse(localStorage.getItem('strategydoc_progress'));
+    if(d && typeof d==='object') return d;
+  }catch(e){}
+  return {};
+}
+function persistDone(){ localStorage.setItem('strategydoc_progress', JSON.stringify(touchDone)); }
+
+let input = loadInput();
+let touchDone = loadDone();
+let openTouchpoints = {};
+let activeStep = (input.prospect && input.contact && input.whale) ? 'doc' : 'setup';
+
+/* ============================================================
+ HELPERS
+ ============================================================ */
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1700);
+}
+let _confirmResolve = null;
+function showConfirm({title='Are you sure?', message='', confirmLabel='Confirm'} = {}){
+  return new Promise((resolve)=>{
+    _confirmResolve = resolve;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = confirmLabel;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+  });
+}
+function closeConfirm(result){
+  const overlay = document.getElementById('confirmOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
+}
+function copyText(s){
+  navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+}
+function isValid(){ return !!(input.prospect.trim() && input.contact.trim() && input.whale.trim()); }
+function P(){ return esc(input.prospect.trim() || 'your team'); }
+function C(){ return esc(input.contact.trim() || 'there'); }
+function W(){ return esc(input.whale.trim() || 'your dream client'); }
+function hasWC(){ return !!input.whaleContact.trim(); }
+function WC(){ return esc(input.whaleContact.trim()) || (W() + '’s team'); }
+function WCGreeting(){ return hasWC() ? WC() : 'there'; }
+function WCOffice(){ return hasWC() ? WC() + '’s office' : W() + '’s office'; }
+function WCInbox(){ return hasWC() ? WC() + '’s inbox' : W() + '’s inbox'; }
+function fill(str){
+  return str.replace(/\{\{prospect\}\}/g, P()).replace(/\{\{whale\}\}/g, W()).replace(/\{\{contact\}\}/g, C());
+}
+
+/* ============================================================
+ CAMPAIGN LOGIC
+ ============================================================ */
+function totalTouches(){ return CAMPAIGN_DEFS.reduce((a,c)=>a+c.touches,0); }
+function campaignTouches(cp){
+  const list=[];
+  for(let n=1;n<=cp.touches;n++){
+    list.push({n, day: cp.startDay + (n-1)*3, newThread: cp.newThread.includes(n)});
+  }
+  return list;
+}
+function campaignEndDay(){
+  const last = CAMPAIGN_DEFS[CAMPAIGN_DEFS.length-1];
+  return last.startDay + (last.touches-1)*3;
+}
+function touchName(cp, n){
+  if(cp.id==='coldcall') return n===1 ? 'Initial Call' : `Call Attempt ${n}`;
+  if(n===1){
+    if(cp.id==='superloom') return 'Send The Super Loom';
+    if(cp.id==='strategydoc') return 'Send The Strategy Doc';
+    if(cp.id==='physicalgood') return 'Ship The Physical Send';
+    return 'Send The Opening Email';
+  }
+  return `Email Follow-Up ${n}`;
+}
+function touchKey(cp, n){ return cp.id + '-' + n; }
+function touchDoneCount(){
+  let n=0;
+  CAMPAIGN_DEFS.forEach(cp=>{ campaignTouches(cp).forEach(t=>{ if(touchDone[touchKey(cp,t.n)]) n++; }); });
+  return n;
+}
+
+function campaignArtifact(cp){
+  const p = P(), w = W(), c = C(), wc = WC(), greet = WCGreeting();
+  const signal = input.signal.trim() ? esc(input.signal.trim()) : null;
+  const hook = signal || `something specific we've found about ${w}`;
+  if(cp.id==='superloom'){
+    return {
+      label:'The angle for this campaign',
+      lines:[
+        `A 60-90 second video from ${p}, addressed to ${wc} by name, opening on ${hook}.`,
+        `<span class="quoted">"Hey ${greet} - noticed ${hook}. We help teams land accounts exactly like ${w}, and we've already mapped out three specific ways ${p} could open the door with you. Want to see them?"</span>`,
+      ]};
+  }
+  if(cp.id==='strategydoc'){
+    return {
+      label:'The angle for this campaign',
+      lines:[
+        `The doc that ${wc} receives here is this same format, rebuilt from scratch around ${w} - showing exactly how ${p} would become a partner worth having.`,
+        `It repeats the offer, the proof, and the plan in writing, so nothing about ${p}'s pitch is left for ${w}'s team to guess at.`,
+      ]};
+  }
+  if(cp.id==='physicalgood'){
+    return {
+      label:'The angle for this campaign',
+      lines:[
+        `A physical send tied to ${hook}, shipped directly to ${WCOffice()}, with a handwritten note referencing the Super Loom and Strategy Doc they already saw from ${p}.`,
+        `<span class="quoted">"Figured a video and a doc weren't enough - wanted you to have something to hold too. 15 minutes when this lands?"</span>`,
+      ]};
+  }
+  if(cp.id==='coldcall'){
+    return {
+      label:'The angle for this campaign',
+      lines:[
+        `A short, no-pitch call from ${p}'s team.`,
+        `<span class="quoted">"Hey ${greet} - this is ${p}. You've probably seen the video, the doc, and the package by now. Not calling to sell you anything - just to ask if it's worth 15 minutes."</span>`,
+      ]};
+  }
+  return {
+    label:'The angle for this campaign',
+    lines:[
+      `One line, from ${p} directly to ${wc}.`,
+      `<span class="quoted">"Hey ${greet} - five touches in, so I'll keep this short: worth 15 minutes to talk through how ${p} would work with ${w}?"</span>`,
+    ]};
+}
+
+/* ============================================================
+ SIDEBAR
+ ============================================================ */
+function renderNav(){
+  let html = `<div class="nav-group">
+    ${STEPS.map(s=>{
+      const locked = s.id==='doc' && !isValid();
+      return `<button class="step-item ${activeStep===s.id?'active':''} ${locked?'locked':''} ${s.id==='setup'&&isValid()?'done':''}" data-step="${s.id}">
+        <span class="step-num">${s.id==='setup'&&isValid() ? '&#10003;' : s.num}</span>
+        <span class="step-label">${esc(s.label)}</span>
+      </button>`;
+    }).join('')}
+  </div>`;
+  if(activeStep==='doc' && isValid()){
+    html += `<div class="nav-group">
+      <div class="nav-group-label">In This Doc</div>
+      ${DOC_SECTIONS.map(s=>`<button class="toc-item" data-scroll="${s.id}"><span class="tn">${s.n}</span><span>${esc(s.label)}</span></button>`).join('')}
+    </div>`;
+  }
+  document.getElementById('navGroups').innerHTML = html;
+  document.querySelectorAll('.step-item').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.step;
+    if(id==='doc' && !isValid()){ toast('Fill in the prospect, whale, and contact name first'); return; }
+    setActiveStep(id);
+  }));
+  document.querySelectorAll('.toc-item').forEach(b=> b.addEventListener('click', ()=>{
+    const el = document.getElementById(b.dataset.scroll);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }));
+}
+function renderProgress(){
+  const n = touchDoneCount(), t = totalTouches();
+  document.getElementById('progressLabel').textContent = n + '/' + t;
+  document.getElementById('progressFill').style.width = (t? (n/t*100) : 0) + '%';
+}
+function renderSnapshot(){
+  const row = (label, val, jump)=> `<div class="snap-row">
+    <div class="sr-label"><span>${esc(label)}</span>${jump?`<a data-jump="${escAttr(jump)}">Edit &rarr;</a>`:''}</div>
+    <div class="sr-value">${val ? esc(val) : `<span class="snap-empty">Not set yet</span>`}</div>
+  </div>`;
+  let html = '';
+  html += row('Prospect', input.prospect.trim(), 'setup');
+  html += row('Whale Target', input.whale.trim(), 'setup');
+  html += row('Contact', input.contact.trim(), 'setup');
+  if(isValid()){
+    html += `<div class="snap-row"><div class="sr-label"><span>Campaign Length</span></div><div class="sr-value">85 days &middot; 5 touchpoints &middot; ${totalTouches()} total touches</div></div>`;
+  }
+  document.getElementById('snapBody').innerHTML = html;
+  document.querySelectorAll('[data-jump]').forEach(a=> a.addEventListener('click', ()=> setActiveStep(a.dataset.jump)));
+}
+function setActiveStep(id){
+  activeStep = id;
+  render();
+  document.getElementById('content').scrollTop = 0;
+  if(window.innerWidth <= 980){ document.getElementById('rail').classList.remove('open'); }
+}
+function renderMobileTopbar(){
+  const idx = STEPS.findIndex(s=>s.id===activeStep);
+  const step = STEPS[idx];
+  if(!step) return;
+  document.getElementById('mobileStepEyebrow').textContent = `Step ${idx+1} of ${STEPS.length}`;
+  document.getElementById('mobileStepName').textContent = step.label;
+}
+
+/* ============================================================
+ SETUP STEP
+ ============================================================ */
+function renderSetupStep(){
+  return `
+  <div class="page-header">
+    <div class="ph-top">
+      <div>
+        <p class="ph-eyebrow">Step 1 of 2</p>
+        <h1>Who's The Whale?</h1>
+        <p class="ph-sub">Tell us who you're pitching and who they're trying to land. We'll build the rest of the strategy doc - and the full 85-day campaign - around it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="setup-wrap">
+    <div class="setup-intro">
+      <h3>Why this works: the D100 method</h3>
+      <p>D100 means doing real, upfront work for one dream prospect before you ever reach out - instead of spraying a template at a thousand of them. Whales get hit with 200+ pitches a week; their pattern-recognition for generic outreach is surgical. Specificity is the only thing that gets through.</p>
+      <p>The more specific you are here, the better every section below turns out - especially <b>Why We Reached Out</b> and <b>The Campaign</b>, which are built entirely from what you type into this form.</p>
+    </div>
+
+    <div class="setup-card">
+      <h2>The Prospect</h2>
+      <p class="sc-sub">The company reading this doc - the one who wants to land a whale.</p>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Company Name <span class="req">*</span></label>
+          <input type="text" id="f-prospect" placeholder="e.g. Frank Collective">
+        </div>
+        <div class="field-group">
+          <label>Contact First Name <span class="req">*</span></label>
+          <input type="text" id="f-contact" placeholder="e.g. Sarah">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>What They Do <span class="opt">optional</span></label>
+        <textarea id="f-prospectWhat" placeholder="One line - e.g. a design agency that builds brand systems for Series A/B SaaS companies"></textarea>
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <h2>The Whale</h2>
+      <p class="sc-sub">The dream client they want to land - the account this whole doc is built around.</p>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Whale's Name <span class="req">*</span></label>
+          <input type="text" id="f-whale" placeholder="e.g. Anthropic">
+        </div>
+        <div class="field-group">
+          <label>Who To Target There <span class="opt">optional</span></label>
+          <input type="text" id="f-whaleContact" placeholder="e.g. Head of Partnerships, Jane Doe">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>What The Whale Does / Why They Matter <span class="opt">optional</span></label>
+        <textarea id="f-whaleWhat" placeholder="e.g. a frontier AI lab that would validate every future deal this prospect closes"></textarea>
+      </div>
+      <div class="field-group">
+        <label>The Specific Hook You've Found <span class="opt">optional</span></label>
+        <textarea id="f-signal" placeholder="e.g. their VP of Partnerships posted last week about wanting a creative agency who 'gets' technical audiences"></textarea>
+        <p class="field-hint">This is the "signal" layer of research - the one detail that becomes the hook for the Super Loom and every touch after it. Leave it blank and we'll write around it generically.</p>
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <h2>Booking Link</h2>
+      <p class="sc-sub">Used for both "banger offer" sections in the generated doc.</p>
+      <div class="field-group">
+        <label>Your Calendly Link <span class="opt">optional</span></label>
+        <input type="url" id="f-calendly" placeholder="https://calendly.com/...">
+      </div>
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn primary" id="generateBtn">Generate Strategy Doc &rarr;</button>
+    </div>
+  </div>`;
+}
+function wireSetupStep(){
+  const fields = ['prospect','contact','prospectWhat','whale','whaleWhat','whaleContact','signal','calendly'];
+  fields.forEach(k=>{
+    const el = document.getElementById('f-'+k);
+    if(!el) return;
+    el.value = input[k];
+    el.addEventListener('input', ()=>{
+      input[k] = el.value;
+      persistInput();
+      renderSnapshot();
+      renderNav();
+    });
+  });
+  document.getElementById('generateBtn').addEventListener('click', ()=>{
+    if(!isValid()){
+      toast('Company name, whale name, and contact name are required');
+      const missing = !input.prospect.trim() ? 'f-prospect' : (!input.whale.trim() ? 'f-whale' : 'f-contact');
+      document.getElementById(missing).focus();
+      return;
+    }
+    setActiveStep('doc');
+  });
+}
+
+/* ============================================================
+ DOC STEP - SECTION BUILDERS
+ ============================================================ */
+function secLabel(n){ return `<div class="doc-section-num"><span class="dot"></span>${String(n).padStart(2,'0')}</div>`; }
+
+function secHeadline(){
+  return `<div class="doc-hero" id="sec-headline">
+    <span class="doc-kicker">Strategy Doc &middot; Prepared For ${P()}</span>
+    <h1 class="doc-h1">How ${P()} Lands ${W()} - In Full.</h1>
+    <p class="doc-sub">Not a pitch deck. The exact 5-touch campaign we'll build and run to get ${C()} and the team at ${P()} in front of ${W()} - mapped out end to end, so you can see precisely how this works before you spend a dollar.</p>
+    <p class="doc-meta">Prepared by Dan James &middot; Lincko</p>
+  </div>`;
+}
+
+function secLoom(){
+  return `<div class="doc-section" id="sec-loom">
+    ${secLabel(2)}
+    <h2 class="doc-h2">Watch This Before Anything Else</h2>
+    <div class="loom-card">
+      <div class="loom-thumb"><div class="loom-play">${ICONS.loom}</div><span class="loom-dur">02:14</span></div>
+      <div class="loom-meta">
+        <div class="lm-src">${ICONS.video} Loom</div>
+        <div class="lm-title">Strategy Walkthrough for ${C()} at ${P()}</div>
+        <div class="lm-sub">Recorded personally by Dan James, walking through exactly why ${W()} is the right whale to chase and how the campaign below lands them.</div>
+      </div>
+    </div>
+    <div class="dont-skip">&#9888; Don't Skip The Video Above &#9888;</div>
+    <div class="doc-body">
+      <p>Quick distinction, so nothing below is confusing: this video is <strong>for ${C()}</strong> - a two-minute walkthrough of why we picked ${W()} and how the next ten sections play out. It is separate from the Super Loom that ${W()}'s team receives on Day 1 of the campaign itself. That one's for them.</p>
+    </div>
+  </div>`;
+}
+
+function secWhy(){
+  const paras = [];
+  paras.push(`${C()}, we don't send a doc like this to everyone.`);
+  if(input.prospectWhat.trim()){
+    paras.push(`We looked at what ${P()} does - ${esc(input.prospectWhat.trim())} - and it's exactly the kind of business that can credibly walk up to ${W()} and be taken seriously, not laughed out of the inbox.`);
+  } else {
+    paras.push(`We looked at what ${P()} does, and it's exactly the kind of business that can credibly walk up to ${W()} and be taken seriously, not laughed out of the inbox.`);
+  }
+  if(input.whaleWhat.trim()){
+    paras.push(`${W()} matters here because ${esc(input.whaleWhat.trim())}. That's not a small account to add to the roster - it's the kind of client that changes which conversations ${P()} gets invited into next.`);
+  } else {
+    paras.push(`${W()} isn't just another name on a list - it's the kind of client that changes which conversations ${P()} gets invited into next.`);
+  }
+  if(input.signal.trim()){
+    paras.push(`Here's the part most outreach skips: ${esc(input.signal.trim())}. That single detail is the hook the entire campaign below is built around - it's the reason the Super Loom on Day 1 won't feel like everything else landing in ${WCInbox()} that week.`);
+  } else {
+    paras.push(`We haven't found the specific hook yet - that's the first thing we'll nail down on the call before Day 1, because a whale can tell within three seconds whether a message was made for them or blasted to a list.`);
+  }
+  paras.push(`That's exactly why we built the campaign in Section 8 - specifically to get ${P()} in front of ${W()}, not a generic version of this doc sent to a hundred other companies.`);
+  return `<div class="doc-section" id="sec-why">
+    ${secLabel(3)}
+    <h2 class="doc-h2">Why We Reached Out To You</h2>
+    <div class="doc-body">${paras.map(p=>`<p>${p}</p>`).join('')}</div>
+  </div>`;
+}
+
+function secToc(){
+  return `<div class="doc-section" id="sec-toc">
+    ${secLabel(4)}
+    <h2 class="doc-h2">Table Of Contents</h2>
+    <div class="doc-steps">
+      ${DOC_SECTIONS.map(s=>`<div class="doc-step"><div class="doc-step-num">${s.n}</div><div class="doc-step-body"><h4>${esc(s.label)}</h4></div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+const PROOF = [
+  {name:'Kirill Marin', before:'Sending hundreds of outreaches and landing nothing.', after:'Signed big names like Remotely X, closed an $8,000 deal, and started generating real revenue from a handful of tailored outreaches.', quote:"Before your systems, I was sending hundreds of outreaches and landing nothing. Then I switched, signed big names like Remotely X, closed an $8K deal, and started generating real revenue from just a handful of tailored outreaches. The prospects come in warm, the close is easy, and it compounds: every client becomes proof that brings in the next one."},
+  {name:'Abdulazeez Ba', before:"Went on 7 to 10 calls and didn't close a single one.", after:'Sent his first Super Loom and immediately closed a whale client with instant authority - plus a referral within 24 hours.', quote:"I went on 7 to 10 calls and didn't close a single one. Then I sent my first Super Loom and the guy replied 'f**k it let's work together'. I literally had to pull over because it felt like I'd stumbled on gold. Now I'd rather send a few targeted Super Looms I know will close than waste time sending hundreds of messages that go nowhere."},
+  {name:'Michel Lieben (ColdIQ)', before:'An 8-figure founder we had no business signing - just another cold outreach target.', after:"We saw holes in his business and built the best outreach he'd ever seen: a full skiing movie, produced just for him. Booked the meeting, and he reposted it to his 70,000 followers - 15 inbound leads followed.", quote:'Wow ok you got me. Let’s chat.'},
+];
+
+function secProof(){
+  return `<div class="doc-section" id="sec-proof">
+    ${secLabel(5)}
+    <h2 class="doc-h2">Social Proof</h2>
+    <div class="doc-body"><p>We don't ask you to take our word for it. Here's what happened when we ran this exact playbook for other people chasing their own whale.</p></div>
+    ${PROOF.map(pr=>`<div class="proof-card">
+      <div class="proof-name">${esc(pr.name)}</div>
+      <div class="proof-ba">
+        <div class="pb before"><b>Before</b>${esc(pr.before)}</div>
+        <div class="pb after"><b>After</b>${esc(pr.after)}</div>
+      </div>
+      <div class="proof-quote">"${esc(pr.quote)}"</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function calendlyCard(){
+  const link = input.calendly.trim();
+  return `<div class="calendly-card">
+    <div class="calendly-thumb">${ICONS.calendar}</div>
+    <div class="calendly-meta">
+      <div class="cm-src">Calendly</div>
+      <div class="cm-title">Discovery Call &middot; Dan James</div>
+      <div class="cm-sub">15 minutes to confirm ${W()} is the right target and agree the angle before Day 1.</div>
+      ${link ? `<a class="btn primary small" href="${escAttr(link)}" target="_blank" rel="noopener">Book A Call</a>` : `<button class="btn primary small" id="calendlyPlaceholderBtn" type="button">Book A Call</button>`}
+    </div>
+  </div>`;
+}
+function wireCalendlyPlaceholders(){
+  document.querySelectorAll('#calendlyPlaceholderBtn').forEach(b=> b.addEventListener('click', ()=> toast('Add your Calendly link on the Target & Whale step')));
+}
+
+function secOffer1(){
+  return `<div class="doc-section" id="sec-offer1">
+    ${secLabel(6)}
+    <h2 class="doc-h2">Our Offer To You</h2>
+    <div class="doc-body"><p><strong>We'll build your first Super Loom for ${W()}. Free.</strong></p></div>
+    <div class="doc-steps">
+      <div class="doc-step"><div class="doc-step-num">1</div><div class="doc-step-body"><h4>Hop On A Quick Call</h4><p>15 minutes to confirm ${W()} is the right target, sanity-check the hook, and agree the angle.</p></div></div>
+      <div class="doc-step"><div class="doc-step-num">2</div><div class="doc-step-body"><h4>We Script &amp; Produce It</h4><p>We write, storyboard, and produce a bespoke Super Loom aimed at ${WC()} - the exact Day 1 asset from the campaign below.</p></div></div>
+      <div class="doc-step"><div class="doc-step-num">3</div><div class="doc-step-body"><h4>You See It Before Anyone Else</h4><p>Watch the finished video before it goes anywhere near ${W()}. If it doesn't make you want to send it, we haven't done our job.</p></div></div>
+      <div class="doc-step"><div class="doc-step-num">4</div><div class="doc-step-body"><h4>Then We Decide Together</h4><p>Like what you see? We run the full 85-day campaign. Don't? Keep the video - it's yours either way.</p></div></div>
+    </div>
+    ${calendlyCard()}
+    <div class="offer-two-way">
+      <div class="offer-way">${ICONS.reply}<h4>Just Respond To This Doc</h4><p>Reply and tell us you're in - we'll follow up to schedule the call.</p></div>
+      <div class="offer-way">${ICONS.calendar}<h4>Book A Call Above</h4><p>Pick a time directly - no back and forth needed.</p></div>
+    </div>
+  </div>`;
+}
+
+function secProblem(){
+  return `<div class="doc-section" id="sec-problem">
+    ${secLabel(7)}
+    <h2 class="doc-h2">The Problem We're Going To Help You Solve</h2>
+    <div class="doc-body">
+      <p>You already know ${W()} would change ${P()}'s business. That's not the hard part. The hard part is that ${W()}'s team gets 200+ pitches a week, and their pattern recognition for templated garbage is surgical - they can tell within three seconds whether a message was made for them or blasted to a list.</p>
+      <p>Every week this stays unsolved, someone else - with a worse offer but a louder signal - gets the meeting instead of you. Volume can't fix this. You can't out-template a whale. The only thing that works is doing something at their door that would be physically impossible to do for a thousand people at once.</p>
+    </div>
+    <div class="doc-callout good"><b>Why It Matters</b>That's what the five deliverables below are built to do - not impress ${W()}, but prove to them that ${P()} is different, before a single sales conversation happens.</div>
+  </div>`;
+}
+
+function tpArtifactHtml(cp){
+  const art = campaignArtifact(cp);
+  return `<div class="tp-artifact">
+    <div class="ta-label">${esc(art.label)}</div>
+    ${art.lines.map(l=>`<p>${l}</p>`).join('')}
+  </div>`;
+}
+function tpTouchesHtml(cp){
+  const touches = campaignTouches(cp);
+  return touches.map(t=>{
+    const key = touchKey(cp,t.n);
+    const done = !!touchDone[key];
+    const label = cp.manualEach ? 'Mark call attempted' : (t.n===1 ? 'Mark as sent' : 'Mark as replied / no reply, move on');
+    return `<div class="touch-row ${done?'done':''}">
+      <input type="checkbox" id="chk-${escAttr(key)}" data-touch="${escAttr(key)}" ${done?'checked':''}>
+      <label for="chk-${escAttr(key)}">
+        ${t.newThread ? `<span class="touch-pill new">New Thread</span>` : ''}
+        ${esc(touchName(cp,t.n))}
+        <span class="touch-pill of">Touch ${t.n} of ${cp.touches}</span>
+        <span style="font-size:11.5px;color:var(--ink-faint);">${esc(label)}</span>
+      </label>
+      <span class="touch-day">Day ${t.day}</span>
+    </div>`;
+  }).join('');
+}
+function tpCardHtml(cp){
+  const touches = campaignTouches(cp);
+  const doneN = touches.filter(t=>touchDone[touchKey(cp,t.n)]).length;
+  const open = !!openTouchpoints[cp.id];
+  return `<div class="tp-card" id="tp-${cp.id}">
+    <div class="tp-head">
+      <div class="tp-icon">${ICONS[cp.icon]}</div>
+      <div class="tp-head-text">
+        <h3>${cp.num}. ${esc(cp.name)}</h3>
+        <div class="tp-tag-row">
+          <span class="tp-tag">Day ${cp.startDay}</span>
+          <span class="tp-tag">${cp.touches} Touches</span>
+          <span class="tp-tag">${doneN}/${cp.touches} Done</span>
+        </div>
+      </div>
+    </div>
+    <div class="tp-explain">
+      <div class="te"><b>What It Is</b>${fill(cp.what)}</div>
+      <div class="te"><b>Why It Works</b>${fill(cp.why)}</div>
+    </div>
+    ${tpArtifactHtml(cp)}
+    <div class="tp-touches-head">
+      <span class="th-label">Touch-By-Touch Schedule</span>
+      <button class="tp-touches-toggle" data-toggle="${cp.id}" type="button">${open?'Hide':'Show'} Schedule</button>
+    </div>
+    <div class="tp-touches ${open?'open':''}" id="touches-${cp.id}">${tpTouchesHtml(cp)}</div>
+  </div>`;
+}
+function secDeliverables(){
+  return `<div class="doc-section" id="sec-deliverables">
+    ${secLabel(8)}
+    <h2 class="doc-h2">The Campaign: How We Actually Land ${W()}</h2>
+    <div class="doc-body"><p>This is the deliverable. Not a slide of ideas - the full, day-by-day, 85-day campaign we will build and run to get ${P()} in front of ${W()}. Five touchpoints, each one earning the right to the next.</p></div>
+    <div class="campaign-track">
+      ${CAMPAIGN_DEFS.map((cp,i)=>`<div class="campaign-step"><div class="campaign-node">${ICONS[cp.icon]}</div><div class="campaign-label">${esc(cp.name)}</div><div class="campaign-day">Day ${cp.startDay}</div></div>${i<CAMPAIGN_DEFS.length-1?'<div class="campaign-connector"></div>':''}`).join('')}
+    </div>
+    <div class="doc-callout neutral"><b>Campaign Length</b>${totalTouches()} total touches across 5 mediums, running from Day 1 to Day ${campaignEndDay()}. Every touch below is trackable - check them off as you run the real campaign.</div>
+    ${CAMPAIGN_DEFS.map(cp=>tpCardHtml(cp)).join('')}
+  </div>`;
+}
+
+function secFaq(){
+  return `<div class="doc-section" id="sec-faq">
+    ${secLabel(9)}
+    <h2 class="doc-h2">FAQs</h2>
+    ${FAQS.map(f=>`<div class="faq-item"><h4>${fill(f.q)}</h4><p>${fill(f.a)}</p></div>`).join('')}
+  </div>`;
+}
+
+function secAbout(){
+  return `<div class="doc-section" id="sec-about">
+    ${secLabel(10)}
+    <h2 class="doc-h2">About Me</h2>
+    <div class="about-wrap">
+      <div class="about-avatar">DJ</div>
+      <div class="doc-body">
+        <p>I'm Dan James. I run Lincko, a creative outbound agency that builds bespoke, out-of-this-world outreach for B2B companies targeting whale clients. We've signed 8-figure founders using our own Super Looms, and helped clients close $12,000, $20,000, and even $32,000 deals using the exact same system you're looking at right now.</p>
+        <p>I started Lincko because I kept seeing the same thing in every industry: the world's most boring, most generic outreach, being ignored by exactly the prospects it needed to land - even when the business behind it was massive, with tons of social proof. People were tired of it. So we went the opposite direction and got completely obsessive instead. The results have been incredible.</p>
+        <p>This document is that obsession, aimed at ${W()}.</p>
+        <div class="about-links">
+          <a href="https://lincko.co" target="_blank" rel="noopener">${ICONS.doc} lincko.co</a>
+          <a href="#" onclick="return false;">LinkedIn</a>
+          <a href="#" onclick="return false;">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function secOffer2(){
+  return `<div class="doc-section" id="sec-offer2">
+    ${secLabel(11)}
+    <h2 class="doc-h2">Still Reading? Good. That Means You Get It.</h2>
+    <div class="doc-body"><p>Let's get ${W()} on the phone. Same offer as before - we'll build your first Super Loom for ${W()}, free, and you decide from there whether to run the rest of the campaign.</p></div>
+    ${calendlyCard()}
+    <div class="offer-two-way">
+      <div class="offer-way">${ICONS.reply}<h4>Just Respond To This Doc</h4><p>Reply and tell us you're in - we'll follow up to schedule the call.</p></div>
+      <div class="offer-way">${ICONS.calendar}<h4>Book A Call Above</h4><p>Pick a time directly - no back and forth needed.</p></div>
+    </div>
+  </div>`;
+}
+
+function renderDocStep(){
+  const sections = [secHeadline(), secLoom(), secWhy(), secToc(), secProof(), secOffer1(), secProblem(), secDeliverables(), secFaq(), secAbout(), secOffer2()];
+  return `
+  <div class="page-header">
+    <div class="ph-top">
+      <div>
+        <p class="ph-eyebrow">Step 2 of 2</p>
+        <h1>${P()} &times; ${W()}</h1>
+        <p class="ph-sub">Your generated strategy doc. Click a section on the left to jump to it, or scroll straight through.</p>
+      </div>
+      <div class="ph-actions"><button class="btn ghost small" id="editInputsBtn">Edit Inputs</button></div>
+    </div>
+  </div>
+  <div class="doc-shell">${sections.join('<hr class="doc-divider">')}</div>`;
+}
+function wireDocStep(){
+  document.getElementById('editInputsBtn')?.addEventListener('click', ()=> setActiveStep('setup'));
+  wireCalendlyPlaceholders();
+  document.querySelectorAll('[data-touch]').forEach(el=> el.addEventListener('change', ()=>{
+    touchDone[el.dataset.touch] = el.checked;
+    persistDone();
+    el.closest('.touch-row').classList.toggle('done', el.checked);
+    renderProgress();
+    const cardId = el.dataset.touch.split('-')[0];
+    const cp = CAMPAIGN_DEFS.find(c=>c.id===cardId);
+    if(cp){
+      const card = document.getElementById('tp-'+cp.id);
+      if(card){
+        const doneN = campaignTouches(cp).filter(t=>touchDone[touchKey(cp,t.n)]).length;
+        const tags = card.querySelectorAll('.tp-tag');
+        if(tags[2]) tags[2].textContent = `${doneN}/${cp.touches} Done`;
+      }
+    }
+  }));
+  document.querySelectorAll('[data-toggle]').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.dataset.toggle;
+    openTouchpoints[id] = !openTouchpoints[id];
+    const wrap = document.getElementById('touches-'+id);
+    wrap.classList.toggle('open', openTouchpoints[id]);
+    btn.textContent = (openTouchpoints[id]?'Hide':'Show') + ' Schedule';
+  }));
+}
+
+/* ============================================================
+ PLAIN-TEXT EXPORT
+ ============================================================ */
+function stripTags(html){ return html.replace(/<[^>]*>/g,''); }
+function docText(){
+  const lines = [];
+  lines.push(`HOW ${input.prospect.toUpperCase()} LANDS ${input.whale.toUpperCase()} - IN FULL`);
+  lines.push('A Strategy Doc prepared by Dan James, Lincko');
+  lines.push('');
+  lines.push('WHY WE REACHED OUT');
+  lines.push(stripTags(secWhy()).replace(/\s+/g,' ').trim());
+  lines.push('');
+  lines.push('THE PROBLEM');
+  lines.push(stripTags(secProblem()).replace(/\s+/g,' ').trim());
+  lines.push('');
+  lines.push('THE CAMPAIGN (85 DAYS, 5 TOUCHPOINTS, ' + totalTouches() + ' TOUCHES)');
+  CAMPAIGN_DEFS.forEach(cp=>{
+    lines.push('');
+    lines.push(`${cp.num}. ${cp.name} - starts Day ${cp.startDay}`);
+    lines.push('What: ' + fill(cp.what));
+    lines.push('Why: ' + fill(cp.why));
+    const art = campaignArtifact(cp);
+    art.lines.forEach(l=> lines.push(stripTags(l)));
+    campaignTouches(cp).forEach(t=>{
+      lines.push(`  Day ${t.day} - ${touchName(cp,t.n)} (Touch ${t.n} of ${cp.touches})${t.newThread?' [New Thread]':''}${touchDone[touchKey(cp,t.n)]?' [DONE]':''}`);
+    });
+  });
+  lines.push('');
+  lines.push('FAQs');
+  FAQS.forEach(f=>{ lines.push('Q: ' + fill(f.q)); lines.push('A: ' + fill(f.a)); lines.push(''); });
+  lines.push('ABOUT ME');
+  lines.push(stripTags(secAbout()).replace(/\s+/g,' ').trim());
+  lines.push('');
+  lines.push('Book a call: ' + (input.calendly.trim() || '(add your Calendly link on the Target & Whale step)'));
+  return lines.join('\n');
+}
+
+/* ============================================================
+ RENDER ALL
+ ============================================================ */
+function renderStepContent(){
+  const el = document.getElementById('content');
+  if(activeStep==='setup'){
+    el.innerHTML = renderSetupStep();
+    wireSetupStep();
+  } else {
+    if(!isValid()){ activeStep='setup'; el.innerHTML = renderSetupStep(); wireSetupStep(); return; }
+    el.innerHTML = renderDocStep();
+    wireDocStep();
+  }
+}
+function render(){
+  renderNav();
+  renderProgress();
+  renderStepContent();
+  renderSnapshot();
+  renderMobileTopbar();
+}
+
+render();
+
+document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
+document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
+document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
+});
+document.getElementById('copyDocBtn').addEventListener('click', ()=>{
+  if(!isValid()){ toast('Fill in the prospect, whale, and contact name first'); setActiveStep('setup'); return; }
+  copyText(docText());
+});
+document.getElementById('clearBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirm({
+    title:'Clear everything and start over?',
+    message:'This clears the prospect, whale, and all campaign progress. This cannot be undone.',
+    confirmLabel:'Clear Everything',
+  });
+  if(ok){
+    input = defaultInput();
+    touchDone = {};
+    openTouchpoints = {};
+    persistInput();
+    persistDone();
+    activeStep = 'setup';
+    render();
+  }
+});
+</script>
