@@ -3,18 +3,21 @@
 <style id="app-styles">
 :root{
   --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-tab:#FFFFFF;
-  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#8A938D;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#757E78;
   --stamp:#1E6B45; --stamp-ink:#FFFFFF;
   --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
   --line:#E4E9E6; --line-strong:#CCD5D0;
   --good:#2F8F5B; --warn:#B4691A;
+  --tier-mid-bg:#F1EBDC; --tier-mid-ink:#8A6D3B;
   --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --shadow-hover: 0 1px 0 rgba(20,24,27,.03), 0 14px 30px -14px rgba(20,24,27,.22);
   --radius: 8px;
-  --sidebar-w: 248px;
-  --plan-w: 340px;
+  --sidebar-w: 372px;
   --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --dur-fast: .12s; --dur-base: .18s;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;height:100%;overflow:hidden;}
@@ -28,6 +31,13 @@ body{
 a{color:inherit;}
 button{font-family:inherit;}
 svg{display:block;}
+
+/* ---------- focus-visible: one consistent keyboard-focus ring app-wide ---------- */
+:focus-visible{outline:2px solid var(--stamp); outline-offset:2px; border-radius:4px;}
+.quiz-opt:focus-visible, .chip:focus-visible, .size-card:focus-visible, .tpl-card:focus-visible,
+.step-item:focus-visible, .msg-card.optional.collapsed:focus-visible, .fe-box:focus-visible{
+  outline-offset:2px;
+}
 .eyebrow{
   font-family:var(--font-display); font-weight:700; text-transform:uppercase;
   letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
@@ -55,28 +65,21 @@ svg{display:block;}
 }
 .site-topbar .signout:hover{background:#F7F8F7;}
 
-/* ---------- app shell: full-height sidebar + content + plan ---------- */
+/* ---------- app shell: full-height sidebar + content ---------- */
 #app{
   display:grid;
-  grid-template-columns: var(--sidebar-w) 1fr var(--plan-w);
-  grid-template-areas: "rail main plan";
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas: "rail main";
   flex:1 1 auto; min-height:0;
   overflow:hidden;
 }
 @media (max-width: 980px){
   #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
   nav#rail{
-    position:fixed; inset:0 auto 0 0; width:270px; z-index:50;
+    position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
     transform:translateX(-100%); transition:transform .2s ease;
   }
   nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
-  #plan-panel{
-    position:fixed; inset:auto 0 0 0; height:72vh; z-index:50;
-    transform:translateY(100%); transition:transform .25s ease;
-    box-shadow:0 -12px 32px -8px rgba(0,0,0,.35);
-    border-radius:14px 14px 0 0;
-  }
-  #plan-panel.open{transform:translateY(0);}
 }
 
 /* ---------- sidebar ---------- */
@@ -103,7 +106,9 @@ nav#rail{
 .progress-bar{height:6px; background:var(--paper); border:1px solid var(--line); border-radius:3px; overflow:hidden; margin:0 0 4px;}
 .progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s;}
 
-.nav-groups{flex:1 1 auto; min-height:0; padding:10px 10px 10px; overflow-y:auto;}
+/* rail-scroll holds the nav steps + Goods Plan tracker as one continuous, independently scrolling column */
+.rail-scroll{flex:1 1 auto; min-height:0; overflow-y:auto;}
+.nav-groups{padding:12px 10px 4px;}
 .nav-group-label{
   font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
   font-size:10.5px; color:var(--ink-faint); padding:6px 8px 6px;
@@ -112,13 +117,15 @@ nav#rail{
   display:flex; align-items:center; gap:10px; width:100%; text-align:left;
   padding:9px 8px; border:none; background:transparent; color:var(--ink-soft);
   font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:7px; margin-bottom:2px;
+  transition:background-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
 .step-item:hover{background:var(--paper);}
-.step-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600;}
+.step-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600; box-shadow:inset 3px 0 0 var(--stamp);}
 .step-num{
   flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--line-strong);
   display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
   font-size:10.5px; font-weight:700; color:var(--ink-faint);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease;
 }
 .step-item.progress .step-num{border-color:var(--good); color:var(--good);}
 .step-item.done .step-num{background:var(--stamp); border-color:var(--stamp); color:var(--stamp-ink);}
@@ -126,15 +133,31 @@ nav#rail{
 .step-label{flex:1 1 auto;}
 .step-status{font-size:12px; color:var(--good); flex:0 0 auto;}
 
-.sidebar-footer{border-top:1px solid var(--line); padding:10px;}
-.sidebar-footer button{
-  display:none; align-items:center; gap:8px; width:100%; text-align:left;
-  padding:8px; border:none; background:transparent; color:var(--ink-soft);
-  font-family:var(--font-body); font-size:13px; cursor:pointer; border-radius:7px;
+/* ---------- rail divider: clear break between Builder steps and Goods Plan tracker ---------- */
+.rail-divider{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:14px 14px 10px; padding-top:18px; border-top:1.5px solid var(--line-strong);
 }
-.sidebar-footer button:hover{background:var(--paper);}
-@media (max-width:980px){.sidebar-footer button{display:flex;}}
+.rail-divider::before{
+  content:''; position:absolute; top:-1.5px; left:0; width:38px; height:1.5px; background:var(--stamp);
+}
+.rail-divider .eyebrow{color:var(--stamp); font-size:11px;}
+.rail-divider .rd-clear{
+  font-family:var(--font-display); font-weight:700; font-size:10.5px; color:var(--ink-faint);
+  background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.rail-divider .rd-clear:hover{border-color:var(--warn); color:var(--warn);}
+
+.sidebar-footer{flex:0 0 auto; border-top:1px solid var(--line); padding:12px 14px; background:var(--paper-tab);}
+.sidebar-footer .btn{width:100%;}
 .mobile-topbar{display:none;}
+.mobile-topbar-title{display:flex; flex-direction:column; gap:0; min-width:0;}
+.mobile-topbar-step{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:10px; color:var(--stamp);
+}
+.mobile-topbar-name{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
 @media (max-width:980px){
   .mobile-topbar{
     display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line);
@@ -153,10 +176,13 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   #content{padding:0 16px 50px;}
   .page-header{padding:18px 16px 14px; margin:0 -16px 16px;}
 }
+@keyframes stepFadeIn{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
 .page-header{
   position:sticky; top:0; z-index:5; background:var(--paper); padding:26px 30px 16px; margin:0 -30px 20px;
   border-bottom:1px solid var(--line);
 }
+.page-header.step-enter{animation:stepFadeIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){ .page-header.step-enter{animation:none;} }
 .page-header .ph-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
 .page-header .ph-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--stamp); margin:0 0 4px;}
 .page-header h1{
@@ -171,8 +197,11 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   letter-spacing:.02em; padding:8px 16px; border-radius:999px; border:1.5px solid var(--line);
   background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
   text-align:center; box-shadow:var(--shadow);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
 }
-.chip:hover{border-color:var(--mimeo);}
+.chip:hover{border-color:var(--mimeo); box-shadow:var(--shadow-hover); transform:translateY(-1px);}
+.chip:active{transform:translateY(0);}
+.chip.active:hover{transform:none; box-shadow:var(--shadow);}
 .chip.active{background:var(--mimeo); color:var(--mimeo-ink); border-color:var(--mimeo);}
 
 .group-title{
@@ -185,7 +214,9 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .card{
   background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
   box-shadow:var(--shadow); margin-bottom:10px; padding:14px 16px;
+  transition:box-shadow .15s ease, border-color .15s ease;
 }
+.card:hover{border-color:var(--line-strong); box-shadow:var(--shadow-hover);}
 .card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
 .card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
 
@@ -215,9 +246,9 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   padding:2.5px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em;
   display:inline-block; margin-top:4px;
 }
-.tier-badge.tier-low{background:#E6F4EC; color:#1E6B45;}
-.tier-badge.tier-mid{background:#E7F0FB; color:#1E5CA8;}
-.tier-badge.tier-high{background:#FBEEE0; color:#B4691A;}
+.tier-badge.tier-low{background:var(--mimeo-ink); color:var(--stamp);}
+.tier-badge.tier-mid{background:var(--tier-mid-bg); color:var(--tier-mid-ink);}
+.tier-badge.tier-high{background:#FBEEE0; color:var(--warn);}
 .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:8px; margin-bottom:22px;}
 table.goods-table{width:100%; min-width:640px; border-collapse:collapse; font-size:13px;}
 table.goods-table th{
@@ -225,8 +256,9 @@ table.goods-table th{
   letter-spacing:.04em; color:var(--ink-faint); border-bottom:1px solid var(--line-strong);
   padding:11px 16px; background:var(--paper);
 }
-table.goods-table td{padding:16px; border-bottom:1px solid var(--line); vertical-align:top;}
+table.goods-table td{padding:16px; border-bottom:1px solid var(--line); vertical-align:top; transition:background-color .12s ease;}
 table.goods-table tr:last-child td{border-bottom:none;}
+table.goods-table tbody tr:not(.selected):not(.editing-row):hover td{background:#FAFBFA;}
 table.goods-table tr.selected td{background:var(--mimeo-ink,#E6F4EC);}
 table.goods-table .col-name{width:210px;}
 table.goods-table .good-name{font-family:var(--font-display); font-weight:700; font-size:14.5px; color:var(--ink);}
@@ -243,33 +275,58 @@ table.goods-table .col-action .action-btns{display:flex; flex-direction:column; 
 table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:center;}
 
 /* ---------- goods catalog: size picker ---------- */
-.size-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
+.size-grid{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:28px;
+  margin-bottom:8px; align-items:stretch;
+}
 .size-card{
-  text-align:left; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
-  box-shadow:var(--shadow); padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:6px;
+  text-align:left; border:1px solid var(--line); border-radius:16px; background:var(--paper-raised);
+  box-shadow:var(--shadow); padding:38px 34px; cursor:pointer; display:flex; flex-direction:column; gap:16px;
+  min-height:260px; transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
-.size-card:hover{border-color:var(--stamp);}
+.size-card:hover{border-color:var(--stamp); box-shadow:var(--shadow-hover); transform:translateY(-2px);}
+.size-card:active{transform:translateY(0);}
 .size-card-count{
-  align-self:flex-start; font-family:var(--font-mono); font-size:11px; color:var(--stamp);
-  background:var(--mimeo-ink,#E6F4EC); border-radius:999px; padding:2px 10px;
+  align-self:flex-start; font-family:var(--font-mono); font-size:12.5px; color:var(--stamp);
+  background:var(--mimeo-ink,#E6F4EC); border-radius:999px; padding:4px 14px;
 }
-.size-card-title{font-family:var(--font-display); font-weight:800; font-size:18px; color:var(--ink);}
-.size-card-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
+.size-card-title{font-family:var(--font-display); font-weight:800; font-size:26px; color:var(--ink); margin-top:4px;}
+.size-card-desc{font-size:14.5px; color:var(--ink-soft); line-height:1.6; max-width:40ch;}
 
 /* ---------- modal ---------- */
 .modal-overlay{
   display:none; position:fixed; inset:0; background:rgba(20,24,27,.45); z-index:200;
   align-items:center; justify-content:center; padding:26px;
 }
-.modal-overlay.open{display:flex;}
+@keyframes modalOverlayIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes modalBoxIn{ from{opacity:0; transform:translateY(10px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
+.modal-overlay.open{display:flex; animation:modalOverlayIn .18s var(--ease);}
+.modal-overlay.open .modal-box{animation:modalBoxIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .modal-overlay.open, .modal-overlay.open .modal-box{animation:none;}
+}
 .modal-box{
   background:var(--paper-raised); border-radius:12px; width:100%; max-width:1180px; max-height:85vh;
   display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+  transition:max-width .18s var(--ease), max-height .18s var(--ease), border-radius .18s var(--ease);
 }
+.modal-box.fullscreen{
+  width:100vw; height:100vh; max-width:100vw; max-height:100vh; border-radius:0;
+}
+.modal-overlay.fullscreen{padding:0;}
 .modal-head{
   display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
   padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
 }
+.modal-head-right{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+.modal-fullscreen-btn{
+  flex:0 0 auto; width:28px; height:28px; border-radius:50%; border:1px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.modal-fullscreen-btn:hover{background:var(--ink); color:#fff; border-color:var(--ink);}
+.modal-fullscreen-btn svg{width:14px; height:14px;}
 .modal-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);}
 .modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
 .modal-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:0 24px 24px;}
@@ -278,6 +335,31 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
   .modal-overlay{padding:0;}
   .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
 }
+
+/* ---------- confirm dialog: replaces native confirm() ---------- */
+.confirm-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:300;
+  align-items:center; justify-content:center; padding:20px;
+}
+.confirm-overlay.open{display:flex; animation:modalOverlayIn .15s var(--ease);}
+.confirm-overlay.open .confirm-box{animation:modalBoxIn .18s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .confirm-overlay.open, .confirm-overlay.open .confirm-box{animation:none;}
+}
+.confirm-box{
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:380px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.4); padding:24px 24px 20px;
+}
+.confirm-icon{
+  width:36px; height:36px; border-radius:50%; background:#FBEEE0; color:var(--warn);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-weight:800; font-size:16px; margin-bottom:14px;
+}
+.confirm-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink); margin:0 0 6px;}
+.confirm-message{font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin:0 0 20px;}
+.confirm-actions{display:flex; justify-content:flex-end; gap:8px;}
+.btn.primary.danger{background:var(--warn); border-color:var(--warn);}
+.btn.primary.danger:hover{background:var(--warn); filter:brightness(1.08); transform:translateY(-1px);}
 
 /* ---------- messaging: template bank trigger + modal ---------- */
 .tpl-trigger{
@@ -340,7 +422,9 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
 .tpl-card{
   display:flex; flex-direction:column; gap:9px; border:1px solid var(--line); border-radius:10px;
   background:var(--paper-raised); box-shadow:var(--shadow); padding:14px 15px;
+  transition:box-shadow .15s ease, border-color .15s ease;
 }
+.tpl-card:hover{box-shadow:var(--shadow-hover); border-color:var(--line-strong);}
 .tpl-card-top-row{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
 .tpl-card-top-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
 .tpl-card-add, .tpl-card-edit, .tpl-card-delete{
@@ -397,13 +481,16 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
   font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
   background:var(--paper-raised); color:var(--ink);
 }
-.btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease;}
-.btn:hover{border-color:var(--line-strong);}
+.btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease, box-shadow .15s ease;}
+.btn:hover{border-color:var(--line-strong); background:#F7F8F7;}
+.btn:active{transform:translateY(0); filter:brightness(.97);}
+.btn:disabled{opacity:.5; cursor:not-allowed; filter:none; transform:none;}
 .btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
-.btn.primary:hover{filter:brightness(1.1); transform:translateY(-1px);}
+.btn.primary:hover{filter:brightness(1.1); transform:translateY(-1px); background:var(--stamp);}
 .btn.primary:disabled{opacity:.5; cursor:not-allowed; filter:none;}
 .btn.ghost{background:transparent;}
-table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px);}
+.btn.ghost:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px);}
+.btn.ghost.danger:hover{background:var(--warn); color:#fff; border-color:var(--warn);}
 .btn.small{padding:5px 10px; font-size:11px;}
 .btn.full{width:100%; text-align:center;}
 
@@ -418,11 +505,13 @@ table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink
 .quiz-opt{
   display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:8px;
   padding:10px 12px; cursor:pointer; background:var(--paper-raised);
+  transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
-.quiz-opt:hover{border-color:var(--line-strong);}
+.quiz-opt:hover{border-color:var(--line-strong); box-shadow:var(--shadow);}
 .quiz-opt.picked{border-color:var(--stamp); background:var(--mimeo-ink);}
 .quiz-opt .dot{
   flex:0 0 auto; width:15px; height:15px; border-radius:50%; border:2px solid var(--line-strong);
+  transition:border-color .15s ease, background-color .15s ease;
 }
 .quiz-opt.picked .dot{border-color:var(--stamp); background:var(--stamp);}
 .quiz-opt .otext{font-size:13.2px;}
@@ -471,11 +560,26 @@ table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink
 .btn.danger:hover{background:var(--warn); color:#fff; transform:translateY(-1px);}
 
 /* ---------- checklist ---------- */
-.check-item{display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--line);}
+.check-item{
+  display:flex; gap:10px; align-items:flex-start; padding:11px 10px; margin:0 -10px;
+  border-bottom:1px solid var(--line); border-radius:7px; transition:background-color .15s ease;
+}
+.check-item:hover{background:var(--paper);}
 .check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{margin-top:3px; width:16px; height:16px; accent-color:var(--good); cursor:pointer;}
+.check-item input[type=checkbox]{
+  appearance:none; -webkit-appearance:none; margin-top:2px; flex:0 0 auto;
+  width:18px; height:18px; border-radius:5px; border:2px solid var(--line-strong);
+  background:var(--paper-raised); cursor:pointer; position:relative;
+  transition:background-color .15s ease, border-color .15s ease;
+}
+.check-item input[type=checkbox]:hover{border-color:var(--good);}
+.check-item input[type=checkbox]:checked{background:var(--good); border-color:var(--good);}
+.check-item input[type=checkbox]:checked::after{
+  content:''; position:absolute; left:5px; top:1px; width:5px; height:9px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
 .check-item label{font-size:13.5px; flex:1; cursor:pointer;}
-.check-item label b{display:block; font-weight:700; margin-bottom:2px;}
+.check-item label b{display:block; font-weight:700; margin-bottom:2px; transition:color .15s ease;}
 .check-item.done label b{color:var(--ink-faint); text-decoration:line-through;}
 .check-item.done label span{color:var(--ink-faint);}
 .check-bullets{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:2px;}
@@ -525,6 +629,75 @@ table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink
 .msg-foot{display:flex; justify-content:space-between; align-items:center; margin-top:14px;}
 .msg-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
 
+/* ---------- messaging: flow diagram (before/inside/public/follow-up overview) ---------- */
+.msg-flow{
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  padding:22px 26px 24px; margin-bottom:26px;
+}
+.msg-flow-eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:10.5px; color:var(--stamp); margin:0 0 4px;
+}
+.msg-flow-title{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); margin:0 0 20px;}
+.msg-flow-track{display:flex; align-items:flex-start;}
+.msg-flow-step{
+  flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center;
+}
+.msg-flow-node{
+  flex:0 0 auto; width:40px; height:40px; border-radius:50%; margin-bottom:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:13.5px;
+  background:var(--stamp); color:var(--stamp-ink); border:2px solid var(--stamp);
+}
+.msg-flow-step.optional .msg-flow-node{
+  background:var(--paper); color:var(--warn); border:2px dashed #E0A868;
+}
+.msg-flow-label-wrap{display:flex; flex-direction:column; align-items:center; gap:5px;}
+.msg-flow-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:9.5px; color:var(--stamp); background:var(--mimeo-ink); border-radius:999px; padding:2.5px 9px;
+  white-space:nowrap;
+}
+.msg-flow-step.optional .msg-flow-tag{color:var(--warn); background:#FBEEE0;}
+.msg-flow-label{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); line-height:1.3;}
+.msg-flow-connector{
+  flex:1 1 32px; height:2px; background:var(--line-strong); margin-top:19px; position:relative; min-width:14px;
+}
+.msg-flow-connector::after{
+  content:'\2192'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:var(--ink-faint); font-size:13px; background:var(--paper); padding:0 3px; line-height:1;
+}
+@media (max-width:720px){
+  .msg-flow-track{flex-direction:column; align-items:stretch;}
+  .msg-flow-step{flex-direction:row; text-align:left; align-items:center; gap:12px;}
+  .msg-flow-node{margin-bottom:0;}
+  .msg-flow-label-wrap{align-items:flex-start;}
+  .msg-flow-connector{flex:0 0 auto; width:2px; height:20px; margin:0 0 0 19px;}
+  .msg-flow-connector::after{content:'\2193';}
+}
+
+/* ---------- messaging: optional sections (collapsed by default) ---------- */
+.msg-card.optional::before{background:linear-gradient(90deg, var(--warn), #E0A868);}
+.msg-card.optional .msg-num{background:#FBEEE0; color:var(--warn);}
+.msg-card.optional .msg-tag{background:#FBEEE0; color:var(--warn);}
+.msg-card-toggle{
+  flex:0 0 auto; font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  color:var(--warn); background:transparent; border:1px solid var(--warn); border-radius:999px;
+  padding:5px 12px; cursor:pointer; white-space:nowrap;
+  transition:background-color .15s ease, color .15s ease;
+}
+.msg-card-toggle:hover{background:var(--warn); color:#fff;}
+.msg-card.optional.collapsed{
+  cursor:pointer; border-style:dashed; border-color:#E0A868; background:var(--paper);
+  box-shadow:none; padding:16px 18px;
+}
+.msg-card.optional.collapsed::before{display:none;}
+.msg-card.optional.collapsed:hover{border-color:var(--warn); background:#FFFCF7;}
+.msg-card.optional.collapsed .msg-card-top{margin-bottom:0;}
+.msg-card.optional.collapsed .msg-num{background:transparent; border:1.5px dashed #E0A868; color:var(--warn);}
+.msg-collapsed-hint{margin:10px 0 0 48px; font-size:12px; color:var(--ink-faint); font-style:italic;}
+.msg-collapsed-hint.filled{color:var(--warn); font-style:normal; font-weight:600;}
+
 .fe-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:4px;}
 @media (max-width:640px){.fe-grid{grid-template-columns:1fr;}}
 .fe-box{
@@ -548,30 +721,22 @@ table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink
 /* ---------- step nav ---------- */
 .step-nav{display:flex; justify-content:space-between; gap:10px; margin:32px 0 10px; padding-top:18px; border-top:1px solid var(--line);}
 
-/* ---------- plan panel ---------- */
-#plan-panel{
-  grid-area:plan; background:var(--paper-raised); border-left:1px solid var(--line);
-  display:flex; flex-direction:column; overflow:hidden;
-}
-#plan-panel .pp-head{
-  padding:14px 16px 10px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;
-}
-#plan-panel .pp-head .eyebrow{color:var(--stamp);}
-#plan-panel .pp-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:14px 16px;}
-#plan-panel .pp-foot{
-  padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; align-items:center;
-}
-.plan-close-mobile{display:none;}
-@media (max-width:980px){.plan-close-mobile{display:inline-flex;}}
+/* ---------- goods plan tracker (lives in the rail, beneath the Builder steps) ---------- */
+.pp-body{padding:2px 14px 16px;}
 
-.plan-section{border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; background:var(--paper);}
+.plan-section{
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; background:var(--paper);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.plan-section:hover{border-color:var(--line-strong); box-shadow:var(--shadow);}
 .plan-section .ps-label{
   font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
   font-size:10.5px; color:var(--stamp); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;
 }
 .plan-section .ps-label a{font-size:10.5px; color:var(--ink-faint); text-decoration:underline; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;}
-.plan-section .ps-value{font-size:13.2px; color:var(--ink);}
-.plan-section .ps-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+.plan-section .ps-label a:hover{color:var(--stamp);}
+.plan-section .ps-value{font-size:13px; color:var(--ink); line-height:1.45; word-break:break-word;}
+.ps-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
 .plan-section .ps-sub{font-size:12px; color:var(--ink-soft); margin-top:3px;}
 .plan-followup{
   width:100%; border:1px solid var(--line); border-radius:6px; background:var(--paper-raised);
@@ -616,37 +781,45 @@ table.goods-table .col-action .btn.ghost:not(.danger):hover{background:var(--ink
       <div class="pp-label"><span>Plan progress</span><span id="progressLabel">0/6</span></div>
       <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
     </div>
-    <div class="nav-groups" id="navGroups"></div>
+    <div class="rail-scroll">
+      <div class="nav-groups" id="navGroups"></div>
+      <div class="rail-divider">
+        <span class="eyebrow">Goods Plan</span>
+        <button class="rd-clear" id="clearPlanBtn" title="Clear the whole Goods Plan">Clear</button>
+      </div>
+      <div class="pp-body" id="ppBody"></div>
+    </div>
     <div class="sidebar-footer">
-      <button id="planToggleBtn">Open Goods Plan</button>
+      <button class="btn primary full" id="copyPlanBtn">Copy Plan</button>
     </div>
   </nav>
 
   <main id="content-col">
     <div class="mobile-topbar">
       <button class="iconbtn" id="railOpenBtn" title="Menu">Menu</button>
-      <span class="logo-name">Physical Goods</span>
+      <div class="mobile-topbar-title">
+        <span class="mobile-topbar-step" id="mobileStepEyebrow">Step 1 of 6</span>
+        <span class="mobile-topbar-name" id="mobileStepName">Research Fit</span>
+      </div>
     </div>
     <div id="content"></div>
   </main>
-
-  <aside id="plan-panel">
-    <div class="pp-head">
-      <span class="eyebrow">Goods Plan</span>
-      <div style="display:flex; gap:8px;">
-        <button class="btn ghost small" id="clearPlanBtn">Clear</button>
-        <button class="btn ghost small plan-close-mobile" id="planCloseBtn">Close</button>
-      </div>
-    </div>
-    <div class="pp-body" id="ppBody"></div>
-    <div class="pp-foot">
-      <button class="btn primary full" id="copyPlanBtn">Copy Plan</button>
-    </div>
-  </aside>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box" id="modalBox"></div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+  <div class="confirm-box">
+    <div class="confirm-icon">!</div>
+    <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn" id="confirmCancelBtn">Cancel</button>
+      <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1016,6 +1189,7 @@ let templateEditingId = null;
 let followupModalIdx = null;
 let templateModalCat = null;
 let templateModalSearch = '';
+let optionalExpanded = {};
 
 /* ============================================================
  HELPERS
@@ -1027,6 +1201,24 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show');
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+let _confirmResolve = null;
+function showConfirm({title='Are you sure?', message='', confirmLabel='Confirm', cancelLabel='Cancel'} = {}){
+  return new Promise((resolve)=>{
+    _confirmResolve = resolve;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = confirmLabel;
+    document.getElementById('confirmCancelBtn').textContent = cancelLabel;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+  });
+}
+function closeConfirm(result){
+  const overlay = document.getElementById('confirmOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
 }
 function copyText(s){
   navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
@@ -1084,7 +1276,7 @@ function renderNav(){
     <div class="nav-group-label">Builder</div>
     ${STEPS.map(s=>{
       const status = stepStatus(s.id);
-      const mark = status==='done' ? '✓' : (status==='progress' ? '•' : '');
+      const mark = status==='done' ? '✓' : '';
       return `<button class="step-item ${status} ${s.id===activeStep?'active':''}" data-step="${s.id}">
         <span class="step-num">${mark || s.num}</span>
         <span class="step-label">${esc(s.label)}</span>
@@ -1102,6 +1294,8 @@ function renderProgress(){
 function setActiveStep(id){
   activeStep = id;
   render();
+  const ph = document.querySelector('.page-header');
+  if(ph) ph.classList.add('step-enter');
   document.getElementById('content').scrollTop = 0;
   if(window.innerWidth <= 980){ document.getElementById('rail').classList.remove('open'); }
 }
@@ -1209,9 +1403,30 @@ function editGoodRowHtml(g){
   </tr>`;
 }
 
+let modalFullscreen = false;
+function fullscreenBtnHtml(){
+  return `<button type="button" class="modal-fullscreen-btn" id="modalFullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 3H5a2 2 0 0 0-2 2v4"></path>
+      <path d="M15 3h4a2 2 0 0 1 2 2v4"></path>
+      <path d="M9 21H5a2 2 0 0 1-2-2v-4"></path>
+      <path d="M15 21h4a2 2 0 0 0 2-2v-4"></path>
+    </svg>
+  </button>`;
+}
+function wireFullscreenBtn(){
+  const btn = document.getElementById('modalFullscreenBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    modalFullscreen = !modalFullscreen;
+    document.getElementById('modalBox').classList.toggle('fullscreen', modalFullscreen);
+    document.getElementById('modalOverlay').classList.toggle('fullscreen', modalFullscreen);
+  });
+}
 function openGoodsModal(sizeId){
   goodsModal = sizeId;
   editingGoodId = null;
+  modalFullscreen = false;
   renderGoodsModal();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1223,34 +1438,37 @@ function closeGoodsModal(){
   templateCatManageOpen = false;
   templateCatEditing = null;
   followupModalIdx = null;
-  document.getElementById('modalOverlay').classList.remove('open');
+  modalFullscreen = false;
+  document.getElementById('modalOverlay').classList.remove('open', 'fullscreen');
+  document.getElementById('modalBox').classList.remove('fullscreen');
 }
 function renderGoodsModal(){
   const size = SIZES.find(s=> s.id===goodsModal);
   if(!size) return;
   let html = `<div class="modal-head">
     <div><div class="modal-eyebrow">Goods Catalog</div><h2>${esc(size.name)} Physical Goods</h2></div>
-    <button class="btn ghost small" id="modalCloseBtn">Close</button>
+    <div class="modal-head-right">${fullscreenBtnHtml()}<button class="btn ghost small" id="modalCloseBtn">Close</button></div>
   </div>`;
   html += `<div class="modal-scroll">`;
   const allGoods = getGoods();
   COST_TIERS.forEach(tier=>{
-    const items = allGoods.filter(g=> g.size===size.id && g.tier===tier.id);
+    const items = allGoods.filter(g=> g.size===size.id && g.tier===tier.id).sort((a,b)=> a.name.localeCompare(b.name));
     html += `<div class="group-title">${esc(tier.tableLabel)}</div>`;
     html += items.length
       ? `<div class="table-wrap"><table class="goods-table">
           <thead><tr><th>Good</th><th>Cost</th><th>Description</th><th></th></tr></thead>
           <tbody>${items.map(goodRowHtml).join('')}</tbody>
         </table></div>`
-      : `<p style="color:var(--ink-faint); font-size:13px; margin:0 0 12px;">No ${esc(size.name.toLowerCase())} goods in this tier yet.</p>`;
+      : `<p class="ps-empty" style="margin:0 0 12px;">No ${esc(size.name.toLowerCase())} goods in this tier yet.</p>`;
     html += addGoodFormHtml(size.id, tier.id);
   });
   html += `</div>`;
 
   const box = document.getElementById('modalBox');
-  box.className = 'modal-box';
+  box.className = 'modal-box' + (modalFullscreen ? ' fullscreen' : '');
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+  wireFullscreenBtn();
 
   box.querySelectorAll('[data-pick-good]').forEach(b=> b.addEventListener('click', ()=>{
     const g = getGoods().find(x=>x.id===b.dataset.pickGood);
@@ -1260,10 +1478,15 @@ function renderGoodsModal(){
     renderGoodsModal();
     renderNav(); renderProgress(); renderPlanPanel();
   }));
-  box.querySelectorAll('[data-delete-good]').forEach(b=> b.addEventListener('click', ()=>{
+  box.querySelectorAll('[data-delete-good]').forEach(b=> b.addEventListener('click', async ()=>{
     const id = b.dataset.deleteGood;
     const g = getGoods().find(x=>x.id===id);
-    if(!confirm(`Delete "${g ? g.name : 'this good'}" from the catalog?`)) return;
+    const ok = await showConfirm({
+      title:'Delete this good?',
+      message:`Delete "${g ? g.name : 'this good'}" from the catalog? This can't be undone.`,
+      confirmLabel:'Delete',
+    });
+    if(!ok) return;
     deleteGood(id);
     toast('Deleted');
     renderGoodsModal();
@@ -1503,12 +1726,19 @@ function renderResearchStep(){
     toast('Finding added');
     render();
   }));
-  document.querySelectorAll('[data-remove-finding]').forEach(b=> b.addEventListener('click', ()=>{
+  document.querySelectorAll('[data-remove-finding]').forEach(b=> b.addEventListener('click', async ()=>{
     const [pid, fid] = b.dataset.removeFinding.split('::');
     const prompt = promptById(pid);
     const arr = plan.research[prompt.lens][prompt.key];
     const idx = arr.findIndex(f=> f.id===fid);
-    if(idx !== -1) arr.splice(idx, 1);
+    if(idx === -1) return;
+    const ok = await showConfirm({
+      title:'Remove this finding?',
+      message:`"${arr[idx].text}" will be removed from this prompt. This can't be undone.`,
+      confirmLabel:'Remove',
+    });
+    if(!ok) return;
+    arr.splice(idx, 1);
     persistPlan();
     render();
   }));
@@ -1536,9 +1766,10 @@ function quizQuestionsHtml(questions, answers){
     <div class="quiz-q">
       <div class="qtext">${esc(q.prompt)}</div>
       ${sub}
-      <div class="quiz-opts ${q.row?'row':''}">
+      <div class="quiz-opts ${q.row?'row':''}" role="radiogroup">
         ${q.options.map((o,i)=>`
-          <div class="quiz-opt ${answers[q.id]===i?'picked':''}" data-q="${escAttr(q.id)}" data-opt="${i}">
+          <div class="quiz-opt ${answers[q.id]===i?'picked':''}" data-q="${escAttr(q.id)}" data-opt="${i}"
+            role="radio" aria-checked="${answers[q.id]===i}" tabindex="0">
             <span class="dot"></span><span class="otext">${esc(o.label)}</span>
           </div>`).join('')}
       </div>
@@ -1546,11 +1777,17 @@ function quizQuestionsHtml(questions, answers){
   }).join('');
 }
 function wireQuizOptions(questions, answers, rerenderFn){
-  document.querySelectorAll('.quiz-opt').forEach(el=> el.addEventListener('click', ()=>{
+  const pick = (el)=>{
     answers[el.dataset.q] = parseInt(el.dataset.opt, 10);
     persistPlan();
     rerenderFn();
-  }));
+  };
+  document.querySelectorAll('.quiz-opt').forEach(el=>{
+    el.addEventListener('click', ()=> pick(el));
+    el.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); pick(el); }
+    });
+  });
   document.querySelectorAll('.quiz-text').forEach(el=> el.addEventListener('input', ()=>{
     answers[el.dataset.q] = el.value;
     persistPlan();
@@ -1625,7 +1862,12 @@ function msgCardHtml(s){
   const count = val.length;
   const tplCount = getTemplateGroups(s.id).reduce((n,g)=> n+g.items.length, 0);
   const subjectKey = s.id + 'Subject';
-  return `<div class="msg-card">
+  const isOptional = s.tag === 'Optional';
+  const hasContent = val.trim().length>0 || (s.hasSubject && (plan[subjectKey]||'').trim().length>0);
+  const collapsed = isOptional && !optionalExpanded[s.id];
+  const cls = 'msg-card' + (isOptional ? ' optional' : '') + (collapsed ? ' collapsed' : '');
+
+  let html = `<div class="${cls}"${collapsed ? ` data-optional-toggle="${escAttr(s.id)}" role="button" tabindex="0" aria-expanded="false"` : ''}>
     <div class="msg-card-top">
       <div class="msg-num">${esc(s.num)}</div>
       <div class="msg-heading">
@@ -1635,8 +1877,18 @@ function msgCardHtml(s){
         </div>
         <p class="msg-desc">${esc(s.desc)}</p>
       </div>
-    </div>
-    <button type="button" class="tpl-trigger" data-tpl-open="${escAttr(s.id)}">
+      ${isOptional && !collapsed ? `<button type="button" class="msg-card-toggle" data-optional-toggle="${escAttr(s.id)}">Collapse &uarr;</button>` : ''}
+    </div>`;
+
+  if(collapsed){
+    html += hasContent
+      ? `<div class="msg-collapsed-hint filled">${count} character${count===1?'':'s'} written - click to edit</div>`
+      : `<div class="msg-collapsed-hint">Skip this if it doesn't apply - click to add it</div>`;
+    html += `</div>`;
+    return html;
+  }
+
+  html += `<button type="button" class="tpl-trigger" data-tpl-open="${escAttr(s.id)}">
       <span class="tpl-trigger-icon">&#9776;</span>
       <span class="tpl-trigger-text">
         <span class="tpl-trigger-title">Browse Template Bank</span>
@@ -1651,9 +1903,34 @@ function msgCardHtml(s){
       <button type="button" class="btn primary small" data-msg-save="${escAttr(s.id)}">Save Email</button>
     </div>
   </div>`;
+  return html;
+}
+function msgFlowStepHtml(s){
+  const isOptional = s.tag === 'Optional';
+  return `<div class="msg-flow-step${isOptional ? ' optional' : ''}">
+    <div class="msg-flow-node">${esc(s.num)}</div>
+    <div class="msg-flow-label-wrap">
+      <span class="msg-flow-tag">${esc(s.tag)}</span>
+      <span class="msg-flow-label">${esc(s.label)}</span>
+    </div>
+  </div>`;
+}
+function renderMsgFlowHtml(){
+  const parts = [];
+  MESSAGE_SECTIONS.forEach((s, i)=>{
+    if(i>0) parts.push(`<div class="msg-flow-connector"></div>`);
+    parts.push(msgFlowStepHtml(s));
+  });
+  return `<div class="msg-flow">
+    <p class="msg-flow-eyebrow">The Send, Start To Finish</p>
+    <h3 class="msg-flow-title">Four moments of contact around the gift</h3>
+    <div class="msg-flow-track">${parts.join('')}</div>
+  </div>`;
 }
 function renderFollowupStep(){
   let html = pageHeaderHtml('Step 6 of 6', 'Messaging', 'The three moments of contact around the send - before it lands, inside the box, and after it lands.');
+
+  html += renderMsgFlowHtml();
 
   html += `<div class="msg-sections">` + MESSAGE_SECTIONS.filter(s=> s.id!=='followup' && s.id!=='publicPosting').map(msgCardHtml).join('') + `</div>`;
 
@@ -1667,8 +1944,23 @@ function renderFollowupStep(){
   wireStepNav(document);
   document.querySelectorAll('[data-tpl-open]').forEach(b=> b.addEventListener('click', ()=> openTemplateModal(b.dataset.tplOpen)));
   document.querySelectorAll('[data-followup-open]').forEach(b=> b.addEventListener('click', ()=> openFollowupEmailModal(parseInt(b.dataset.followupOpen,10))));
+  document.querySelectorAll('[data-optional-toggle]').forEach(b=>{
+    const toggle = (e)=>{
+      e.stopPropagation();
+      const id = b.dataset.optionalToggle;
+      optionalExpanded[id] = !optionalExpanded[id];
+      renderFollowupStep();
+    };
+    b.addEventListener('click', toggle);
+    if(b.getAttribute('role')==='button'){
+      b.addEventListener('keydown', (e)=>{
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(e); }
+      });
+    }
+  });
   MESSAGE_SECTIONS.filter(s=> s.id!=='followup').forEach(s=>{
     const el = document.getElementById(`msg-${s.id}`);
+    if(!el) return;
     el.addEventListener('input', ()=>{
       plan[s.id] = el.value;
       persistPlan();
@@ -1726,6 +2018,7 @@ function renderFollowupEmailsHtml(){
 }
 function openFollowupEmailModal(idx){
   followupModalIdx = idx;
+  modalFullscreen = false;
   renderFollowupEmailModal();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1736,7 +2029,7 @@ function renderFollowupEmailModal(){
 
   let html = `<div class="modal-head">
     <div><div class="modal-eyebrow">Follow-Up Message</div><h2>Email ${idx+1} of ${plan.followupEmails.length}</h2></div>
-    <button class="btn ghost small" id="modalCloseBtn">Close</button>
+    <div class="modal-head-right">${fullscreenBtnHtml()}<button class="btn ghost small" id="modalCloseBtn">Close</button></div>
   </div>`;
   html += `<div class="modal-scroll">
     <button type="button" class="tpl-trigger" id="feModalTplBtn">
@@ -1756,9 +2049,10 @@ function renderFollowupEmailModal(){
   </div>`;
 
   const box = document.getElementById('modalBox');
-  box.className = 'modal-box';
+  box.className = 'modal-box' + (modalFullscreen ? ' fullscreen' : '');
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+  wireFullscreenBtn();
   document.getElementById('feModalTplBtn').addEventListener('click', ()=> openTemplateModal('followup'));
   const bodyEl = document.getElementById('feModalBody');
   bodyEl.addEventListener('input', ()=>{
@@ -1787,6 +2081,7 @@ function openTemplateModal(sectionId){
   templateEditingId = null;
   templateCatManageOpen = false;
   templateCatEditing = null;
+  modalFullscreen = false;
   renderTemplateModal();
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -1839,6 +2134,7 @@ function renderTemplateModal(){
       <p class="tpl-modal-sub">${esc(section.desc)}</p>
     </div>
     <div class="tpl-modal-head-actions">
+      ${fullscreenBtnHtml()}
       <button class="btn primary small" id="tplNewBtn">+ New Template</button>
       <button class="btn ghost small" id="modalCloseBtn">Close</button>
     </div>
@@ -1920,9 +2216,10 @@ function renderTemplateModal(){
   html += `</div>`;
 
   const box = document.getElementById('modalBox');
-  box.className = 'modal-box tpl-modal-box';
+  box.className = 'modal-box tpl-modal-box' + (modalFullscreen ? ' fullscreen' : '');
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeGoodsModal);
+  wireFullscreenBtn();
   document.getElementById('tplNewBtn').addEventListener('click', ()=>{
     templateEditingId = 'NEW';
     renderTemplateModal();
@@ -1962,8 +2259,14 @@ function renderTemplateModal(){
     templateCatEditing = null;
     renderTemplateModal();
   }));
-  box.querySelectorAll('[data-tpl-cat-delete]').forEach(b=> b.addEventListener('click', ()=>{
+  box.querySelectorAll('[data-tpl-cat-delete]').forEach(b=> b.addEventListener('click', async ()=>{
     const name = b.dataset.tplCatDelete;
+    const ok = await showConfirm({
+      title:'Delete this category?',
+      message:`Delete "${name}"? Any templates in it will move to General.`,
+      confirmLabel:'Delete Category',
+    });
+    if(!ok) return;
     if(deleteCategory(section.id, name)){
       if(templateModalCat === name) templateModalCat = null;
       toast('Category deleted');
@@ -1984,8 +2287,15 @@ function renderTemplateModal(){
     templateEditingId = null;
     renderTemplateModal();
   }));
-  box.querySelectorAll('[data-tpl-delete]').forEach(b=> b.addEventListener('click', ()=>{
+  box.querySelectorAll('[data-tpl-delete]').forEach(b=> b.addEventListener('click', async ()=>{
     const id = b.dataset.tplDelete;
+    const existing = findTemplateById(groups, id);
+    const ok = await showConfirm({
+      title:'Delete this template?',
+      message:`Delete "${existing ? existing.title : 'this template'}"? This can't be undone.`,
+      confirmLabel:'Delete',
+    });
+    if(!ok) return;
     customTemplateAdds[section.id] = (customTemplateAdds[section.id]||[]).filter(it=> it.id!==id);
     if(!customTemplateDeletes[section.id]) customTemplateDeletes[section.id] = [];
     if(customTemplateDeletes[section.id].indexOf(id)===-1) customTemplateDeletes[section.id].push(id);
@@ -2155,23 +2465,40 @@ function renderStepContent(){
   if(activeStep==='send')      return renderSendStep();
   if(activeStep==='followup')  return renderFollowupStep();
 }
+function renderMobileTopbar(){
+  const idx = STEPS.findIndex(s=> s.id===activeStep);
+  const step = STEPS[idx];
+  if(!step) return;
+  document.getElementById('mobileStepEyebrow').textContent = `Step ${idx+1} of ${STEPS.length}`;
+  document.getElementById('mobileStepName').textContent = step.label;
+}
 function render(){
   renderNav();
   renderProgress();
   renderStepContent();
   renderPlanPanel();
+  renderMobileTopbar();
 }
 
 render();
 
 document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
 document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
-document.getElementById('planToggleBtn').addEventListener('click', ()=> document.getElementById('plan-panel').classList.toggle('open'));
-document.getElementById('planCloseBtn').addEventListener('click', ()=> document.getElementById('plan-panel').classList.remove('open'));
 document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeGoodsModal(); });
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
+document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
+});
 document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
-document.getElementById('clearPlanBtn').addEventListener('click', ()=>{
-  if(confirm('Clear the whole Goods Plan? This cannot be undone.')){
+document.getElementById('clearPlanBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirm({
+    title:'Clear the whole Goods Plan?',
+    message:'This cannot be undone.',
+    confirmLabel:'Clear Plan',
+  });
+  if(ok){
     plan = defaultPlan();
     persistPlan();
     render();

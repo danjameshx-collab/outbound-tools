@@ -10,8 +10,7 @@
   --good:#2F8F5B; --warn:#B4691A;
   --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
   --radius: 8px;
-  --sidebar-w: 232px;
-  --draft-w: 340px;
+  --sidebar-w: 380px;
   --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
@@ -55,11 +54,11 @@ svg{display:block;}
   letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
 }
 
-/* ---------- app shell: full-height sidebar + content + draft ---------- */
+/* ---------- app shell: full-height sidebar + content ---------- */
 #app{
   display:grid;
-  grid-template-columns: var(--sidebar-w) 1fr var(--draft-w);
-  grid-template-areas: "rail main draft";
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas: "rail main";
   flex:1 1 auto; min-height:0;
   overflow:hidden;
 }
@@ -69,17 +68,10 @@ svg{display:block;}
     grid-template-areas: "main";
   }
   nav#rail{
-    position:fixed; inset:0 auto 0 0; width:260px; z-index:50;
+    position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
     transform:translateX(-100%); transition:transform .2s ease; box-shadow:0 0 0 rgba(0,0,0,0);
   }
   nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
-  #draft-panel{
-    position:fixed; inset:auto 0 0 0; height:72vh; z-index:50;
-    transform:translateY(100%); transition:transform .25s ease;
-    box-shadow:0 -12px 32px -8px rgba(0,0,0,.35);
-    border-radius:14px 14px 0 0;
-  }
-  #draft-panel.open{transform:translateY(0);}
 }
 
 /* ---------- sidebar ---------- */
@@ -106,7 +98,9 @@ nav#rail{
   border:none; background:transparent; outline:none; color:var(--ink); width:100%;
   font-family:var(--font-body); font-size:13px;
 }
-.nav-groups{flex:1 1 auto; min-height:0; padding:6px 10px 10px; overflow-y:auto;}
+/* rail-scroll holds the section nav + Draft Sheet as one continuous, independently scrolling column */
+.rail-scroll{flex:1 1 auto; min-height:0; overflow-y:auto;}
+.nav-groups{padding:6px 10px 4px;}
 .nav-group{margin-bottom:16px;}
 .nav-group-label{
   font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
@@ -116,6 +110,7 @@ nav#rail{
   display:flex; align-items:center; gap:10px; width:100%; text-align:left;
   padding:8px 8px; border:none; background:transparent; color:var(--ink-soft);
   font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:7px; margin-bottom:1px;
+  transition:background-color .12s ease;
 }
 .nav-item svg{flex:0 0 auto; color:var(--ink-faint);}
 .nav-item:hover{background:var(--paper);}
@@ -125,15 +120,27 @@ nav#rail{
   margin-left:auto; font-family:var(--font-display); font-size:11px; color:var(--ink-faint);
 }
 .nav-item.active .count{color:var(--stamp);}
-.sidebar-footer{border-top:1px solid var(--line); padding:10px;}
-.sidebar-footer button{
-  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
-  padding:8px; border:none; background:transparent; color:var(--ink-soft);
-  font-family:var(--font-body); font-size:13px; cursor:pointer; border-radius:7px;
+
+/* ---------- rail divider: clear break between section nav and the Draft Sheet ---------- */
+.rail-divider{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:14px 14px 10px; padding-top:18px; border-top:1.5px solid var(--line-strong);
 }
-.sidebar-footer button:hover{background:var(--paper);}
-.sidebar-footer .draft-toggle-mobile{display:none;}
-@media (max-width:980px){.sidebar-footer .draft-toggle-mobile{display:flex;}}
+.rail-divider::before{
+  content:''; position:absolute; top:-1.5px; left:0; width:38px; height:1.5px; background:var(--stamp);
+}
+.rail-divider .eyebrow{color:var(--stamp); font-size:11px;}
+.rail-divider .rd-clear{
+  font-family:var(--font-display); font-weight:700; font-size:10.5px; color:var(--ink-faint);
+  background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.rail-divider .rd-clear:hover{border-color:var(--warn); color:var(--warn);}
+
+.sidebar-footer{
+  flex:0 0 auto; border-top:1px solid var(--line); padding:11px 14px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--paper-tab);
+}
 .rail-close-mobile{display:none;}
 @media (max-width:980px){
   .rail-close-mobile{display:flex; margin-left:auto;}
@@ -186,15 +193,16 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 }
 .searchbar .count{font-family:var(--font-display); font-size:11px; color:var(--ink-faint); white-space:nowrap;}
 
-.chiprow{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px;}
+.chiprow{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
 .chip{
-  font-family:var(--font-display); font-size:15px; font-weight:800; text-transform:uppercase;
-  letter-spacing:.03em; padding:14px 26px; border-radius:10px; border:2px solid var(--line);
-  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; flex:1 1 180px;
-  text-align:center; box-shadow:var(--shadow);
+  font-family:var(--font-display); font-size:12.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.03em; padding:9px 16px; border-radius:999px; border:1px solid var(--line);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
+  text-align:center; transition:border-color .15s ease, background .15s ease, color .15s ease;
 }
-.chip:hover{border-color:var(--mimeo);}
-.chip.active{background:var(--mimeo); color:var(--mimeo-ink); border-color:var(--mimeo);}
+.chip:hover{border-color:var(--accent, var(--mimeo)); color:var(--ink);}
+.chip.active{background:var(--accent, var(--mimeo)); color:#fff; border-color:var(--accent, var(--mimeo));}
+.chip-dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; vertical-align:middle;}
 
 .group-title{
   font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
@@ -206,19 +214,29 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .card{
   background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
   box-shadow:var(--shadow); margin-bottom:10px; overflow:hidden;
+  transition:border-color .15s ease, box-shadow .15s ease;
 }
+.card:hover{border-color:var(--accent, var(--stamp));}
+.card.open{border-color:var(--accent, var(--stamp));}
 .card .card-head{
   display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-  padding:13px 15px; cursor:pointer;
+  padding:14px 16px; cursor:pointer;
 }
 .card .card-head h3{
   margin:0 0 3px; font-family:var(--font-display); font-weight:700; font-size:14px;
   letter-spacing:0; color:var(--ink);
 }
 .card .card-head .desc{margin:0; font-size:12.5px; color:var(--ink-soft);}
-.card .card-body{padding:0 15px 16px; display:none;}
+.card .card-body{padding:0 16px 16px; display:none;}
 .card.open .card-body{display:block;}
-.card .caret{font-family:var(--font-mono); color:var(--ink-faint); font-size:14px; padding-top:2px;}
+.card .caret{
+  font-family:var(--font-mono); color:var(--ink-faint); font-size:14px; line-height:1;
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; margin-top:1px;
+  transition:transform .2s ease, border-color .15s ease, color .15s ease;
+}
+.card:hover .caret{border-color:var(--accent, var(--stamp)); color:var(--accent, var(--stamp));}
+.card.open .caret{transform:rotate(45deg); border-color:var(--accent, var(--stamp)); color:var(--accent, var(--stamp));}
 
 .tpl-block{margin:10px 0;}
 .tpl-block .label{
@@ -251,6 +269,8 @@ ul.bullets li{margin:3px 0; font-size:13px; color:var(--ink);}
 .btn:hover{border-color:var(--line-strong);}
 .btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
 .btn.primary:hover{filter:brightness(1.06);}
+.btn.danger{background:var(--warn); color:#fff; border-color:var(--warn);}
+.btn.danger:hover{filter:brightness(1.06);}
 .btn.ghost{background:transparent;}
 .btn.small{padding:5px 10px; font-size:11px;}
 
@@ -272,29 +292,33 @@ ul.bullets li{margin:3px 0; font-size:13px; color:var(--ink);}
 .snip{
   background:var(--paper-raised); border:1px solid var(--line); border-radius:8px;
   padding:9px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px;
+  transition:border-color .15s ease, box-shadow .15s ease;
 }
+.snip:hover{border-color:var(--accent, var(--mimeo)); box-shadow:0 2px 10px -6px rgba(20,24,27,.25);}
 .snip .txt{font-size:13px; line-height:1.4;}
 .snip .txt small{display:block; font-family:var(--font-mono); font-size:10px; color:var(--ink-faint); margin-top:2px;}
 .snip .avoid-flag{color:var(--warn); font-weight:800; margin-right:4px;}
 .snip button.add, table.ref-table button.add{
-  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--mimeo);
-  background:transparent; color:var(--mimeo); cursor:pointer; font-size:14px; line-height:1;
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--accent, var(--mimeo));
+  background:transparent; color:var(--accent, var(--mimeo)); cursor:pointer; font-size:14px; line-height:1;
+  transition:background .15s ease, color .15s ease;
 }
-.snip button.add:hover, table.ref-table button.add:hover{background:var(--mimeo); color:var(--mimeo-ink);}
+.snip button.add:hover, table.ref-table button.add:hover{background:var(--accent, var(--mimeo)); color:#fff;}
 table.ref-table th:last-child, table.ref-table td:last-child{width:36px; padding-left:4px; padding-right:8px;}
 .word-chip{
   display:inline-flex; align-items:center; gap:5px; background:var(--paper-raised);
   border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 12px; margin:3px 4px 3px 0;
   cursor:pointer; font-size:13px;
 }
-.word-chip:hover{border-color:var(--mimeo);}
+.word-chip:hover{border-color:var(--accent, var(--mimeo));}
 .word-chip .w{font-weight:700;}
 .word-chip .m{color:var(--ink-faint); font-size:11px;}
 .word-chip button.add{
-  flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1px solid var(--mimeo);
-  background:transparent; color:var(--mimeo); cursor:pointer; font-size:13px; line-height:1; padding:0;
+  flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1px solid var(--accent, var(--mimeo));
+  background:transparent; color:var(--accent, var(--mimeo)); cursor:pointer; font-size:13px; line-height:1; padding:0;
+  transition:background .15s ease, color .15s ease;
 }
-.word-chip button.add:hover{background:var(--mimeo); color:var(--mimeo-ink);}
+.word-chip button.add:hover{background:var(--accent, var(--mimeo)); color:#fff;}
 .avoid-chip{
   display:inline-flex; align-items:center; gap:4px; background:transparent;
   border:1px solid var(--line); border-radius:999px; padding:4px 10px; margin:3px 4px 3px 0;
@@ -312,58 +336,64 @@ table.ref-table td{border-bottom:1px solid var(--line); padding:8px; vertical-al
 
 /* ---------- rules & principles ---------- */
 .person-subhead{
-  font-family:var(--font-display); font-weight:800; font-size:14.5px; color:var(--stamp);
-  margin:22px 0 8px; padding-top:14px; border-top:1px solid var(--line);
+  --accent: var(--stamp); --accent-tint: var(--mimeo-ink);
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--font-display); font-weight:800; font-size:13.5px; color:var(--accent);
+  margin:24px 0 8px; padding-top:16px; border-top:1px solid var(--line);
 }
 .person-subhead:first-child{margin-top:0; padding-top:0; border-top:none;}
-.rule-card{padding:11px 0; border-bottom:1px solid var(--line);}
-.rule-card:last-child{border-bottom:none;}
+.person-subhead .mini-avatar{
+  flex:0 0 auto; width:21px; height:21px; border-radius:50%; background:var(--accent-tint); color:var(--accent);
+  display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800;
+}
+.rule-card{
+  padding:16px 18px; margin:0 0 10px; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper); max-width:680px;
+}
+.rule-card:last-child{margin-bottom:0;}
 .rule-card .rule-title{
-  font-family:var(--font-display); font-weight:700; font-size:13.5px; color:var(--ink);
-  margin-bottom:4px;
+  font-family:var(--font-display); font-weight:700; font-size:14.5px; line-height:1.35; color:var(--ink);
+  margin-bottom:5px;
 }
 .rule-card .rule-source{
-  font-family:var(--font-mono); font-weight:400; font-size:10px; color:var(--ink-faint);
-  margin-left:8px; text-transform:none; letter-spacing:0;
+  display:block; font-family:var(--font-mono); font-weight:400; font-size:10.5px; color:var(--ink-faint);
+  margin:2px 0 0; text-transform:none; letter-spacing:.01em;
 }
-.rule-card .rule-body{font-size:13px; line-height:1.55; color:var(--ink-soft);}
+.rule-card .rule-body{font-size:14px; line-height:1.7; color:var(--ink-soft);}
 .rule-card .rule-example{
-  font-family:var(--font-mono); font-size:12px; color:var(--stamp);
-  background:var(--mimeo-ink); padding:6px 9px; border-radius:6px; margin-top:6px;
+  font-family:var(--font-mono); font-size:12.5px; line-height:1.55; color:var(--stamp);
+  background:var(--mimeo-ink); padding:8px 11px; border-radius:6px; margin-top:10px;
 }
+.modal-box.fullscreen .rule-card{max-width:720px;}
 
 /* ---------- checklist ---------- */
-.check-item{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line);}
-.check-item:last-child{border-bottom:none;}
-.check-item input[type=checkbox]{margin-top:3px; width:16px; height:16px; accent-color:var(--good);}
-.check-item label{font-size:13.5px; flex:1;}
+.check-item{
+  display:flex; gap:11px; align-items:flex-start; padding:10px 12px; border-radius:8px;
+  margin:0 0 3px; transition:background .12s ease;
+}
+.check-item:hover{background:var(--paper);}
+.check-item.done{background:var(--mimeo-ink);}
+.check-item input[type=checkbox]{
+  margin-top:2px; width:18px; height:18px; accent-color:var(--good); cursor:pointer; flex:0 0 auto;
+}
+.check-item label{font-size:13.5px; flex:1; cursor:pointer;}
 .check-item.done label{color:var(--ink-faint); text-decoration:line-through;}
 .check-item.chips{flex-wrap:wrap;}
 .check-item.chips label{flex:0 1 auto;}
-.check-chips{flex:1 1 100%; margin-left:26px;}
+.check-chips{flex:1 1 100%; margin-left:29px;}
 .check-item.chips.done .check-chips{opacity:.5;}
-.progress-bar{height:6px; background:var(--paper); border:1px solid var(--line); border-radius:3px; overflow:hidden; margin:8px 0 16px;}
-.progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s;}
+.progress-bar-row{display:flex; align-items:center; gap:10px; margin:8px 0 18px;}
+.progress-bar{flex:1 1 auto; height:8px; background:var(--paper); border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+.progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s; border-radius:999px;}
+.progress-bar-label{flex:0 0 auto; font-family:var(--font-display); font-weight:700; font-size:11px; color:var(--ink-faint); white-space:nowrap;}
 
-/* ---------- draft panel ---------- */
-#draft-panel{
-  grid-area:draft; background:var(--paper-raised); border-left:1px solid var(--line);
-  display:flex; flex-direction:column; overflow:hidden;
-}
-#draft-panel .dp-head{
-  padding:14px 16px 10px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;
-}
-#draft-panel .dp-head .eyebrow{color:var(--stamp);}
-#draft-panel .dp-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:14px 16px;}
-#draft-panel .dp-foot{
-  padding:12px 16px; border-top:1px solid var(--line); display:flex; gap:8px; align-items:center; justify-content:space-between;
-}
-#draft-panel .wc{font-family:var(--font-display); font-size:11px; color:var(--ink-faint);}
-.draft-close-mobile{display:none;}
+/* ---------- draft sheet (lives in the rail, beneath the section nav) ---------- */
+.dp-body{padding:2px 14px 16px;}
+.wc{font-family:var(--font-display); font-size:11px; color:var(--ink-faint); white-space:nowrap;}
 
 .email-slot{
   border:1px solid var(--line); border-radius:8px; padding:10px; margin-bottom:12px;
-  background:var(--paper);
+  background:var(--paper); transition:border-color .15s ease, box-shadow .15s ease;
 }
 .email-slot.active{border-color:var(--stamp); box-shadow:0 0 0 1px var(--stamp);}
 .es-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:7px;}
@@ -393,7 +423,6 @@ table.ref-table td{border-bottom:1px solid var(--line); padding:8px; vertical-al
 .saved-seq-item .ss-subjects{font-size:11.5px; color:var(--ink-soft); margin-bottom:8px;}
 .saved-seq-item .ss-subjects div{margin:1px 0;}
 .saved-seq-item .rowbtns{margin:0;}
-@media (max-width:980px){.draft-close-mobile{display:inline-flex;}}
 .toast{
   position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
   background:var(--ink); color:var(--paper); font-family:var(--font-display); font-weight:700;
@@ -408,42 +437,147 @@ table.ref-table td{border-bottom:1px solid var(--line); padding:8px; vertical-al
 /* ---------- category grid (Cold Email Bank landing) ---------- */
 .cat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-top:8px;}
 .cat-card{
-  text-align:left; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
+  position:relative; text-align:left; border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
   box-shadow:var(--shadow); padding:18px; cursor:pointer; display:flex; flex-direction:column; gap:6px;
 }
 .cat-card:hover{border-color:var(--stamp);}
 a.cat-card, a.cat-card:visited{text-decoration:none; color:inherit;}
-.resource-card{align-items:center; justify-content:center; text-align:center; min-height:96px;}
 .cat-card-count{
   align-self:flex-start; font-family:var(--font-mono); font-size:11px; color:var(--mimeo);
   background:var(--mimeo-ink); border-radius:999px; padding:2px 10px;
 }
 .cat-card-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink);}
 .cat-card-desc{font-size:12.5px; color:var(--ink-soft); line-height:1.4;}
+.cat-card-icon{
+  position:absolute; top:16px; right:16px; width:26px; height:26px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center; color:var(--stamp); background:var(--mimeo-ink);
+}
+
+/* ---------- source blocks (Cold Email Bank: per-person/brand grouping) ---------- */
+.source-block{
+  --accent: var(--stamp); --accent-tint: var(--mimeo-ink);
+  border:1px solid var(--line); border-radius:12px; background:var(--paper-raised);
+  padding:18px 20px 22px; margin:0 0 22px; border-left:4px solid var(--accent);
+}
+.source-block-head{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+.source-avatar{
+  flex:0 0 auto; width:36px; height:36px; border-radius:50%; background:var(--accent-tint); color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:12.5px; letter-spacing:.02em;
+}
+.source-block-name{font-family:var(--font-display); font-weight:800; font-size:17px; letter-spacing:-.01em; color:var(--ink);}
+.source-block-meta{font-family:var(--font-display); font-size:11px; color:var(--ink-faint); margin-top:1px;}
+.source-block .cat-grid{margin-top:0;}
+.source-pill{
+  display:inline-flex; align-items:center; gap:5px; font-family:var(--font-display); font-weight:700;
+  font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:2px 9px 2px 7px; border-radius:999px;
+  color:var(--accent, var(--stamp)); background:var(--accent-tint, var(--mimeo-ink));
+}
+.source-pill .dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex:0 0 auto;}
+.type-title{display:flex; align-items:center; gap:8px;}
+.type-title .type-icon{color:var(--ink-faint); flex:0 0 auto;}
+
+/* ---------- resources tab ---------- */
+.resource-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; margin:0 0 8px;}
+.resource-card{
+  display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px 14px; box-shadow:var(--shadow);
+  transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.resource-card:hover{border-color:var(--stamp); transform:translateY(-1px); box-shadow:0 4px 14px -8px rgba(20,24,27,.25);}
+.resource-card:hover .resource-card-arrow{color:var(--stamp); transform:translate(1px,-1px);}
+.resource-card-icon{
+  flex:0 0 auto; width:38px; height:38px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+}
+.resource-card-icon.doc{background:var(--mimeo-ink); color:var(--stamp);}
+.resource-card-icon.yt{background:#FBE4E4; color:#C6362F;}
+.resource-card-body{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px;}
+.resource-card-title{
+  font-family:var(--font-display); font-weight:700; font-size:13.5px; color:var(--ink); line-height:1.3;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.resource-card-meta{
+  font-family:var(--font-display); font-size:10.5px; font-weight:700; text-transform:uppercase;
+  letter-spacing:.05em; color:var(--ink-faint);
+}
+.resource-card-arrow{flex:0 0 auto; color:var(--ink-faint); transition:color .15s ease, transform .15s ease;}
 
 /* ---------- modal ---------- */
 .modal-overlay{
-  display:none; position:fixed; inset:0; background:rgba(20,24,27,.45); z-index:200;
-  align-items:center; justify-content:center; padding:26px;
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:200;
+  align-items:center; justify-content:center; padding:26px; backdrop-filter:blur(1px);
 }
 .modal-overlay.open{display:flex;}
+.modal-overlay.fullscreen{padding:0;}
 .modal-box{
-  background:var(--paper-raised); border-radius:12px; width:100%; max-width:920px; max-height:85vh;
-  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+  --accent: var(--stamp); --accent-tint: var(--mimeo-ink);
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:920px; max-height:85vh;
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.45);
+  border-top:4px solid var(--accent);
 }
 .modal-head{
   display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
-  padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  padding:20px 24px 16px; border-bottom:1px solid var(--line); flex:0 0 auto;
 }
-.modal-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);}
-.modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
+.modal-head-left{display:flex; align-items:flex-start; gap:12px; min-width:0;}
+.modal-hero-icon{
+  flex:0 0 auto; width:36px; height:36px; border-radius:10px; margin-top:1px;
+  background:var(--accent-tint); color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+}
+.modal-eyebrow{
+  display:flex; align-items:center; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);
+}
+.modal-accent-dot{flex:0 0 auto; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:7px;}
+.modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink); text-wrap:balance;}
+.modal-head-actions{flex:0 0 auto; display:flex; align-items:center; gap:8px;}
+.modal-close-btn{
+  flex:0 0 auto; width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--paper);
+  color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.modal-close-btn:hover{background:#F7F8F7; color:var(--ink); border-color:var(--line-strong);}
 .modal-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:0 24px 24px;}
 .modal-scroll .searchbar{max-width:none;}
 .modal-scroll .group-title:first-of-type{margin-top:0;}
+.modal-box.fullscreen{
+  max-width:none; max-height:none; width:100%; height:100%; border-radius:0;
+}
+.modal-box.fullscreen .modal-scroll{
+  padding:0 max(24px, calc(50% - 420px)) 40px;
+}
+.modal-box.fullscreen .modal-head{
+  padding:22px max(24px, calc(50% - 420px)) 18px;
+}
 @media (max-width:720px){
   .modal-overlay{padding:0;}
   .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+  .modal-box.fullscreen .modal-scroll, .modal-box.fullscreen .modal-head{padding-left:24px; padding-right:24px;}
 }
+
+/* ---------- confirm dialog (replaces native confirm()) ---------- */
+.confirm-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:300;
+  align-items:center; justify-content:center; padding:26px;
+}
+.confirm-overlay.open{display:flex;}
+.confirm-box{
+  --accent: var(--warn);
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:400px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.45); border-top:4px solid var(--accent);
+  padding:22px 24px 20px; animation:confirmIn .15s ease;
+}
+@keyframes confirmIn{ from{opacity:0; transform:translateY(6px) scale(.98);} to{opacity:1; transform:none;} }
+.confirm-icon{
+  width:38px; height:38px; border-radius:10px; margin-bottom:12px;
+  background:#FBEEE1; color:var(--accent); display:flex; align-items:center; justify-content:center;
+}
+.confirm-title{font-family:var(--font-display); font-weight:800; font-size:16.5px; color:var(--ink); margin:0 0 6px;}
+.confirm-detail{font-size:13px; line-height:1.5; color:var(--ink-soft); margin:0;}
+.confirm-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:20px;}
 </style>
 
 
@@ -472,12 +606,17 @@ a.cat-card, a.cat-card:visited{text-decoration:none; color:inherit;}
         <input id="globalSearch" placeholder="Search this section...">
       </div>
     </div>
-    <div class="nav-groups" id="navGroups"></div>
+    <div class="rail-scroll">
+      <div class="nav-groups" id="navGroups"></div>
+      <div class="rail-divider">
+        <span class="eyebrow">Draft Sheet</span>
+        <button class="rd-clear" id="clearDraftBtn" title="Clear the whole draft">Clear</button>
+      </div>
+      <div class="dp-body" id="dpBody"></div>
+    </div>
     <div class="sidebar-footer">
-      <button class="draft-toggle-mobile" id="draftToggleBtn">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12.5V14h1.5l8-8L10 4.5l-8 8Z"/><path d="M9.5 3l3 3"/></svg>
-        <span>Open draft</span>
-      </button>
+      <span class="wc" id="draftWc">0 words</span>
+      <button class="btn primary small" id="copyDraftBtn">Copy Draft</button>
     </div>
   </nav>
 
@@ -488,26 +627,14 @@ a.cat-card, a.cat-card:visited{text-decoration:none; color:inherit;}
     </div>
     <div id="content"></div>
   </main>
-
-  <aside id="draft-panel">
-    <div class="dp-head">
-      <span class="eyebrow">Draft Sheet</span>
-      <div style="display:flex; gap:8px;">
-        <button class="btn ghost small" id="clearDraftBtn">Clear</button>
-        <button class="btn ghost small draft-close-mobile" id="draftCloseBtn">Close</button>
-      </div>
-    </div>
-    <div class="dp-body" id="dpBody"></div>
-    <div class="dp-foot">
-      <span class="wc" id="draftWc">0 words</span>
-      <button class="btn primary small" id="copyDraftBtn">Copy Draft</button>
-    </div>
-  </aside>
 </div>
 
 <div class="toast" id="toast"></div>
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box" id="modalBox"></div>
+</div>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box" id="confirmBox"></div>
 </div>
 
 <script>
@@ -2103,6 +2230,14 @@ const RESOURCES = [
   {title:'Unlocking Enterprise', url:'https://drive.google.com/file/d/1tCAU5rPCzhj7bpx17V7xVTC6DjfHK9Yi/view?usp=sharing'},
   {title:'WhatsApp Outreach', url:'https://drive.google.com/file/d/1YnWSACmnN5UCiTqtDYnvpcaw2PSB2baa/view?usp=sharing'},
 ];
+const RESOURCE_CHANNELS = [
+  {name:'Christian Bonnier', url:'https://www.youtube.com/@ChristianBonnier'},
+  {name:'Eric Nowoslawski', url:'https://www.youtube.com/@EricNowoslawski'},
+  {name:'Frank Brothers', url:'https://www.youtube.com/@StackOptimise'},
+  {name:'Instantly', url:'https://www.youtube.com/@InstantlyAI'},
+  {name:'Matt Lucero', url:'https://www.youtube.com/@MattLucero'},
+  {name:'Smartlead', url:'https://www.youtube.com/@SmartleadAI'},
+];
 let activeTab = 'templates';
 let searchTerms = {}; // per-tab search string
 
@@ -2184,6 +2319,36 @@ function toast(msg){
  clearTimeout(window._toastTimer);
  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1600);
 }
+const CONFIRM_ICON = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5 15 13.5H1z" stroke-linejoin="round"/><path d="M8 6v3.2M8 11.4h.01" stroke-linecap="round"/></svg>';
+function showConfirm(title, opts){
+  opts = opts || {};
+  return new Promise(resolve=>{
+    const overlay = document.getElementById('confirmOverlay');
+    const box = document.getElementById('confirmBox');
+    box.innerHTML = `
+      <span class="confirm-icon">${CONFIRM_ICON}</span>
+      <div class="confirm-title">${esc(title)}</div>
+      ${opts.detail?`<p class="confirm-detail">${esc(opts.detail)}</p>`:''}
+      <div class="confirm-actions">
+        <button class="btn ghost" id="confirmCancelBtn">${esc(opts.cancelLabel||'Cancel')}</button>
+        <button class="btn ${opts.danger?'danger':'primary'}" id="confirmOkBtn">${esc(opts.confirmLabel||'OK')}</button>
+      </div>`;
+    overlay.classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+    function onKey(e){ if(e.key==='Escape') finish(false); if(e.key==='Enter') finish(true); }
+    function onBgClick(e){ if(e.target===overlay) finish(false); }
+    function finish(result){
+      overlay.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      overlay.removeEventListener('click', onBgClick);
+      resolve(result);
+    }
+    document.addEventListener('keydown', onKey);
+    overlay.addEventListener('click', onBgClick);
+    document.getElementById('confirmCancelBtn').addEventListener('click', ()=> finish(false));
+    document.getElementById('confirmOkBtn').addEventListener('click', ()=> finish(true));
+  });
+}
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
 function highlightPlaceholders(s){ return esc(s).replace(/\{\{.*?\}\}/g, m=>'<mark>'+m+'</mark>'); }
@@ -2202,7 +2367,7 @@ function insertToDraft(s, target){
   }
   persistSequence();
   renderDraftPanel();
-  if(window.innerWidth <= 980){ document.getElementById('draft-panel').classList.add('open'); }
+  if(window.innerWidth <= 980){ document.getElementById('rail').classList.add('open'); }
   toast((target === 'subject' ? 'Set subject for ' : 'Added to ') + slotLabel(activeSlot));
 }
 function fullSequenceText(){
@@ -2310,8 +2475,9 @@ function renderDraftPanel(){
     });
   });
   body.querySelectorAll('.ss-delete').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      if(!confirm('Delete this saved item?')) return;
+    b.addEventListener('click', async ()=>{
+      const ok = await showConfirm('Delete this saved item?', {detail:'This can\'t be undone.', confirmLabel:'Delete', danger:true});
+      if(!ok) return;
       const list = loadSavedSequences().filter(x=>x.id!==b.dataset.id);
       persistSavedSequences(list);
       renderDraftPanel();
@@ -3225,69 +3391,68 @@ function renderTemplates(){
     });
     const ex = REAL_EXAMPLES.filter(e=> matches(term, e.name, e.group, e.why));
     const fw = FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
-    if(ex.length){ any = true; html += `<div class="group-title">Real Examples (reference)</div>`; ex.forEach(e=>{ html += exampleCard(e); }); }
-    if(fw.length){ any = true; html += `<div class="group-title">Structural Frameworks (reference)</div>`; fw.forEach(f=>{ html += frameworkCard(f); }); }
+    if(ex.length){ any = true; html += `<div class="group-title type-title">${catTypeIcon('Real Examples')?`<span class="type-icon">${catTypeIcon('Real Examples')}</span>`:''}<span>Real Examples (reference)</span></div>`; ex.forEach(e=>{ html += exampleCard(e); }); }
+    if(fw.length){ any = true; html += `<div class="group-title type-title">${catTypeIcon('Structural Frameworks')?`<span class="type-icon">${catTypeIcon('Structural Frameworks')}</span>`:''}<span>Structural Frameworks (reference)</span></div>`; fw.forEach(f=>{ html += frameworkCard(f); }); }
     if(!any) html += `<p style="color:var(--ink-faint);font-size:13px;">Nothing matches "${esc(term)}".</p>`;
     document.getElementById('content').innerHTML = html;
     wireHeaderCopyBtn(); wireCardToggles(); wireTemplateForms();
     return;
   }
 
-  html += `<h2 class="frank-brothers-heading">Frank Brothers</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Frank Brothers', categoryGridHtml([
     {key:'fillable', title:'Message Templates', count:`${TEMPLATES.length} templates`, desc:'Fill-in-the-blank frameworks for first emails and follow-ups.'},
     {key:'examples', title:'Real Examples', count:`${REAL_EXAMPLES.length} examples`, desc:'Real, sent emails to read and adapt - no blanks to fill.'},
     {key:'frameworks', title:'Structural Frameworks', count:`${FRAMEWORKS.length} frameworks`, desc:'Short structural blueprints for building your own template.'},
-  ]);
+  ]), `${TEMPLATES.length+REAL_EXAMPLES.length+FRAMEWORKS.length} templates & references across 3 categories`);
 
-  html += `<h2 class="frank-brothers-heading">Eric Nowoslawski</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Eric Nowoslawski', categoryGridHtml([
     {key:'eric-lead-magnet', title:'Lead Magnet Frameworks', count:`${ERIC_TEMPLATES.length} templates`, desc:'Give something away first, then invite the follow-up conversation.'},
     {key:'eric-message-templates', title:'Message Templates', count:`${ERIC_MESSAGE_TEMPLATES.length} templates`, desc:'Short, punchy templates for first-touch outreach.'},
     {key:'eric-followup-templates', title:'Follow-Up Templates', count:`${ERIC_FOLLOWUP_TEMPLATES.length} templates`, desc:'Templates for following up when the first email goes unanswered.'},
     {key:'eric-campaign-examples', title:'Real Campaign Examples', count:`${ERIC_CAMPAIGN_EXAMPLES.length} examples`, desc:'Real, sent campaigns broken down email by email - read and adapt.'},
     {key:'eric-problem-sniffing', title:'Problem Sniffing Examples', count:`${ERIC_PROBLEM_SNIFFING_EXAMPLES.length} examples`, desc:'Spot a problem the prospect already has, then offer the fix.'},
-  ]);
+  ]), `${ERIC_TEMPLATES.length+ERIC_MESSAGE_TEMPLATES.length+ERIC_FOLLOWUP_TEMPLATES.length+ERIC_CAMPAIGN_EXAMPLES.length+ERIC_PROBLEM_SNIFFING_EXAMPLES.length} templates & references across 5 categories`);
 
-  html += `<h2 class="frank-brothers-heading">Matt Lucero</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Matt Lucero', categoryGridHtml([
     {key:'matt-templates', title:'Message Templates', count:`${MATT_TEMPLATES.length} template`, desc:"Fill-in-the-blank cold email template from Matt Lucero's YouTube breakdown."},
     {key:'matt-frameworks', title:'Structural Frameworks', count:`${MATT_FRAMEWORKS.length} frameworks`, desc:'The 3-part framework and last-10-customers research method.'},
-  ]);
+  ]), `${MATT_TEMPLATES.length+MATT_FRAMEWORKS.length} templates & references across 2 categories`);
 
-  html += `<h2 class="frank-brothers-heading">Christian Bonnier</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Christian Bonnier', categoryGridHtml([
     {key:'christian-templates', title:'Message Templates', count:`${CHRISTIAN_TEMPLATES.length} templates`, desc:'Fill-in-the-blank templates from his teardowns and strategy breakdowns.'},
     {key:'christian-frameworks', title:'Structural Frameworks', count:`${CHRISTIAN_FRAMEWORKS.length} frameworks`, desc:'The one-two punch, Trojan Horse, and Loom video pitch structures.'},
-  ]);
+  ]), `${CHRISTIAN_TEMPLATES.length+CHRISTIAN_FRAMEWORKS.length} templates & references across 2 categories`);
 
-  html += `<h2 class="frank-brothers-heading">Instantly</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Instantly', categoryGridHtml([
     {key:'instantly-templates', title:'Message Templates', count:`${INSTANTLY_TEMPLATES.length} templates`, desc:'Fill-in-the-blank templates from Instantly\'s tutorial and strategy videos.'},
     {key:'instantly-frameworks', title:'Structural Frameworks', count:`${INSTANTLY_FRAMEWORKS.length} frameworks`, desc:'The value-ladder follow-up system, workshop funnel, and full A-to-Z system.'},
-  ]);
+  ]), `${INSTANTLY_TEMPLATES.length+INSTANTLY_FRAMEWORKS.length} templates & references across 2 categories`);
 
-  html += `<h2 class="frank-brothers-heading">Smartlead</h2>`;
-
-  html += categoryGridHtml([
+  html += sourceBlockHtml('Smartlead', categoryGridHtml([
     {key:'smartlead-templates', title:'Message Templates', count:`${SMARTLEAD_TEMPLATES.length} templates`, desc:'Fill-in-the-blank templates from Smartlead\'s tutorial and strategy videos.'},
     {key:'smartlead-frameworks', title:'Structural Frameworks', count:`${SMARTLEAD_FRAMEWORKS.length} frameworks`, desc:'The 3-email max sequence and segmented personalization framework.'},
-  ]);
+  ]), `${SMARTLEAD_TEMPLATES.length+SMARTLEAD_FRAMEWORKS.length} templates & references across 2 categories`);
 
   document.getElementById('content').innerHTML = html;
   wireHeaderCopyBtn();
   wireCategoryGrid(openTemplatesModal);
 }
 
+const TEMPLATES_MODAL_PERSON = {
+  fillable:'Frank Brothers', examples:'Frank Brothers', frameworks:'Frank Brothers',
+  'eric-lead-magnet':'Eric Nowoslawski', 'eric-message-templates':'Eric Nowoslawski',
+  'eric-followup-templates':'Eric Nowoslawski', 'eric-campaign-examples':'Eric Nowoslawski',
+  'eric-problem-sniffing':'Eric Nowoslawski',
+  'matt-templates':'Matt Lucero', 'matt-frameworks':'Matt Lucero',
+  'christian-templates':'Christian Bonnier', 'christian-frameworks':'Christian Bonnier',
+  'instantly-templates':'Instantly', 'instantly-frameworks':'Instantly',
+  'smartlead-templates':'Smartlead', 'smartlead-frameworks':'Smartlead',
+};
 function openTemplatesModal(key){
+  const person = TEMPLATES_MODAL_PERSON[key] || 'Frank Brothers';
   if(key==='fillable'){
     openModal({
-      eyebrow:'Message Templates', title:'Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       sections: TEMPLATE_GROUP_ORDER, searchPlaceholder:'Search templates...',
       renderBody: (section, term)=>{
         const items = TEMPLATES.filter(t=>t.group===section).filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3298,7 +3463,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='examples'){
     openModal({
-      eyebrow:'Message Templates', title:'Real Examples',
+      eyebrow: person + ' - Message Templates', title:'Real Examples',
       sections: EXAMPLE_SECTIONS, searchPlaceholder:'Search real examples...',
       renderBody: (section, term)=>{
         const items = REAL_EXAMPLES.filter(e=> bucketExampleGroup(e.group)===section).filter(e=> matches(term, e.name, e.group, e.why));
@@ -3309,7 +3474,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='frameworks'){
     openModal({
-      eyebrow:'Message Templates', title:'Structural Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Structural Frameworks',
       searchPlaceholder:'Search frameworks...',
       renderBody: (section, term)=>{
         const items = FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
@@ -3320,7 +3485,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='eric-lead-magnet'){
     openModal({
-      eyebrow:'Message Templates', title:'Lead Magnet Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Lead Magnet Frameworks',
       searchPlaceholder:'Search lead magnet frameworks...',
       renderBody: (section, term)=>{
         const items = ERIC_TEMPLATES.filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3331,7 +3496,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='eric-message-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       searchPlaceholder:'Search message templates...',
       renderBody: (section, term)=>{
         const items = ERIC_MESSAGE_TEMPLATES.filter(t=> matches(term, t.name, t.desc));
@@ -3342,7 +3507,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='eric-followup-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Follow-Up Templates',
+      eyebrow: person + ' - Message Templates', title:'Follow-Up Templates',
       searchPlaceholder:'Search follow-up templates...',
       renderBody: (section, term)=>{
         const items = ERIC_FOLLOWUP_TEMPLATES.filter(t=> matches(term, t.name, t.desc));
@@ -3353,7 +3518,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='eric-campaign-examples'){
     openModal({
-      eyebrow:'Message Templates', title:'Real Campaign Examples',
+      eyebrow: person + ' - Message Templates', title:'Real Campaign Examples',
       sections: ERIC_CAMPAIGN_SECTIONS, searchPlaceholder:'Search campaign examples...',
       renderBody: (section, term)=>{
         const items = ERIC_CAMPAIGN_EXAMPLES.filter(e=> e.group===section).filter(e=> matches(term, e.name, e.group, e.why));
@@ -3364,7 +3529,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='eric-problem-sniffing'){
     openModal({
-      eyebrow:'Message Templates', title:'Problem Sniffing Examples',
+      eyebrow: person + ' - Message Templates', title:'Problem Sniffing Examples',
       searchPlaceholder:'Search problem sniffing examples...',
       renderBody: (section, term)=>{
         const items = ERIC_PROBLEM_SNIFFING_EXAMPLES.filter(t=> matches(term, t.name, t.desc));
@@ -3375,7 +3540,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='matt-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Matt Lucero - Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       searchPlaceholder:'Search Matt Lucero templates...',
       renderBody: (section, term)=>{
         const items = MATT_TEMPLATES.filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3386,7 +3551,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='matt-frameworks'){
     openModal({
-      eyebrow:'Message Templates', title:'Matt Lucero - Structural Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Structural Frameworks',
       searchPlaceholder:'Search Matt Lucero frameworks...',
       renderBody: (section, term)=>{
         const items = MATT_FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
@@ -3397,7 +3562,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='christian-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Christian Bonnier - Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       searchPlaceholder:'Search Christian Bonnier templates...',
       renderBody: (section, term)=>{
         const items = CHRISTIAN_TEMPLATES.filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3408,7 +3573,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='christian-frameworks'){
     openModal({
-      eyebrow:'Message Templates', title:'Christian Bonnier - Structural Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Structural Frameworks',
       searchPlaceholder:'Search Christian Bonnier frameworks...',
       renderBody: (section, term)=>{
         const items = CHRISTIAN_FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
@@ -3419,7 +3584,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='instantly-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Instantly - Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       searchPlaceholder:'Search Instantly templates...',
       renderBody: (section, term)=>{
         const items = INSTANTLY_TEMPLATES.filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3430,7 +3595,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='instantly-frameworks'){
     openModal({
-      eyebrow:'Message Templates', title:'Instantly - Structural Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Structural Frameworks',
       searchPlaceholder:'Search Instantly frameworks...',
       renderBody: (section, term)=>{
         const items = INSTANTLY_FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
@@ -3441,7 +3606,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='smartlead-templates'){
     openModal({
-      eyebrow:'Message Templates', title:'Smartlead - Message Templates',
+      eyebrow: person + ' - Message Templates', title:'Message Templates',
       searchPlaceholder:'Search Smartlead templates...',
       renderBody: (section, term)=>{
         const items = SMARTLEAD_TEMPLATES.filter(t=> matches(term, t.name, t.desc, (t.theory||[]).join(' '), (t.when||[]).join(' ')));
@@ -3452,7 +3617,7 @@ function openTemplatesModal(key){
     });
   } else if(key==='smartlead-frameworks'){
     openModal({
-      eyebrow:'Message Templates', title:'Smartlead - Structural Frameworks',
+      eyebrow: person + ' - Message Templates', title:'Structural Frameworks',
       searchPlaceholder:'Search Smartlead frameworks...',
       renderBody: (section, term)=>{
         const items = SMARTLEAD_FRAMEWORKS.filter(f=> matches(term, f.name, f.structure));
@@ -3594,39 +3759,163 @@ function buildSwipeCategories(){
 }
 const SWIPE_CATEGORIES = buildSwipeCategories();
 
+/* ---------- source (person/brand) identity - who a line/category came from ---------- */
+const PERSON_META = {
+  'Frank Brothers': {initials:'FB', color:'#1E6B45', tint:'#E6F4EC'},
+  'Eric Nowoslawski': {initials:'EN', color:'#2A6F97', tint:'#E7F1F7'},
+  'Matt Lucero': {initials:'ML', color:'#B4691A', tint:'#FBEEE1'},
+  'Christian Bonnier': {initials:'CB', color:'#7B4FA0', tint:'#F1E9F7'},
+  'Instantly': {initials:'IN', color:'#C6362F', tint:'#FBE7E6'},
+  'Smartlead': {initials:'SL', color:'#0F8B8D', tint:'#E2F3F3'},
+};
+function personForCategoryKey(key){
+  if(key.indexOf('Matt Lucero - ')===0) return 'Matt Lucero';
+  if(key.indexOf('Christian Bonnier - ')===0) return 'Christian Bonnier';
+  if(key.indexOf('Instantly - ')===0) return 'Instantly';
+  if(key.indexOf('Smartlead - ')===0) return 'Smartlead';
+  if(key.indexOf('Eric ')===0) return 'Eric Nowoslawski';
+  return 'Frank Brothers';
+}
+function typeForCategoryKey(key){
+  const person = personForCategoryKey(key);
+  if(person==='Matt Lucero') return key.slice('Matt Lucero - '.length);
+  if(person==='Christian Bonnier') return key.slice('Christian Bonnier - '.length);
+  if(person==='Instantly') return key.slice('Instantly - '.length);
+  if(person==='Smartlead') return key.slice('Smartlead - '.length);
+  if(person==='Eric Nowoslawski') return key.slice('Eric '.length);
+  return key;
+}
+function sourcePillHtml(person){
+  const m = PERSON_META[person] || {color:'var(--stamp)', tint:'var(--mimeo-ink)'};
+  return `<span class="source-pill" style="--accent:${m.color};--accent-tint:${m.tint};"><span class="dot"></span>${esc(person)}</span>`;
+}
+function sourceBlockHtml(person, innerHtml, metaText){
+  const m = PERSON_META[person] || {initials:'??', color:'#1E6B45', tint:'#E6F4EC'};
+  return `<div class="source-block" style="--accent:${m.color};--accent-tint:${m.tint};">
+    <div class="source-block-head">
+      <span class="source-avatar">${esc(m.initials)}</span>
+      <div>
+        <div class="source-block-name">${esc(person)}</div>
+        ${metaText?`<div class="source-block-meta">${esc(metaText)}</div>`:''}
+      </div>
+    </div>
+    ${innerHtml}
+  </div>`;
+}
+function personSubheadHtml(person){
+  const m = PERSON_META[person] || {initials:'??', color:'var(--stamp)', tint:'var(--mimeo-ink)'};
+  return `<div class="person-subhead" style="--accent:${m.color};--accent-tint:${m.tint};"><span class="mini-avatar">${esc(m.initials)}</span>${esc(person)}</div>`;
+}
+function personAccent(person){ return (PERSON_META[person]||{}).color || 'var(--stamp)'; }
+function accentForEyebrow(eyebrow){
+  eyebrow = eyebrow || '';
+  for(const p in PERSON_META){ if(eyebrow.indexOf(p)===0) return PERSON_META[p]; }
+  return {color:'var(--stamp)', tint:'var(--mimeo-ink)'};
+}
+const MODAL_CLOSE_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3 3 13"/></svg>';
+const MODAL_EXPAND_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4"/></svg>';
+const MODAL_COMPRESS_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4V2M14 6h-4V2M2 10h4v4M14 10h-4v4"/></svg>';
+
+/* ---------- content-type icons - what kind of line this is (subject, opener, body, CTA, P.S.) ---------- */
+const CATEGORY_TYPE_ICONS = {
+  'Subject Lines': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M2 4l6 5 6-5"/></svg>',
+  'Opening Lines': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5c2-2.2 5-2.7 7-1.2M2 9c3-2.5 7-3 11-1"/><circle cx="12.5" cy="4.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  'Body Lines': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3.5h12M2 7.5h12M2 11.5h8"/></svg>',
+  'CTA': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg>',
+  'P.S. Statements': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.5h11v8h-4l-3 2.5v-2.5h-4z"/></svg>',
+  'Power Words': '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" stroke="none"><path d="M8.8 1 3 9h3.6L6 15l6-9H8.5z"/></svg>',
+};
+const ICON_TEMPLATE_FILL = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 2c-1.3 0-1.8.7-1.8 1.8v1.8c0 .7-.3.9-.9.9.6 0 .9.2.9.9v1.8c0 1.1.5 1.8 1.8 1.8M11.5 2c1.3 0 1.8.7 1.8 1.8v1.8c0 .7.3.9.9.9-.6 0-.9.2-.9.9v1.8c0 1.1-.5 1.8-1.8 1.8"/></svg>';
+const ICON_EXAMPLE_QUOTE = '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" stroke="none"><path d="M3 9c0-2.8 1.6-4.6 4-5l.4 1.3C5.8 5.7 5 6.7 5 8h2v4H3V9zm6 0c0-2.8 1.6-4.6 4-5l.4 1.3c-1.6.4-2.4 1.4-2.4 2.7h2v4h-4V9z"/></svg>';
+const ICON_FRAMEWORK_GRID = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/><path d="M1.5 6.5h13M6.5 6.5v8"/></svg>';
+[
+  'Message Templates','Follow-Up Templates',
+].forEach(k=> CATEGORY_TYPE_ICONS[k] = ICON_TEMPLATE_FILL);
+[
+  'Real Examples','Real Campaign Examples','Problem Sniffing Examples',
+].forEach(k=> CATEGORY_TYPE_ICONS[k] = ICON_EXAMPLE_QUOTE);
+[
+  'Structural Frameworks','Lead Magnet Frameworks',
+].forEach(k=> CATEGORY_TYPE_ICONS[k] = ICON_FRAMEWORK_GRID);
+Object.assign(CATEGORY_TYPE_ICONS, {
+  'Mindset & Strategy': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M10.3 5.7 8.8 8.8 5.7 10.3l1.5-3.1z"/></svg>',
+  'Targeting & List Building': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.6"/><path d="M8 1v2.4M8 12.6V15M1 8h2.4M12.6 8H15"/></svg>',
+  'Personalization & Research': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.8" cy="6.8" r="4.3"/><path d="m10 10 4 4"/></svg>',
+  'Subject Lines': CATEGORY_TYPE_ICONS['Subject Lines'],
+  'Copywriting & Message Structure': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2.5h7l3 3v8H3z"/><path d="M9.5 2.5V6h3.5M5.5 8.8h5M5.5 11h5"/></svg>',
+  'Offers & Positioning': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5z"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>',
+  'Calls to Action (CTA)': CATEGORY_TYPE_ICONS['CTA'],
+  'Follow-Up Strategy': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 8A5.5 5.5 0 1 1 11.8 4"/><path d="M13.5 2.5V6H10"/></svg>',
+  'Objection Handling & Replies': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5 13.5 4v4c0 3.5-2.3 5.7-5.5 6.5C4.8 13.7 2.5 11.5 2.5 8V4z"/><path d="m6 8 1.5 1.5L10.5 6.3"/></svg>',
+  'Sales Calls & Closing': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2.2c.4 1.4 1 2.7 1.9 3.9L3.6 7.4c1 2.1 2.9 4 5 5l1.3-1.3c1.2.9 2.5 1.5 3.9 1.9v2.3c0 .6-.5 1-1.1 1C6.9 15.8.2 9.1.7 3.3c0-.6.5-1.1 1.1-1.1z"/></svg>',
+  'Deliverability & Sending Infrastructure': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="4" rx="1"/><rect x="1.5" y="9.5" width="13" height="4" rx="1"/><circle cx="4" cy="4.5" r=".6" fill="currentColor" stroke="none"/><circle cx="4" cy="11.5" r=".6" fill="currentColor" stroke="none"/></svg>',
+  'Volume, Testing & Metrics': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13.5h12M4.5 13.5V8M8 13.5V4.5M11.5 13.5V6.5"/></svg>',
+  'Tools & AI': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4.5" y="4.5" width="7" height="7" rx="1"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M2.8 2.8l1.4 1.4M11.8 11.8l1.4 1.4M2.8 13.2l1.4-1.4M11.8 4.2l1.4-1.4"/></svg>',
+  'Humor & Tone': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M5.3 9.5c.6.9 1.6 1.5 2.7 1.5s2.1-.6 2.7-1.5"/><path d="M5.7 6h.01M10.3 6h.01" stroke-width="2" stroke-linecap="round"/></svg>',
+  'Channel-Specific': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4.5 8 8l6-3.5M2 4.5v7h12v-7M2 4.5 8 1l6 3.5"/></svg>',
+  'Before You Send': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8.5 6 12l7.5-8"/></svg>',
+  'Phrases to Avoid': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M3.8 3.8l8.4 8.4"/></svg>',
+  'Psychology & Principles': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 2.2A2.8 2.8 0 0 0 3.7 5v.4A2.3 2.3 0 0 0 3 9.7a2.6 2.6 0 0 0 2.5 3.1h1zM9.5 2.2A2.8 2.8 0 0 1 12.3 5v.4A2.3 2.3 0 0 1 13 9.7a2.6 2.6 0 0 1-2.5 3.1h-1z"/><path d="M6.5 2.2v10.6M9.5 2.2v10.6"/></svg>',
+  'Master Rules': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 2.8h7a2 2 0 0 1 2 2V14h-9z"/><path d="M2.5 2.8v11.2M5 6h4M5 8.3h4"/></svg>',
+  'Follow-Up & Enterprise': '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 14V3.5h6V7h5V14z"/><path d="M4.5 6h2M4.5 8.5h2M10 9.5h2M10 12h2"/></svg>',
+  'Humor & AI': CATEGORY_TYPE_ICONS['Humor & Tone'],
+});
+function catTypeIcon(title){ return CATEGORY_TYPE_ICONS[title] || ''; }
+
 /* ---------- generic category grid + modal shell (reused by every browsing tab) ---------- */
 function categoryGridHtml(categories){
-  return `<div class="cat-grid">` + categories.map(cat=>`
-    <button class="cat-card" data-key="${escAttr(cat.key)}">
+  return `<div class="cat-grid">` + categories.map(cat=>{
+    const icon = catTypeIcon(cat.title);
+    return `<button class="cat-card" data-key="${escAttr(cat.key)}">
+      ${icon?`<span class="cat-card-icon">${icon}</span>`:''}
       <span class="cat-card-count">${esc(cat.count)}</span>
       <span class="cat-card-title">${esc(cat.title)}</span>
       <span class="cat-card-desc">${esc(cat.desc||'')}</span>
-    </button>`).join('') + `</div>`;
+    </button>`;
+  }).join('') + `</div>`;
 }
 function wireCategoryGrid(onOpen){
   document.querySelectorAll('.cat-card').forEach(b=> b.addEventListener('click', ()=> onOpen(b.dataset.key)));
 }
 
 let modalConfig = null;
+let modalFullscreen = false;
 function openModal(config){
   modalConfig = Object.assign({sections:null, activeSection:null, searchTerm:'', searchPlaceholder:'Search...', searchable:true}, config);
   if(modalConfig.sections && !modalConfig.activeSection) modalConfig.activeSection = modalConfig.sections[0];
+  modalFullscreen = false;
   document.getElementById('modalOverlay').classList.add('open');
   renderModal();
 }
-function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); modalConfig = null; }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); modalConfig = null; modalFullscreen = false; }
+function toggleModalFullscreen(){ modalFullscreen = !modalFullscreen; renderModal(); }
 function renderModal(){
   if(!modalConfig) return;
   const c = modalConfig;
   const hasSections = c.sections && c.sections.length > 1;
+  const accent = accentForEyebrow(c.eyebrow);
+  const heroIcon = catTypeIcon(c.title);
+  const box0 = document.getElementById('modalBox');
+  box0.style.setProperty('--accent', accent.color);
+  box0.style.setProperty('--accent-tint', accent.tint);
+  box0.classList.toggle('fullscreen', modalFullscreen);
+  document.getElementById('modalOverlay').classList.toggle('fullscreen', modalFullscreen);
   let html = `<div class="modal-head">
-    <div><div class="modal-eyebrow">${esc(c.eyebrow||'')}</div><h2>${esc(c.title)}</h2></div>
-    <button class="btn ghost small" id="modalCloseBtn">Close</button>
+    <div class="modal-head-left">
+      ${heroIcon?`<span class="modal-hero-icon">${heroIcon}</span>`:''}
+      <div><div class="modal-eyebrow"><span class="modal-accent-dot"></span>${esc(c.eyebrow||'')}</div><h2>${esc(c.title)}</h2></div>
+    </div>
+    <div class="modal-head-actions">
+      <button class="modal-close-btn" id="modalFullscreenBtn" title="${modalFullscreen?'Exit full screen':'Full screen'}" aria-label="${modalFullscreen?'Exit full screen':'Full screen'}">${modalFullscreen?MODAL_COMPRESS_ICON:MODAL_EXPAND_ICON}</button>
+      <button class="modal-close-btn" id="modalCloseBtn" title="Close" aria-label="Close">${MODAL_CLOSE_ICON}</button>
+    </div>
   </div>`;
   html += `<div class="modal-scroll">`;
   if(hasSections){
-    html += `<div class="chiprow" style="margin-top:16px;">` + c.sections.map(s=>
-      `<button class="chip ${s===c.activeSection?'active':''}" data-sec="${escAttr(s)}">${esc(s)}</button>`).join('') + `</div>`;
+    html += `<div class="chiprow" style="margin-top:16px;">` + c.sections.map(s=>{
+      const dot = c.sectionAccent ? `<span class="chip-dot" style="background:${escAttr(c.sectionAccent(s))};"></span>` : '';
+      return `<button class="chip ${s===c.activeSection?'active':''}" data-sec="${escAttr(s)}">${dot}${esc(s)}</button>`;
+    }).join('') + `</div>`;
   }
   if(c.searchable){
     html += `<div class="searchbar" style="margin:${hasSections?'0':'16px'} 0 14px;">${SEARCH_ICON}<input id="modalSearch" placeholder="${escAttr(c.searchPlaceholder)}" value="${escAttr(c.searchTerm)}"></div>`;
@@ -3637,6 +3926,7 @@ function renderModal(){
   const box = document.getElementById('modalBox');
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('modalFullscreenBtn').addEventListener('click', toggleModalFullscreen);
   const s = document.getElementById('modalSearch');
   if(s){
     s.addEventListener('input', ()=>{
@@ -3670,7 +3960,7 @@ function rulesGroupedHtml(items){
   RULES_PERSON_ORDER.forEach(person=>{
     const pItems = alphaByTitle(items.filter(r=>r.p===person));
     if(!pItems.length) return;
-    html += `<div class="person-subhead">${esc(person)}</div>` + ruleItemsHtml(pItems);
+    html += personSubheadHtml(person) + ruleItemsHtml(pItems);
   });
   return html;
 }
@@ -3684,7 +3974,8 @@ function renderRulesPrinciples(){
       const items = rulesByCategory(cat.key, term);
       if(!items.length) return;
       any = true;
-      html += `<div class="group-title">${esc(cat.key)}</div>` + rulesGroupedHtml(items);
+      const icon = catTypeIcon(cat.key);
+      html += `<div class="group-title type-title">${icon?`<span class="type-icon">${icon}</span>`:''}<span>${esc(cat.key)}</span></div>` + rulesGroupedHtml(items);
     });
     if(!any) html += `<p style="color:var(--ink-faint);font-size:13px;">No lessons match "${esc(term)}".</p>`;
     document.getElementById('content').innerHTML = html;
@@ -3706,7 +3997,7 @@ function openRulesModal(key){
   const personsHere = RULES_PERSON_ORDER.filter(p=> RULES_LESSONS.some(r=> r.cat===key && r.p===p));
   openModal({
     eyebrow: 'Cold Email Rules & Principles', title: cat.key, searchPlaceholder: `Search ${cat.key}...`,
-    sections: personsHere,
+    sections: personsHere, sectionAccent: personAccent,
     renderBody: (person, term)=>{
       const items = alphaByTitle(RULES_LESSONS.filter(r=> r.cat===key && r.p===person && matches(term, r.t, r.b, r.ex, r.src)));
       if(!items.length) return `<p style="color:var(--ink-faint);font-size:13px;">${term?`Nothing matches "${esc(term)}".`:`No lessons here yet for ${esc(person)}.`}</p>`;
@@ -3728,37 +4019,41 @@ function renderSwipe(){
       if(!items.length) return;
       any = true;
       const m = SWIPE_CATEGORY_MAP[group.cat] || {category:group.cat, section:null};
-      const heading = [m.category, m.section, group.sub].filter(Boolean).join(' - ');
-      html += `<div class="group-title">${esc(heading)}</div>`;
+      const person = personForCategoryKey(group.cat);
+      const type = person==='Frank Brothers' ? m.category : typeForCategoryKey(group.cat);
+      const extra = [m.section, group.sub].filter(Boolean).join(' - ');
+      const icon = catTypeIcon(type);
+      html += `<div class="group-title type-title">${sourcePillHtml(person)}${icon?`<span class="type-icon">${icon}</span>`:''}<span>${esc([type, extra].filter(Boolean).join(' - '))}</span></div>`;
       if(group.intro) html += `<p style="font-size:12.8px;color:var(--ink-soft);margin:-4px 0 8px;">${esc(group.intro)}</p>`;
       html += snipGridHtml(items, (group.cat==='Subject Lines'||group.cat==='Eric Subject Lines'||group.cat==='Matt Lucero - Subject Lines'||group.cat==='Christian Bonnier - Subject Lines'||group.cat==='Instantly - Subject Lines'||group.cat==='Smartlead - Subject Lines') ? 'subject' : null);
     });
     const pitems = PERSONALIZATION.filter(p=> matches(term, p.angle, p.phrase, p.source));
     if(pitems.length){ any = true; html += personalizationTableHtml(pitems); }
+    const powerWordsGroupTitle = (person)=> `<div class="group-title type-title">${sourcePillHtml(person)}<span class="type-icon">${catTypeIcon('Power Words')}</span><span>Power Words</span></div>`;
     const wordsHtml = powerWordsBodyHtml(term);
     if(!/^<p style="color:var\(--ink-faint\)/.test(wordsHtml)){
       any = true;
-      html += `<div class="group-title">Power Words</div>` + wordsHtml;
+      html += powerWordsGroupTitle('Frank Brothers') + wordsHtml;
     }
     const mattWordsHtml = powerWordsBodyHtmlFor(MATT_POWER_WORDS, term);
     if(!/^<p style="color:var\(--ink-faint\)/.test(mattWordsHtml)){
       any = true;
-      html += `<div class="group-title">Matt Lucero - Power Words</div>` + mattWordsHtml;
+      html += powerWordsGroupTitle('Matt Lucero') + mattWordsHtml;
     }
     const christianWordsHtml = powerWordsBodyHtmlFor(CHRISTIAN_POWER_WORDS, term);
     if(!/^<p style="color:var\(--ink-faint\)/.test(christianWordsHtml)){
       any = true;
-      html += `<div class="group-title">Christian Bonnier - Power Words</div>` + christianWordsHtml;
+      html += powerWordsGroupTitle('Christian Bonnier') + christianWordsHtml;
     }
     const instantlyWordsHtml = powerWordsBodyHtmlFor(INSTANTLY_POWER_WORDS, term);
     if(!/^<p style="color:var\(--ink-faint\)/.test(instantlyWordsHtml)){
       any = true;
-      html += `<div class="group-title">Instantly - Power Words</div>` + instantlyWordsHtml;
+      html += powerWordsGroupTitle('Instantly') + instantlyWordsHtml;
     }
     const smartleadWordsHtml = powerWordsBodyHtmlFor(SMARTLEAD_POWER_WORDS, term);
     if(!/^<p style="color:var\(--ink-faint\)/.test(smartleadWordsHtml)){
       any = true;
-      html += `<div class="group-title">Smartlead - Power Words</div>` + smartleadWordsHtml;
+      html += powerWordsGroupTitle('Smartlead') + smartleadWordsHtml;
     }
     if(!any) html += `<p style="color:var(--ink-faint);font-size:13px;">No lines match "${esc(term)}".</p>`;
     document.getElementById('content').innerHTML = html;
@@ -3768,75 +4063,84 @@ function renderSwipe(){
     return;
   }
 
-  html += `<h2 class="frank-brothers-heading">Frank Brothers</h2>`;
+  {
+    const cards = SWIPE_CATEGORY_ORDER.map(cat=>{
+      const data = SWIPE_CATEGORIES[cat];
+      let count = Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0);
+      if(cat==='Body Lines'){
+        count += PERSONALIZATION.length;
+      }
+      return {key:cat, title:cat, count:`${count} lines`, desc:SWIPE_CATEGORY_META[cat]||''};
+    }).concat([
+      {key:POWER_WORDS_CARD_KEY, title:'Power Words', count:'156 words', desc:'Swap generic for vivid - adjectives, nouns, verbs, adverbs.'},
+    ]);
+    const total = cards.slice(0,-1).reduce((a,c)=>a+parseInt(c.count,10),0);
+    html += sourceBlockHtml('Frank Brothers', categoryGridHtml(cards), `${total} lines across ${cards.length-1} categories`);
+  }
 
-  html += categoryGridHtml(SWIPE_CATEGORY_ORDER.map(cat=>{
-    const data = SWIPE_CATEGORIES[cat];
-    let count = Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0);
-    if(cat==='Body Lines'){
-      count += PERSONALIZATION.length;
-    }
-    return {key:cat, title:cat, count:`${count} lines`, desc:SWIPE_CATEGORY_META[cat]||''};
-  }).concat([
-    {key:POWER_WORDS_CARD_KEY, title:'Power Words', count:'156 words', desc:'Swap generic for vivid - adjectives, nouns, verbs, adverbs.'},
-  ]));
-
-  html += `<h2 class="frank-brothers-heading">Eric Nowoslawski</h2>`;
-
-  html += categoryGridHtml((()=>{
+  {
     const subjData = SWIPE_CATEGORIES['Eric Subject Lines'];
     const subjCount = Object.values(subjData.sections).flat().reduce((a,g)=>a+g.items.length,0);
     const ctaData = SWIPE_CATEGORIES['Eric CTA'];
     const ctaCount = Object.values(ctaData.sections).flat().reduce((a,g)=>a+g.items.length,0);
-    return [
+    const cards = [
       {key:'Eric Subject Lines', title:'Subject Lines', count:`${subjCount} lines`, desc:'Ready-to-use subject line formulas and swipe lines.'},
       {key:'Eric CTA', title:'CTA', count:`${ctaCount} lines`, desc:'Calls to action that sound like an invitation, not a pitch.'},
     ];
-  })());
+    html += sourceBlockHtml('Eric Nowoslawski', categoryGridHtml(cards), `${subjCount+ctaCount} lines across ${cards.length} categories`);
+  }
 
-  html += `<h2 class="frank-brothers-heading">Matt Lucero</h2>`;
+  {
+    const cards = MATT_CATEGORY_ORDER.map(cat=>{
+      const data = SWIPE_CATEGORIES[cat];
+      const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
+      const title = cat.replace('Matt Lucero - ','');
+      return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
+    }).concat([
+      {key:MATT_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${MATT_POWER_WORDS[0].items.length} words`, desc:"His go-to filler words and framing phrases, pulled from across his videos."},
+    ]);
+    const total = cards.slice(0,-1).reduce((a,c)=>a+parseInt(c.count,10),0);
+    html += sourceBlockHtml('Matt Lucero', categoryGridHtml(cards), `${total} lines across ${cards.length-1} categories`);
+  }
 
-  html += categoryGridHtml(MATT_CATEGORY_ORDER.map(cat=>{
-    const data = SWIPE_CATEGORIES[cat];
-    const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
-    const title = cat.replace('Matt Lucero - ','');
-    return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
-  }).concat([
-    {key:MATT_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${MATT_POWER_WORDS[0].items.length} words`, desc:"His go-to filler words and framing phrases, pulled from across his videos."},
-  ]));
+  {
+    const cards = CHRISTIAN_CATEGORY_ORDER.map(cat=>{
+      const data = SWIPE_CATEGORIES[cat];
+      const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
+      const title = cat.replace('Christian Bonnier - ','');
+      return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
+    }).concat([
+      {key:CHRISTIAN_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${CHRISTIAN_POWER_WORDS[0].items.length} words`, desc:"His recurring framing phrases and named strategies, pulled from across his videos."},
+    ]);
+    const total = cards.slice(0,-1).reduce((a,c)=>a+parseInt(c.count,10),0);
+    html += sourceBlockHtml('Christian Bonnier', categoryGridHtml(cards), `${total} lines across ${cards.length-1} categories`);
+  }
 
-  html += `<h2 class="frank-brothers-heading">Christian Bonnier</h2>`;
+  {
+    const cards = INSTANTLY_CATEGORY_ORDER.map(cat=>{
+      const data = SWIPE_CATEGORIES[cat];
+      const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
+      const title = cat.replace('Instantly - ','');
+      return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
+    }).concat([
+      {key:INSTANTLY_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${INSTANTLY_POWER_WORDS[0].items.length} words`, desc:"Recurring framing phrases and devices, pulled from across Instantly's YouTube videos."},
+    ]);
+    const total = cards.slice(0,-1).reduce((a,c)=>a+parseInt(c.count,10),0);
+    html += sourceBlockHtml('Instantly', categoryGridHtml(cards), `${total} lines across ${cards.length-1} categories`);
+  }
 
-  html += categoryGridHtml(CHRISTIAN_CATEGORY_ORDER.map(cat=>{
-    const data = SWIPE_CATEGORIES[cat];
-    const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
-    const title = cat.replace('Christian Bonnier - ','');
-    return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
-  }).concat([
-    {key:CHRISTIAN_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${CHRISTIAN_POWER_WORDS[0].items.length} words`, desc:"His recurring framing phrases and named strategies, pulled from across his videos."},
-  ]));
-
-  html += `<h2 class="frank-brothers-heading">Instantly</h2>`;
-
-  html += categoryGridHtml(INSTANTLY_CATEGORY_ORDER.map(cat=>{
-    const data = SWIPE_CATEGORIES[cat];
-    const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
-    const title = cat.replace('Instantly - ','');
-    return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
-  }).concat([
-    {key:INSTANTLY_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${INSTANTLY_POWER_WORDS[0].items.length} words`, desc:"Recurring framing phrases and devices, pulled from across Instantly's YouTube videos."},
-  ]));
-
-  html += `<h2 class="frank-brothers-heading">Smartlead</h2>`;
-
-  html += categoryGridHtml(SMARTLEAD_CATEGORY_ORDER.map(cat=>{
-    const data = SWIPE_CATEGORIES[cat];
-    const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
-    const title = cat.replace('Smartlead - ','');
-    return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
-  }).concat([
-    {key:SMARTLEAD_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${SMARTLEAD_POWER_WORDS[0].items.length} words`, desc:"Recurring framing phrases and devices, pulled from across Smartlead's YouTube videos."},
-  ]));
+  {
+    const cards = SMARTLEAD_CATEGORY_ORDER.map(cat=>{
+      const data = SWIPE_CATEGORIES[cat];
+      const count = data ? Object.values(data.sections).flat().reduce((a,g)=>a+g.items.length,0) : 0;
+      const title = cat.replace('Smartlead - ','');
+      return {key:cat, title, count:`${count} lines`, desc:SWIPE_CATEGORY_META[title]||''};
+    }).concat([
+      {key:SMARTLEAD_POWER_WORDS_CARD_KEY, title:'Power Words', count:`${SMARTLEAD_POWER_WORDS[0].items.length} words`, desc:"Recurring framing phrases and devices, pulled from across Smartlead's YouTube videos."},
+    ]);
+    const total = cards.slice(0,-1).reduce((a,c)=>a+parseInt(c.count,10),0);
+    html += sourceBlockHtml('Smartlead', categoryGridHtml(cards), `${total} lines across ${cards.length-1} categories`);
+  }
 
   document.getElementById('content').innerHTML = html;
   wireHeaderCopyBtn();
@@ -3858,7 +4162,7 @@ function openSwipeModal(cat){
   const sectionKeys = Object.keys(data.sections);
   const hasSections = !(sectionKeys.length===1 && sectionKeys[0]==='_');
   openModal({
-    eyebrow: 'Cold Email Bank',
+    eyebrow: `${personForCategoryKey(cat)} - Cold Email Bank`,
     title: cat,
     sections: hasSections ? sectionKeys : null,
     activeSection: hasSections ? (sectionKeys.includes('First Email') ? 'First Email' : sectionKeys[0]) : null,
@@ -3924,14 +4228,14 @@ function wireWordChips(box){
 
 function openWordsModal(key){
   const cfg = {
-    power: {title:'Power Words', placeholder:'Search power words...', body:powerWordsBodyHtml},
-    'matt-power': {title:'Matt Lucero - Power Words', placeholder:'Search Matt Lucero power words...', body:(term)=>powerWordsBodyHtmlFor(MATT_POWER_WORDS, term)},
-    'christian-power': {title:'Christian Bonnier - Power Words', placeholder:'Search Christian Bonnier power words...', body:(term)=>powerWordsBodyHtmlFor(CHRISTIAN_POWER_WORDS, term)},
-    'instantly-power': {title:'Instantly - Power Words', placeholder:'Search Instantly power words...', body:(term)=>powerWordsBodyHtmlFor(INSTANTLY_POWER_WORDS, term)},
-    'smartlead-power': {title:'Smartlead - Power Words', placeholder:'Search Smartlead power words...', body:(term)=>powerWordsBodyHtmlFor(SMARTLEAD_POWER_WORDS, term)},
+    power: {person:'Frank Brothers', placeholder:'Search power words...', body:powerWordsBodyHtml},
+    'matt-power': {person:'Matt Lucero', placeholder:'Search Matt Lucero power words...', body:(term)=>powerWordsBodyHtmlFor(MATT_POWER_WORDS, term)},
+    'christian-power': {person:'Christian Bonnier', placeholder:'Search Christian Bonnier power words...', body:(term)=>powerWordsBodyHtmlFor(CHRISTIAN_POWER_WORDS, term)},
+    'instantly-power': {person:'Instantly', placeholder:'Search Instantly power words...', body:(term)=>powerWordsBodyHtmlFor(INSTANTLY_POWER_WORDS, term)},
+    'smartlead-power': {person:'Smartlead', placeholder:'Search Smartlead power words...', body:(term)=>powerWordsBodyHtmlFor(SMARTLEAD_POWER_WORDS, term)},
   }[key];
   openModal({
-    eyebrow:'Cold Email Bank', title:cfg.title, searchPlaceholder:cfg.placeholder,
+    eyebrow: `${cfg.person} - Cold Email Bank`, title:'Power Words', searchPlaceholder:cfg.placeholder,
     renderBody: (section, term)=> cfg.body(term),
     wireBody: wireWordChips,
   });
@@ -4019,7 +4323,7 @@ function renderCheckerResults(results){
   return html;
 }
 function emailCheckerHtml(){
-  return `<div class="group-title">Check An Email</div>
+  return `<div class="group-title type-title"><span class="type-icon">${catTypeIcon('Before You Send')}</span><span>Check An Email</span></div>
   <div class="card open"><div class="card-body" style="display:block;padding-top:14px;">
     <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;">Paste or load a subject and body, then run the automated checks - everything here can be verified mechanically (wording, punctuation, banned phrases, length). Judgment calls like tone and relevance still need your own read; the full checklists below cover those.</p>
     <div class="rowbtns" style="margin-top:0;"><button class="btn ghost small" id="loadFromDraftBtn">Load Active Email From Draft</button></div>
@@ -4075,7 +4379,10 @@ function checklistListHtml(list, term, state){
   const doneCount = list.items.filter((_,i)=> listState[i]).length;
   let html = `<div class="group-title">${esc(list.title)}</div>`;
   if(list.intro) html += `<p style="font-size:12.8px;color:var(--ink-soft);margin:-4px 0 6px;">${esc(list.intro)}</p>`;
-  if(!term) html += `<div class="progress-bar"><div class="fill" style="width:${list.items.length?Math.round(doneCount/list.items.length*100):0}%"></div></div>`;
+  if(!term){
+    const pct = list.items.length?Math.round(doneCount/list.items.length*100):0;
+    html += `<div class="progress-bar-row"><div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div><span class="progress-bar-label">${doneCount} / ${list.items.length} done</span></div>`;
+  }
   html += `<div class="card open"><div class="card-body" style="display:block;padding-top:12px;">` +
     list.items.map((it,i)=>{
       if(!matches(term, it.h, (it.b||it.body||it), ...(it.chips||[]))) return '';
@@ -4152,18 +4459,42 @@ function openChecklistModal(key){
 }
 
 /* ---------- render: resources tab ---------- */
+const RESOURCE_ICON_DOC = '<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1.5h5.5L13 5v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1Z"/><path d="M9.5 1.5V5H13"/><path d="M4.75 8.5h6.5M4.75 11h4.5"/></svg>';
+const RESOURCE_ICON_YT = '<svg width="18" height="18" viewBox="0 0 16 16"><path d="M6.3 5.4v5.2L10.8 8 6.3 5.4Z" fill="currentColor"/><path d="M1 8c0-1.9.2-3 .5-3.6.2-.5.6-.8 1.1-1C4.2 3 8 3 8 3s3.8 0 5.4.4c.5.2.9.5 1.1 1 .3.6.5 1.7.5 3.6s-.2 3-.5 3.6c-.2.5-.6.8-1.1 1-1.6.4-5.4.4-5.4.4s-3.8 0-5.4-.4a1.7 1.7 0 0 1-1.1-1C1.2 11 1 9.9 1 8Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
+const RESOURCE_ICON_ARROW = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 12 12 4M6 4h6v6"/></svg>';
+
+function resourceCardHtml(url, title, meta, iconCls, icon){
+  return `<a class="resource-card" href="${escAttr(url)}" target="_blank" rel="noopener noreferrer">
+    <span class="resource-card-icon ${iconCls}">${icon}</span>
+    <span class="resource-card-body">
+      <span class="resource-card-title">${esc(title)}</span>
+      <span class="resource-card-meta">${esc(meta)}</span>
+    </span>
+    <span class="resource-card-arrow">${RESOURCE_ICON_ARROW}</span>
+  </a>`;
+}
+
 function renderResources(){
   const term = (searchTerms.resources||'').trim();
-  const items = RESOURCES.filter(r=> matches(term, r.title));
-  let html = pageHeaderHtml('Resources', `${RESOURCES.length} linked guides - click a card to open it in a new tab.`);
-  html += `<h2 class="frank-brothers-heading">Frank Brothers</h2>`;
-  if(!items.length){
+  const guides = RESOURCES.filter(r=> matches(term, r.title));
+  const channels = RESOURCE_CHANNELS.filter(c=> matches(term, c.name, 'YouTube Channel'));
+  let html = pageHeaderHtml('Resources', `${RESOURCES.length} guides and ${RESOURCE_CHANNELS.length} YouTube channels - click a card to open it in a new tab.`);
+
+  if(!guides.length && !channels.length){
     html += `<p style="color:var(--ink-faint);font-size:13px;">No resources match "${esc(term)}".</p>`;
   } else {
-    html += `<div class="cat-grid">` + items.map(r=>`
-      <a class="cat-card resource-card" href="${escAttr(r.url)}" target="_blank" rel="noopener noreferrer">
-        <span class="cat-card-title">${esc(r.title)}</span>
-      </a>`).join('') + `</div>`;
+    if(guides.length){
+      html += `<div class="group-title">Guides &amp; Playbooks</div>`;
+      html += `<div class="resource-grid">` + guides.map(r=>
+        resourceCardHtml(r.url, r.title, 'Google Doc', 'doc', RESOURCE_ICON_DOC)
+      ).join('') + `</div>`;
+    }
+    if(channels.length){
+      html += `<div class="group-title">YouTube Channels</div>`;
+      html += `<div class="resource-grid">` + channels.map(c=>
+        resourceCardHtml(c.url, c.name, 'YouTube Channel', 'yt', RESOURCE_ICON_YT)
+      ).join('') + `</div>`;
+    }
   }
   document.getElementById('content').innerHTML = html;
   wireHeaderCopyBtn();
@@ -4184,15 +4515,15 @@ function renderAll(){
 }
 
 renderDraftPanel();
-document.getElementById('clearDraftBtn').addEventListener('click', ()=>{
-  if(confirm('Clear the whole draft? Saved emails and sequences are not affected.')){
+document.getElementById('clearDraftBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirm('Clear the whole draft?', {detail:'Saved emails and sequences are not affected.', confirmLabel:'Clear Draft', danger:true});
+  if(ok){
     sequence = [{subject:'', body:''}];
     activeSlot = 0;
     persistSequence(); renderDraftPanel(); updateWc();
   }
 });
 document.getElementById('copyDraftBtn').addEventListener('click', ()=> copyText(fullSequenceText()));
-document.getElementById('draftToggleBtn').addEventListener('click', ()=> document.getElementById('draft-panel').classList.toggle('open'));
 updateWc();
 
 document.getElementById('globalSearch').placeholder = TAB_SEARCH_PLACEHOLDER[activeTab];
@@ -4203,8 +4534,6 @@ document.getElementById('globalSearch').addEventListener('input', e=>{
 
 document.getElementById('railOpenBtn')?.addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
 document.getElementById('railCloseBtn')?.addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
-
-document.getElementById('draftCloseBtn')?.addEventListener('click', ()=> document.getElementById('draft-panel').classList.remove('open'));
 
 document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
