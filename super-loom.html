@@ -1,0 +1,3313 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Super Loom</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style id="app-styles">
+:root{
+  --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-tab:#FFFFFF;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#757E78;
+  --stamp:#1E6B45; --stamp-ink:#FFFFFF;
+  --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
+  --line:#E4E9E6; --line-strong:#CCD5D0;
+  --good:#2F8F5B; --warn:#B4691A;
+  --tier-mid-bg:#F1EBDC; --tier-mid-ink:#8A6D3B;
+  --bespoke:#1E6B45; --bespoke-dark:#123D28; --bespoke-bg:#E6F4EC;
+  --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --shadow-hover: 0 1px 0 rgba(20,24,27,.03), 0 14px 30px -14px rgba(20,24,27,.22);
+  --shadow-lg: 0 2px 4px rgba(20,24,27,.04), 0 22px 44px -18px rgba(20,24,27,.24);
+  --radius: 8px;
+  --sidebar-w: 372px;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --dur-fast: .12s; --dur-base: .18s;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:14.5px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+}
+::selection{background:var(--mimeo); color:var(--mimeo-ink);}
+a{color:inherit;}
+button{font-family:inherit;}
+svg{display:block;}
+
+:focus-visible{outline:2px solid var(--stamp); outline-offset:2px; border-radius:4px;}
+.eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
+}
+
+/* ---------- site topbar ---------- */
+.site-topbar-accent{height:4px; background:#231F2E; flex:0 0 auto;}
+.site-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:13px 22px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  font-family:var(--font-body); background:var(--paper-raised);
+  box-shadow:0 1px 0 rgba(20,24,27,.03);
+}
+.site-topbar .back-link{
+  display:flex; align-items:center; gap:6px;
+  color:var(--ink-soft); font-size:13px; font-weight:600; text-decoration:none; white-space:nowrap;
+  transition:color .15s ease, gap .15s ease;
+}
+.site-topbar .back-link:hover{color:var(--bespoke);}
+.site-topbar h1{
+  font-family:var(--font-display); font-size:17px; margin:0; font-weight:700;
+  text-align:center; flex:1 1 auto; letter-spacing:-.01em;
+}
+.site-topbar .who{display:flex; align-items:center; gap:14px; white-space:nowrap;}
+.site-topbar .who span{color:var(--ink-soft); font-size:13px; font-family:var(--font-body);}
+.site-topbar .signout{
+  background:var(--paper); border:1px solid var(--line-strong); border-radius:999px;
+  padding:6px 14px; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+  font-family:var(--font-body); transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.site-topbar .signout:hover{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+/* ---------- app shell: full-height sidebar + content ---------- */
+#app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas: "rail main";
+  flex:1 1 auto; min-height:0;
+  overflow:hidden;
+}
+@media (max-width: 980px){
+  #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  nav#rail{
+    position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
+    transform:translateX(-100%); transition:transform .2s ease;
+  }
+  nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+}
+
+/* ---------- sidebar ---------- */
+nav#rail{
+  grid-area:rail; background:var(--paper-tab); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden; min-height:0;
+}
+.sidebar-logo{display:flex; align-items:center; gap:11px; padding:22px 20px 14px;}
+.logo-mark{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:34px; height:34px; border-radius:9px; background:linear-gradient(150deg, var(--bespoke), var(--bespoke-dark)); color:#fff;
+  box-shadow:0 4px 10px -3px rgba(30,107,69,.45);
+  font-family:var(--font-display); font-weight:700; font-size:13px;
+}
+.logo-text{line-height:1.25;}
+.logo-name{font-family:var(--font-display); font-weight:700; font-size:16.5px; color:var(--ink); letter-spacing:-.01em;}
+.logo-sub{font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
+.rail-close-mobile{display:none;}
+@media (max-width:980px){.rail-close-mobile{display:flex; margin-left:auto;}}
+.sidebar-progress{padding:2px 20px 14px;}
+.sidebar-progress .pp-label{
+  display:flex; justify-content:space-between; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10.5px; color:var(--ink-faint); margin-bottom:6px;
+}
+.sidebar-progress .pp-label span:last-child{color:var(--bespoke); font-family:var(--font-mono); letter-spacing:0;}
+.progress-bar{height:6px; background:var(--line); border:none; border-radius:99px; overflow:hidden; margin:0 0 4px;}
+.progress-bar .fill{height:100%; background:linear-gradient(90deg, var(--stamp), var(--mimeo)); width:0%; border-radius:99px; transition:width .3s var(--ease);}
+
+.rail-scroll{flex:1 1 auto; min-height:0; overflow-y:auto;}
+.nav-groups{padding:8px 12px 4px;}
+.nav-group-label{
+  font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--ink-faint); padding:10px 8px 8px;
+}
+.step-item{
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:10px 10px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:9px; margin-bottom:2px;
+  transition:background-color .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.step-item:hover{background:var(--paper-raised); box-shadow:var(--shadow);}
+.step-item.active{background:linear-gradient(100deg, var(--mimeo-ink), var(--paper-raised) 130%); color:var(--stamp); font-weight:700; box-shadow:inset 3px 0 0 var(--stamp), var(--shadow);}
+.step-num{
+  flex:0 0 auto; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-body);
+  font-size:10.5px; font-weight:700; color:var(--ink-faint);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.step-item.progress .step-num{border-color:var(--good); color:var(--good);}
+.step-item.done .step-num{background:var(--stamp); border-color:var(--stamp); color:var(--stamp-ink);}
+.step-item.active .step-num{border-color:var(--stamp); background:var(--paper-raised);}
+.step-label{flex:1 1 auto;}
+.step-status{font-size:12px; color:var(--good); flex:0 0 auto;}
+
+.rail-divider{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:14px 14px 10px; padding-top:18px; border-top:1.5px solid var(--line-strong);
+}
+.rail-divider::before{
+  content:''; position:absolute; top:-1.5px; left:0; width:38px; height:1.5px; background:var(--bespoke);
+}
+.rail-divider .eyebrow{color:var(--bespoke); font-size:11px;}
+.rail-divider .rd-clear{
+  font-family:var(--font-display); font-weight:700; font-size:10.5px; color:var(--ink-faint);
+  background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.rail-divider .rd-clear:hover{border-color:var(--warn); color:var(--warn);}
+
+.sidebar-footer{flex:0 0 auto; border-top:1px solid var(--line); padding:12px 14px; background:var(--paper-tab);}
+.sidebar-footer .btn{width:100%;}
+.mobile-topbar{display:none;}
+.mobile-topbar-title{display:flex; flex-direction:column; gap:0; min-width:0;}
+.mobile-topbar-step{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:10px; color:var(--bespoke);
+}
+.mobile-topbar-name{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+@media (max-width:980px){
+  .mobile-topbar{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+  }
+}
+.iconbtn{border:1px solid var(--line); background:var(--paper); border-radius:7px; padding:8px 12px; font-size:12.5px; font-weight:600; cursor:pointer; min-height:36px; transition:border-color .15s ease, background-color .15s ease;}
+.iconbtn:hover{border-color:var(--line-strong); background:#F7F8F7;}
+
+/* ---------- main content + page header ---------- */
+main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0; height:100%;}
+#content{
+  flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:0 30px 60px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+  scroll-behavior:smooth;
+}
+@media (max-width:640px){
+  #content{padding:0 16px 50px;}
+  .page-header{padding:18px 16px 14px; margin:0 -16px 16px;}
+}
+@keyframes stepFadeIn{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
+.page-header{
+  position:sticky; top:0; z-index:5; background:rgba(255,255,255,.92); backdrop-filter:blur(10px);
+  padding:28px 30px 18px; margin:0 -30px 24px;
+  border-bottom:1px solid var(--line); transition:box-shadow .15s ease;
+}
+.page-header.scrolled{box-shadow:0 12px 24px -18px rgba(20,24,27,.22);}
+.page-header.step-enter{animation:stepFadeIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){ .page-header.step-enter{animation:none;} }
+.page-header .ph-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.page-header .ph-eyebrow{font-weight:700; text-transform:uppercase; letter-spacing:.09em; font-size:10.5px; color:var(--bespoke); margin:0 0 6px; display:flex; align-items:center; gap:7px;}
+.page-header .ph-eyebrow::before{content:''; width:16px; height:1.5px; background:var(--bespoke); display:inline-block;}
+.page-header h1{
+  font-family:var(--font-display); font-weight:700; letter-spacing:-.01em;
+  font-size:27px; margin:0 0 4px; color:var(--ink); text-wrap:balance;
+}
+.group-title{
+  font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+  font-size:11.5px; color:var(--bespoke); margin:30px 0 12px; padding-top:16px; border-top:1px solid var(--line);
+  display:flex; align-items:center; gap:8px;
+}
+.group-title::after{content:''; flex:1 1 auto; height:1px; background:var(--line);}
+.group-title:first-of-type{border-top:none; margin-top:0; padding-top:0;}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); margin-bottom:10px; padding:16px 18px;
+  transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+}
+.card:hover{border-color:var(--line-strong); box-shadow:var(--shadow-hover); transform:translateY(-1px);}
+.card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--ink);}
+.card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+
+/* ---------- callouts ---------- */
+.callout{
+  border:1px solid var(--stamp); border-left:3px solid var(--stamp); background:var(--mimeo-ink); border-radius:10px;
+  padding:14px 18px; margin-bottom:22px; font-size:13.5px; color:var(--ink); line-height:1.55;
+}
+.callout b{font-family:var(--font-display); font-weight:700;}
+.callout.warn{border-color:var(--warn); border-left-color:var(--warn); background:#FBEEE0;}
+.callout.bespoke{border-color:var(--bespoke); border-left-color:var(--bespoke); background:var(--bespoke-bg);}
+.callout.generate-bar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.callout.generate-bar .btn{flex:0 0 auto; white-space:nowrap;}
+
+/* ---------- field grid / groups ---------- */
+.field-grid{display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:22px;}
+.field-grid .field{display:flex; flex-direction:column; gap:6px;}
+.field-grid .field.full{grid-column:1 / -1;}
+.field-grid label{
+  font-family:var(--font-display); font-weight:700; font-size:11px; text-transform:uppercase;
+  letter-spacing:.04em; color:var(--ink-faint);
+}
+.field-grid input[type=text]{
+  border:1px solid var(--line); border-radius:8px; background:var(--paper-raised); color:var(--ink);
+  font-family:var(--font-body); font-size:13.5px; padding:10px 12px;
+}
+.field-grid input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+@media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+
+.ai-setup-card{
+  position:relative; display:flex; gap:16px; align-items:flex-start;
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+  padding:20px 22px; margin-bottom:22px; box-shadow:var(--shadow);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.ai-setup-card:hover{border-color:var(--line-strong); box-shadow:var(--shadow-hover);}
+.ai-setup-icon{
+  flex:0 0 auto; width:38px; height:38px; border-radius:10px; margin-top:1px;
+  background:var(--bespoke-bg); color:var(--bespoke); display:flex; align-items:center; justify-content:center;
+}
+.ai-setup-icon svg{width:18px; height:18px;}
+.ai-setup-main{flex:1 1 auto; min-width:0;}
+.ai-setup-title-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:5px;}
+.ai-setup-title-row h4{margin:0; font-family:var(--font-display); font-weight:700; font-size:14.5px; color:var(--ink);}
+.ai-setup-desc{margin:0 0 14px; font-size:12.5px; color:var(--ink-soft); line-height:1.55; max-width:60ch;}
+.ai-setup-desc a{color:var(--bespoke); font-weight:600; text-decoration:underline; text-underline-offset:2px;}
+.ai-setup-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.ai-setup-input-wrap{position:relative; flex:1 1 260px; min-width:0;}
+.ai-setup-input-wrap svg{
+  position:absolute; left:12px; top:50%; transform:translateY(-50%); width:14px; height:14px;
+  color:var(--ink-faint); pointer-events:none;
+}
+.ai-setup-row input[type=password]{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; background:var(--paper);
+  color:var(--ink); font-family:var(--font-mono); font-size:13px; padding:10px 12px 10px 34px;
+  transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.ai-setup-row input[type=password]:focus{
+  outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);
+}
+.ai-setup-status{
+  display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; padding:4px 11px 4px 9px; border-radius:999px;
+  white-space:nowrap;
+}
+.ai-setup-status::before{content:''; flex:0 0 auto; width:6px; height:6px; border-radius:50%;}
+.ai-setup-status.set{background:var(--mimeo-ink); color:var(--stamp);}
+.ai-setup-status.set::before{background:var(--stamp);}
+.ai-setup-status.unset{background:#FBEEE0; color:var(--warn);}
+.ai-setup-status.unset::before{background:var(--warn);}
+@media (max-width:520px){
+  .ai-setup-card{flex-direction:column;}
+  .ai-setup-row{flex-direction:column; align-items:stretch;}
+  .ai-setup-row .btn{width:100%;}
+}
+
+.content-textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:11px 14px; min-height:110px; resize:vertical; line-height:1.55;
+}
+.content-textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+
+.field-group{margin-top:18px;}
+.field-group label{
+  display:block; font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:6px;
+}
+.field-group .fg-hint{display:block; font-family:var(--font-body); font-weight:400; text-transform:none; letter-spacing:0; font-size:12px; color:var(--ink-faint); margin-top:3px;}
+.field-group textarea, .field-group input[type=text]{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; background:var(--paper-raised);
+  color:var(--ink); font-family:var(--font-body); font-size:13.5px; padding:10px 12px;
+  min-height:80px; resize:vertical;
+}
+.field-group input[type=text]{min-height:0;}
+.field-group textarea:focus, .field-group input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.msg-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+.msg-count.over{color:var(--warn); font-weight:700;}
+
+/* ---------- checklist items (shared) ---------- */
+.check-item{
+  display:flex; gap:10px; align-items:flex-start; padding:11px 10px; margin:0 -10px;
+  border-bottom:1px solid var(--line); border-radius:7px; transition:background-color .15s ease;
+}
+.check-item:hover{background:var(--paper);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{
+  appearance:none; -webkit-appearance:none; margin-top:2px; flex:0 0 auto;
+  width:18px; height:18px; border-radius:5px; border:2px solid var(--line-strong);
+  background:var(--paper-raised); cursor:pointer; position:relative;
+  transition:background-color .15s ease, border-color .15s ease;
+}
+.check-item input[type=checkbox]:hover{border-color:var(--good);}
+.check-item input[type=checkbox]:checked{background:var(--good); border-color:var(--good);}
+.check-item input[type=checkbox]:checked::after{
+  content:''; position:absolute; left:5px; top:1px; width:5px; height:9px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+.check-item.warn input[type=checkbox]:checked{background:var(--warn); border-color:var(--warn);}
+.check-item label{font-size:13.5px; flex:1; cursor:pointer;}
+.check-item label b{display:block; font-weight:700; margin-bottom:2px; transition:color .15s ease;}
+.check-item.done label b{color:var(--ink-faint); text-decoration:line-through;}
+.check-item.done label span{color:var(--ink-faint);}
+
+.tool-chips{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 24px;}
+.tool-chip{
+  font-family:var(--font-mono); font-size:12px; padding:6px 12px; border-radius:999px;
+  background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); white-space:nowrap;
+}
+
+.chiprow{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.chip{
+  font-family:var(--font-display); font-size:12.5px; font-weight:700;
+  letter-spacing:.02em; padding:8px 16px; border-radius:999px; border:1.5px solid var(--line);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
+  text-align:center; box-shadow:var(--shadow);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.chip:hover{border-color:var(--mimeo); box-shadow:var(--shadow-hover); transform:translateY(-1px);}
+.chip.active{background:var(--mimeo); color:var(--mimeo-ink); border-color:var(--mimeo);}
+.chip.small{padding:5px 12px; font-size:11.5px;}
+
+/* ---------- research: findings cards ---------- */
+.finding-row{display:flex; gap:8px; align-items:flex-start; padding:7px 0; border-top:1px solid var(--line);}
+.finding-row-body{flex:1 1 auto; min-width:0;}
+.finding-row-text{font-size:13px; color:var(--ink);}
+.finding-row-meta{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+.tier-badge{
+  font-family:var(--font-mono); font-size:10.5px; font-weight:700; white-space:nowrap;
+  padding:2.5px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em;
+  display:inline-block; margin-top:4px;
+}
+.tier-badge.tier-low{background:var(--mimeo-ink); color:var(--stamp);}
+.tier-badge.tier-mid{background:var(--tier-mid-bg); color:var(--tier-mid-ink);}
+.tier-badge.tier-high{background:#FBEEE0; color:var(--warn);}
+.add-finding-form{border:1px dashed var(--line-strong); border-radius:8px; padding:16px; margin:10px 0 0; background:var(--paper);}
+.add-finding-form .row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+@media (max-width:640px){.add-finding-form .row{grid-template-columns:1fr;}}
+.add-finding-form .field{margin-bottom:12px;}
+.add-finding-form .field:last-of-type{margin-bottom:0;}
+.add-finding-form label{
+  display:block; font-family:var(--font-display); font-weight:700; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:5px;
+}
+.add-finding-form input[type=text], .add-finding-form textarea, .add-finding-form select{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:6px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body);
+  font-size:13px; padding:8px 10px;
+}
+.add-finding-form textarea{min-height:80px; resize:vertical;}
+.add-finding-form input[type=text]:focus, .add-finding-form textarea:focus, .add-finding-form select:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.rowbtns{display:flex; gap:8px; margin-top:14px;}
+.btn.danger{color:var(--warn); border-color:var(--warn);}
+.btn.danger:hover{background:var(--warn); color:#fff; transform:translateY(-1px);}
+.btn.ghost.danger:hover{background:var(--warn); color:#fff; border-color:var(--warn);}
+
+/* ---------- research: where to look ---------- */
+.source-tip{margin:-4px 0 14px; font-size:12.5px; color:var(--ink-faint); font-style:italic; line-height:1.5; max-width:70ch;}
+.source-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:22px;}
+.source-card{border:1px solid var(--line); border-radius:10px; padding:14px 16px; background:var(--paper-raised); box-shadow:var(--shadow);}
+.source-card h4{margin:0 0 10px; font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:11px; color:var(--bespoke);}
+.source-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.source-chip{font-size:12px; padding:4px 10px; border-radius:999px; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); white-space:nowrap;}
+
+/* ---------- brief preview ---------- */
+.brief-preview{background:var(--paper); border:1.5px dashed var(--line-strong); border-radius:12px; padding:18px 20px; margin-bottom:22px; font-size:12.5px; color:var(--ink-soft); line-height:1.7;}
+.brief-preview .bp-row{margin-bottom:10px;}
+.brief-preview .bp-row:last-child{margin-bottom:0;}
+.brief-preview b{font-family:var(--font-display); color:var(--ink); display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+.brief-preview .bp-empty{color:var(--ink-faint); font-style:italic;}
+
+/* ---------- hook lab ---------- */
+.doctrine-hero{
+  position:relative; overflow:hidden; border-radius:20px; margin-bottom:28px;
+  padding:36px 40px; background:linear-gradient(155deg, #143d28, var(--bespoke) 55%, #0e2c1c);
+  box-shadow:0 2px 4px rgba(20,24,27,.06), 0 28px 50px -22px rgba(14,44,28,.55);
+  color:#fff;
+}
+.doctrine-hero::before{
+  content:''; position:absolute; top:-90px; right:-90px; width:280px; height:280px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); pointer-events:none;
+}
+.doctrine-hero::after{
+  content:''; position:absolute; bottom:-110px; left:-60px; width:220px; height:220px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%); pointer-events:none;
+}
+.doctrine-badge{
+  display:inline-flex; align-items:center; gap:7px; font-family:var(--font-display); font-weight:800;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:#fff; background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.3); border-radius:999px; padding:5px 14px; margin-bottom:16px; position:relative;
+}
+.doctrine-badge::before{content:''; width:6px; height:6px; border-radius:50%; background:#fff;}
+.doctrine-headline{
+  position:relative; font-family:var(--font-display); font-weight:800; font-size:32px; letter-spacing:-.015em;
+  margin:0 0 12px; line-height:1.12; text-wrap:balance;
+}
+.doctrine-body{position:relative; margin:0 0 22px; font-size:14.5px; line-height:1.6; color:rgba(255,255,255,.86); max-width:none;}
+.doctrine-principle{
+  position:relative; display:flex; align-items:flex-start; gap:16px; background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:16px 20px;
+  backdrop-filter:blur(6px);
+}
+.doctrine-principle .dp-label{
+  flex:0 0 auto; font-family:var(--font-display); font-weight:800; font-size:11px; text-transform:uppercase;
+  letter-spacing:.06em; color:#fff; background:rgba(255,255,255,.16); border-radius:8px; padding:6px 11px;
+  white-space:nowrap;
+}
+.doctrine-principle p{margin:0; font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.92);}
+@media (max-width:640px){
+  .doctrine-hero{padding:26px 22px;}
+  .doctrine-headline{font-size:25px;}
+  .doctrine-principle{flex-direction:column; gap:8px;}
+}
+
+/* ---------- script builder: generate card ---------- */
+.script-generate-card{
+  position:relative; overflow:hidden; border:1.5px solid var(--line-strong); border-radius:18px;
+  margin-bottom:28px; padding:26px 28px 22px 32px;
+  background:linear-gradient(158deg, #FFFFFF 0%, var(--paper-raised) 50%, var(--mimeo-ink) 165%);
+  box-shadow:var(--shadow-lg);
+}
+.script-generate-card::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:5px;
+  background:linear-gradient(180deg, var(--mimeo), var(--bespoke-dark));
+}
+.script-generate-card::after{
+  content:''; position:absolute; top:-72px; right:-60px; width:210px; height:210px; border-radius:50%;
+  background:radial-gradient(circle, rgba(47,143,91,.15), transparent 70%); pointer-events:none;
+}
+.sgc-top{position:relative; display:flex; gap:16px; align-items:flex-start;}
+.sgc-icon{
+  flex:0 0 auto; width:46px; height:46px; border-radius:13px; margin-top:1px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(155deg, var(--bespoke-bg), #fff); color:var(--bespoke);
+  box-shadow:0 0 0 1px rgba(30,107,69,.16), 0 8px 16px -8px rgba(30,107,69,.45);
+}
+.sgc-icon svg{width:21px; height:21px;}
+.sgc-main{flex:1 1 auto; min-width:0;}
+.sgc-eyebrow{
+  display:flex; align-items:center; gap:7px; font-family:var(--font-display); font-weight:800; font-size:10.5px;
+  text-transform:uppercase; letter-spacing:.09em; color:var(--bespoke); margin-bottom:6px;
+}
+.sgc-eyebrow::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--bespoke);}
+.sgc-title{margin:0 0 7px; font-family:var(--font-display); font-weight:800; font-size:20px; color:var(--ink); letter-spacing:-.015em;}
+.sgc-desc{margin:0; font-size:13.5px; line-height:1.6; color:var(--ink-soft); white-space:nowrap;}
+.sgc-flow{
+  position:relative; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin:20px 0 0 62px; padding:16px 18px; border-radius:14px;
+  background:var(--paper-raised); border:1px solid var(--line);
+}
+.sgc-flow-group{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.sgc-node{
+  position:relative; display:flex; align-items:center; gap:9px; padding:7px 16px 7px 7px;
+  border-radius:999px; background:#fff; border:1px solid var(--line-strong);
+  box-shadow:0 3px 8px -4px rgba(20,30,25,.25);
+}
+.sgc-node-icon{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:26px; height:26px; border-radius:50%; background:var(--bespoke-bg); color:var(--bespoke);
+}
+.sgc-node-icon svg{width:13px; height:13px;}
+.sgc-node-label{font-family:var(--font-mono); font-weight:700; font-size:11.5px; color:var(--ink); white-space:nowrap;}
+.sgc-node.output{background:linear-gradient(155deg, var(--bespoke), var(--bespoke-dark)); border-color:transparent; box-shadow:0 4px 10px -4px rgba(30,107,69,.5);}
+.sgc-node.output .sgc-node-icon{background:rgba(255,255,255,.22); color:#fff;}
+.sgc-node.output .sgc-node-label{color:#fff;}
+.sgc-source-plus{flex:0 0 auto; display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--mimeo-ink); color:var(--ink-faint); font-size:13px; font-weight:700;}
+.sgc-flow-arrow{flex:0 0 auto; display:flex; align-items:center; justify-content:center; color:var(--bespoke); margin:0 2px;}
+.sgc-flow-arrow svg{width:30px; height:16px;}
+.sgc-footer{
+  position:relative; display:flex; align-items:center; justify-content:flex-end; gap:16px;
+  margin:20px 0 0 62px; padding-top:16px; border-top:1px dashed var(--line-strong);
+}
+.sgc-btn{display:inline-flex; align-items:center; gap:8px; white-space:nowrap; flex:0 0 auto; padding:11px 20px; font-size:13px;}
+.sgc-btn svg{width:15px; height:15px;}
+@media (max-width:640px){
+  .script-generate-card{padding:22px 18px;}
+  .sgc-desc{white-space:normal;}
+  .sgc-flow, .sgc-footer{margin-left:0;}
+  .sgc-flow{justify-content:center;}
+  .sgc-footer{justify-content:stretch;}
+  .sgc-btn{width:100%; justify-content:center;}
+}
+
+.concept-card{border:1.5px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; background:var(--paper-raised); transition:border-color .15s ease, box-shadow .15s ease;}
+.concept-card:hover{border-color:var(--line-strong); box-shadow:var(--shadow-hover);}
+.concept-card.chosen{border-color:var(--bespoke); background:var(--bespoke-bg); box-shadow:0 0 0 3px rgba(30,107,69,.12);}
+.concept-card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:6px;}
+.concept-card h4{margin:0; font-family:var(--font-display); font-weight:800; font-size:14.5px; color:var(--ink);}
+.concept-card p{margin:0 0 8px; font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
+.concept-card .cc-why{font-size:11.5px; color:var(--bespoke); font-weight:600; margin-bottom:6px;}
+.concept-card .cc-wager{font-size:12px; color:var(--ink-soft); font-style:italic; background:var(--paper); border-radius:8px; padding:8px 10px; margin-bottom:10px;}
+.concept-chosen-tag{font-family:var(--font-display); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--bespoke); background:#fff; border:1px solid var(--bespoke); padding:3px 9px; border-radius:999px; flex:0 0 auto;}
+
+.wager-box{border:1.5px dashed var(--bespoke); background:var(--bespoke-bg); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--ink); line-height:1.55; margin-top:12px;}
+.wager-box b{color:var(--bespoke); font-family:var(--font-display);}
+
+.bespoke-ribbon{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:800; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:#fff; background:linear-gradient(120deg, var(--bespoke), var(--bespoke-dark)); padding:3px 10px; border-radius:999px;}
+
+/* ---------- emotional arc (twin peaks) ---------- */
+.arc-card{position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:18px; padding:26px 30px 22px; margin-bottom:28px; box-shadow:var(--shadow-lg);}
+.arc-card::before{content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:18px 18px 0 0; background:linear-gradient(90deg, var(--bespoke), var(--stamp));}
+.arc-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px;}
+.arc-eyebrow{font-weight:700; text-transform:uppercase; letter-spacing:.09em; font-size:10.5px; color:var(--bespoke); margin:2px 0 6px;}
+.arc-title{font-family:var(--font-display); font-weight:700; font-size:19px; color:var(--ink); margin:0 0 4px; letter-spacing:-.01em;}
+.arc-sub{font-size:12.5px; color:var(--ink-soft); margin:0;}
+.arc-peakend-badge{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:800;
+  font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--bespoke); background:var(--bespoke-bg);
+  border:1px solid var(--bespoke); border-radius:999px; padding:5px 12px;
+}
+.arc-svg-wrap{margin:14px -6px 0; overflow:visible; position:relative;}
+.arc-svg{width:100%; height:auto; display:block; overflow:visible;}
+.arc-svg .arc-marker-num{font-family:var(--font-body); font-weight:800; fill:#fff; pointer-events:none;}
+.arc-svg .arc-marker-num.dim{fill:var(--bespoke);}
+.arc-svg .arc-pill-text{font-family:var(--font-body); font-weight:800; letter-spacing:.05em; text-transform:uppercase; fill:#fff; pointer-events:none;}
+.arc-svg .arc-axis-label{font-family:var(--font-body); font-weight:700; letter-spacing:.06em; text-transform:uppercase; fill:var(--ink-faint);}
+.arc-marker-group{cursor:pointer; transform-box:fill-box; transform-origin:center; transition:transform .15s ease;}
+.arc-marker-group .arc-hit{fill:transparent;}
+.arc-marker-group:hover, .arc-marker-group.is-active{transform:scale(1.16);}
+.arc-marker-group:hover .arc-marker-ring, .arc-marker-group.is-active .arc-marker-ring{opacity:.28;}
+.arc-marker-group:focus{outline:none;}
+.arc-marker-group:focus-visible .arc-marker-ring{opacity:.32;}
+.arc-tooltip{
+  position:absolute; z-index:20; pointer-events:none; background:#fff; color:var(--ink); border:1.5px solid var(--bespoke); border-radius:10px;
+  padding:10px 14px; font-size:11.5px; line-height:1.45; max-width:230px; box-shadow:0 10px 24px -6px rgba(20,50,35,.3);
+  opacity:0; transform:translate(-50%, 0) translateY(-6px); transition:opacity .12s ease, transform .12s ease; top:0; left:0;
+}
+.arc-tooltip::before{
+  content:''; position:absolute; left:50%; top:-6.5px; width:11px; height:11px; margin-left:-5.5px;
+  background:#fff; border-left:1.5px solid var(--bespoke); border-top:1.5px solid var(--bespoke); transform:rotate(45deg);
+}
+.arc-tooltip.no-arrow::before{display:none;}
+.arc-tooltip.show{opacity:1; transform:translate(-50%, 0) translateY(0);}
+.arc-tooltip b{display:block; font-family:var(--font-display); font-size:11.5px; margin-bottom:2px; color:var(--ink);}
+.arc-tooltip span{color:var(--bespoke); font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:800;}
+.arc-legend{display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 4px; padding-top:18px; border-top:1px solid var(--line);}
+.arc-legend-chip{
+  display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--line); cursor:pointer;
+  border-radius:999px; padding:5px 13px 5px 6px; transition:border-color .15s ease, background-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.arc-legend-chip:hover{border-color:var(--line-strong); transform:translateY(-1px);}
+.arc-legend-chip .aln{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto; width:20px; height:20px; border-radius:50%;
+  background:var(--bespoke-bg); color:var(--bespoke); font-family:var(--font-display); font-weight:800; font-size:10px;
+  transition:background-color .15s ease, color .15s ease;
+}
+.arc-legend-chip .all{font-size:12px; font-weight:700; color:var(--ink);}
+.arc-legend-chip .alt{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--bespoke); font-weight:800; margin-left:2px;}
+.arc-legend-chip.tagged{border-color:var(--bespoke); background:var(--bespoke-bg);}
+.arc-legend-chip.tagged .aln{background:var(--bespoke); color:#fff;}
+.arc-legend-chip.is-active{border-color:var(--bespoke); box-shadow:0 0 0 3px var(--bespoke-bg); transform:translateY(-1px);}
+.arc-legend-chip.is-active .aln{background:var(--bespoke); color:#fff;}
+.msg-card{transition:box-shadow .25s ease, border-color .25s ease;}
+.msg-card.is-jump-highlight{box-shadow:0 0 0 3px var(--bespoke-bg), var(--shadow-lg); border-color:var(--bespoke);}
+
+/* ---------- script cards (bespoke, no "same" variant) ---------- */
+.msg-sections{display:flex; flex-direction:column; gap:20px; margin-bottom:28px;}
+.msg-card{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:16px;
+  box-shadow:var(--shadow); padding:24px 26px 22px; overflow:hidden;
+  transition:box-shadow .18s ease, transform .18s ease;
+}
+.msg-card:hover{box-shadow:var(--shadow-lg); transform:translateY(-2px);}
+.msg-card::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--bespoke), var(--stamp));
+}
+.msg-card-top{display:flex; align-items:flex-start; gap:14px; margin-bottom:14px;}
+.msg-num{
+  flex:0 0 auto; width:34px; height:34px; border-radius:10px; background:var(--bespoke-bg);
+  color:var(--bespoke); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:14px;
+}
+.msg-heading{flex:1 1 auto; min-width:0;}
+.msg-title-row{display:flex; align-items:center; gap:9px; flex-wrap:wrap;}
+.msg-title-row h3{margin:0; font-family:var(--font-display); font-weight:700; font-size:16.5px; color:var(--ink);}
+.msg-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:#fff; background:linear-gradient(120deg, var(--bespoke), var(--bespoke-dark)); border-radius:999px; padding:3px 9px; white-space:nowrap;
+}
+.msg-desc{margin:5px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.55; max-width:76ch;}
+.msg-textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:13px 14px; min-height:110px; resize:vertical; line-height:1.6; transition:border-color .15s ease;
+}
+.msg-textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.msg-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; flex-wrap:wrap;}
+.msg-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+.msg-count.over{color:var(--warn); font-weight:700;}
+.msg-subject{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:11px 14px; margin-bottom:12px; transition:border-color .15s ease;
+}
+.msg-subject:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+
+/* ---------- optional message cards (collapsed by default) ---------- */
+.msg-card.optional::before{background:linear-gradient(90deg, var(--warn), #E0A868);}
+.msg-card.optional .msg-num{background:#FBEEE0; color:var(--warn);}
+.msg-card.optional .msg-tag{background:var(--warn); color:#fff;}
+.msg-card-toggle{
+  flex:0 0 auto; align-self:flex-start; font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  color:var(--warn); background:transparent; border:1px solid var(--warn); border-radius:999px;
+  padding:5px 12px; cursor:pointer; white-space:nowrap; transition:background-color .15s ease, color .15s ease;
+}
+.msg-card-toggle:hover{background:var(--warn); color:#fff;}
+.msg-card.optional.collapsed{
+  cursor:pointer; border-style:dashed; border-color:#E0A868; background:var(--paper);
+  box-shadow:none; padding:16px 18px;
+}
+.msg-card.optional.collapsed::before{display:none;}
+.msg-card.optional.collapsed:hover{border-color:var(--warn); background:#FFFCF7;}
+.msg-card.optional.collapsed .msg-card-top{margin-bottom:0;}
+.msg-card.optional.collapsed .msg-num{background:transparent; border:1.5px dashed #E0A868; color:var(--warn);}
+.msg-collapsed-hint{margin:10px 0 0 46px; font-size:12px; color:var(--ink-faint); font-style:italic;}
+.msg-collapsed-hint.filled{color:var(--warn); font-style:normal; font-weight:600;}
+
+/* ---------- follow-up boxes: one big card holding 4 smaller boxes ---------- */
+.fe-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:4px;}
+@media (max-width:640px){.fe-grid{grid-template-columns:1fr;}}
+.fe-box{
+  display:flex; flex-direction:column; gap:7px; text-align:left; cursor:pointer;
+  border:1.5px dashed var(--line-strong); border-radius:10px; background:var(--paper);
+  padding:16px 17px; font-family:inherit; transition:border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.fe-box:hover{border-color:var(--bespoke); background:var(--bespoke-bg); transform:translateY(-1px);}
+.fe-box.filled{border-style:solid; border-color:var(--line);}
+.fe-box-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--bespoke);
+}
+.fe-box-subject{font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);}
+.fe-box-body{
+  font-size:12px; color:var(--ink-soft); line-height:1.5; max-height:54px; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+}
+.fe-modal-body{min-height:200px;}
+
+/* ---------- follow-up edit modal ---------- */
+.modal-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.45); z-index:200;
+  align-items:center; justify-content:center; padding:26px;
+}
+.modal-overlay.open{display:flex; animation:modalOverlayIn .18s var(--ease);}
+.modal-overlay.open .modal-box{animation:modalBoxIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .modal-overlay.open, .modal-overlay.open .modal-box{animation:none;}
+}
+.modal-box{
+  background:var(--paper-raised); border-radius:12px; width:100%; max-width:640px; max-height:85vh;
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+  transition:max-width .18s var(--ease), max-height .18s var(--ease), border-radius .18s var(--ease);
+}
+.modal-box.fullscreen{
+  width:100vw; height:100vh; max-width:100vw; max-height:100vh; border-radius:0;
+}
+.modal-overlay.fullscreen{padding:0;}
+.modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.modal-head-right{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+.modal-fullscreen-btn{
+  flex:0 0 auto; width:28px; height:28px; border-radius:50%; border:1px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.modal-fullscreen-btn:hover{background:var(--ink); color:#fff; border-color:var(--ink);}
+.modal-fullscreen-btn svg{width:14px; height:14px;}
+.modal-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);}
+.modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
+.modal-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:0 24px 24px;}
+@media (max-width:720px){
+  .modal-overlay{padding:0;}
+  .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+}
+
+/* ---------- messaging: template bank trigger + modal ---------- */
+.tpl-trigger{
+  width:100%; display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer;
+  border:1.5px dashed var(--line-strong); border-radius:9px; background:var(--paper);
+  padding:11px 14px; margin-bottom:14px; font-family:inherit; transition:border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.tpl-trigger:hover{border-color:var(--bespoke); border-style:solid; background:var(--bespoke-bg); transform:translateY(-1px);}
+.tpl-trigger-icon{
+  flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--bespoke); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.tpl-trigger-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px;}
+.tpl-trigger-title{font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);}
+.tpl-trigger-sub{font-size:11.5px; color:var(--ink-faint);}
+.tpl-trigger-arrow{flex:0 0 auto; color:var(--bespoke); font-size:15px;}
+
+.tpl-modal-box{max-width:980px;}
+.tpl-modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:22px 26px 16px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.tpl-modal-head-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.tpl-modal-sub{margin:6px 0 0; font-size:13px; color:var(--ink-soft); max-width:64ch; line-height:1.5;}
+.tpl-modal-controls{
+  flex:0 0 auto; padding:16px 26px; border-bottom:1px solid var(--line); background:var(--paper);
+  display:flex; flex-direction:column; gap:12px;
+}
+.tpl-search{
+  width:100%; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:9px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:10px 14px;
+}
+.tpl-search:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-chips{display:flex; flex-wrap:wrap; gap:7px;}
+.tpl-chip-count{opacity:.65; font-weight:600; margin-left:2px;}
+.tpl-cat-manage-toggle{margin-left:auto;}
+.tpl-cat-manage{
+  border:1px solid var(--line); border-radius:9px; background:var(--paper-raised);
+  padding:12px 14px; display:flex; flex-direction:column; gap:8px;
+}
+.tpl-cat-manage-row{display:flex; align-items:center; gap:8px; padding:4px 0;}
+.tpl-cat-manage-name{flex:1 1 auto; font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-cat-manage-row-editing{align-items:center;}
+.tpl-cat-rename-input, .tpl-cat-new-input{
+  flex:1 1 auto; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:7px 10px;
+}
+.tpl-cat-rename-input:focus, .tpl-cat-new-input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-manage-add{display:flex; gap:8px; padding-top:6px; border-top:1px dashed var(--line);}
+.tpl-modal-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:20px 26px 26px;}
+.tpl-group{margin-bottom:22px;}
+.tpl-group:last-child{margin-bottom:0;}
+.tpl-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:11px; color:var(--bespoke); margin-bottom:10px;
+}
+.tpl-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
+.tpl-card{
+  display:flex; flex-direction:column; gap:9px; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper-raised); box-shadow:var(--shadow); padding:14px 15px;
+  transition:box-shadow .15s ease, border-color .15s ease;
+}
+.tpl-card:hover{box-shadow:var(--shadow-hover); border-color:var(--line-strong);}
+.tpl-card-top-row{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+.tpl-card-top-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.tpl-card-add, .tpl-card-edit, .tpl-card-delete{
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--bespoke);
+  background:var(--bespoke-bg); color:var(--bespoke); font-family:var(--font-display); font-weight:800;
+  font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; transition:background-color .15s ease, transform .12s ease;
+}
+.tpl-card-edit{font-size:11px; border-color:var(--line-strong); color:var(--ink-soft);}
+.tpl-card-delete{border-color:var(--warn); color:var(--warn); font-size:16px;}
+.tpl-card-add:hover{background:var(--bespoke); color:#fff; transform:scale(1.08);}
+.tpl-card-edit:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:scale(1.08);}
+.tpl-card-delete:hover{background:var(--warn); color:#fff; transform:scale(1.08);}
+.tpl-card-title{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-card-subject{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--bespoke);}
+
+.tpl-card-editing{gap:9px;}
+.tpl-edit-title, .tpl-edit-subject, .tpl-edit-cat{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:8px 10px;
+}
+.tpl-edit-title{font-family:var(--font-display); font-weight:700;}
+.tpl-edit-cat{font-family:var(--font-display); font-weight:700; color:var(--bespoke); cursor:pointer;}
+.tpl-edit-title:focus, .tpl-edit-subject:focus, .tpl-edit-text:focus, .tpl-edit-cat:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-edit-text{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px;
+  padding:8px 10px; min-height:120px; resize:vertical; line-height:1.5;
+}
+.tpl-edit-actions{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.tpl-edit-actions-right{display:flex; gap:8px;}
+.tpl-edit-delete{
+  border:1px solid var(--warn); color:var(--warn); background:transparent; border-radius:999px;
+  font-family:var(--font-display); font-weight:700; font-size:11px; padding:5px 10px; cursor:pointer;
+}
+.tpl-edit-delete:hover{background:var(--warn); color:#fff;}
+.tpl-card-text{
+  font-size:12.5px; color:var(--ink-soft); line-height:1.5; white-space:pre-wrap;
+  max-height:150px; overflow-y:auto; flex:1 1 auto;
+}
+.tpl-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  gap:6px; padding:50px 20px; color:var(--ink-soft);
+}
+.tpl-empty-icon{
+  width:44px; height:44px; border-radius:50%; background:var(--bespoke-bg); color:var(--bespoke);
+  display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:6px;
+}
+.tpl-empty h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink);}
+.tpl-empty p{margin:0; font-size:13px; max-width:44ch; line-height:1.5;}
+
+.token-preview{
+  margin-top:12px; padding:11px 14px; border-radius:8px; background:var(--paper);
+  border:1px dashed var(--line-strong); font-size:12.5px; color:var(--ink-soft); line-height:1.55;
+}
+.token-preview .tp-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--bespoke); display:block; margin-bottom:5px;
+}
+.token-preview .tp-live{color:var(--ink); font-style:normal;}
+
+.script-source-tag{
+  font-size:12px; color:var(--bespoke); background:var(--bespoke-bg); border-radius:8px;
+  padding:8px 12px; margin-bottom:10px; line-height:1.5;
+}
+.script-source-tag b{font-family:var(--font-display);}
+
+/* ---------- shot list table ---------- */
+.shot-table-wrap{overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow); background:var(--paper-raised);}
+table.shot-table{width:100%; min-width:1080px; border-collapse:collapse; font-size:12.5px;}
+table.shot-table th{
+  text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10px; color:var(--bespoke);
+  background:var(--bespoke-bg); padding:12px 12px; border-bottom:1.5px solid var(--line-strong); white-space:nowrap;
+}
+table.shot-table th:first-child{border-top-left-radius:13px;}
+table.shot-table th:last-child{border-top-right-radius:13px;}
+table.shot-table td{padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:top; transition:background-color .12s ease;}
+table.shot-table tr:last-child td{border-bottom:none;}
+table.shot-table tbody tr{transition:background-color .12s ease;}
+table.shot-table tbody tr:nth-child(even){background:rgba(30,107,69,.02);}
+table.shot-table tbody tr:hover{background:var(--mimeo-ink);}
+table.shot-table input[type=text], table.shot-table select, table.shot-table textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px; background:var(--paper);
+  font-family:var(--font-body); font-size:12.5px; padding:7px 9px; color:var(--ink); resize:vertical; line-height:1.4;
+  transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+table.shot-table textarea{min-height:42px;}
+table.shot-table input[type=text]:hover, table.shot-table select:hover, table.shot-table textarea:hover{border-color:var(--line-strong);}
+table.shot-table input[type=text]:focus, table.shot-table select:focus, table.shot-table textarea:focus{
+  outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);
+}
+table.shot-table .col-num{width:36px; text-align:center; padding-top:12px;}
+table.shot-table .col-scene{width:130px;}
+table.shot-table .col-shottype{width:220px;}
+table.shot-table .col-content{width:120px;}
+table.shot-table .col-location{width:140px;}
+table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
+.shot-num-badge{
+  display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%;
+  background:var(--bespoke-bg); color:var(--bespoke); font-family:var(--font-body); font-weight:700; font-size:11px;
+}
+.shot-type-select{
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23757E78' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 9px center; padding-right:24px !important;
+  cursor:pointer;
+}
+.shot-type-select option:disabled{color:var(--ink-faint);}
+.shot-del-btn{width:24px; height:24px; border-radius:50%; border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-faint); cursor:pointer; font-size:14px; line-height:1; padding:0; transition:background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;}
+.shot-del-btn:hover{background:var(--warn); border-color:var(--warn); color:#fff; transform:scale(1.08);}
+.shot-table-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
+
+.glossary{border:1px solid var(--line); border-radius:10px; background:var(--paper-raised); margin-bottom:24px; overflow:hidden;}
+.glossary summary{cursor:pointer; padding:12px 16px; font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); list-style:none; display:flex; align-items:center; gap:8px;}
+.glossary summary::-webkit-details-marker{display:none;}
+.glossary summary::before{content:'\25B8'; color:var(--ink-faint); transition:transform .15s ease;}
+.glossary[open] summary::before{transform:rotate(90deg);}
+.glossary-body{padding:2px 16px 16px; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px;}
+.glossary-body .gterm b{display:block; font-family:var(--font-display); font-size:12px; color:var(--ink);}
+.glossary-body .gterm span{font-size:11.5px; color:var(--ink-soft); line-height:1.4;}
+
+/* ---------- production tiers ---------- */
+.tier-score-card{background:var(--paper-raised); border:1px solid var(--line); border-radius:18px; padding:22px 26px; margin-bottom:26px; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:22px; flex-wrap:wrap;}
+.tier-score-ring{flex:0 0 auto; width:78px; height:78px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:20px; color:#fff; background:conic-gradient(var(--bespoke) calc(var(--pct,0)*1%), var(--line) 0); box-shadow:0 6px 16px -6px rgba(30,107,69,.35);}
+.tier-score-ring .inner{width:60px; height:60px; border-radius:50%; background:var(--paper-raised); display:flex; align-items:center; justify-content:center; color:var(--ink); font-size:15px; font-family:var(--font-body); font-weight:700;}
+.tier-score-text h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--ink);}
+.tier-score-text p{margin:0; font-size:12.5px; color:var(--ink-soft); max-width:52ch; line-height:1.5;}
+.tier-group{margin-bottom:22px;}
+.tier-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.tier-head .tier-badge{font-family:var(--font-display); font-weight:800; font-size:10.5px; color:#fff; background:var(--ink); border-radius:999px; padding:3px 11px; white-space:nowrap;}
+.tier-head h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:14.5px; color:var(--ink);}
+.tier-head span.tcount{margin-left:auto; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint);}
+
+/* ---------- follow-up timeline (reuses msg-flow pattern) ---------- */
+.msg-flow{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:18px;
+  padding:26px 32px 30px; margin-bottom:26px; box-shadow:var(--shadow-lg); overflow:hidden;
+}
+.msg-flow::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--bespoke), var(--stamp));
+}
+.msg-flow-eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--bespoke); margin:2px 0 5px;
+}
+.msg-flow-title{font-family:var(--font-display); font-weight:700; font-size:19px; color:var(--ink); margin:0 0 26px; letter-spacing:-.01em;}
+.msg-flow-track{position:relative; display:flex; align-items:flex-start; justify-content:space-between; gap:4px;}
+.msg-flow-line{
+  position:absolute; top:21px; left:21px; right:21px; height:2px; z-index:0;
+  background-image:repeating-linear-gradient(to right, var(--line-strong) 0 5px, transparent 5px 10px);
+}
+.msg-flow-step{
+  position:relative; z-index:1; flex:1 1 0; min-width:0; display:flex; flex-direction:column;
+  align-items:center; text-align:center;
+}
+.msg-flow-node{
+  flex:0 0 auto; width:42px; height:42px; border-radius:50%; margin-bottom:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+  background:linear-gradient(160deg, var(--bespoke), var(--bespoke-dark)); color:#fff;
+  border:3px solid var(--paper); box-shadow:0 0 0 2px var(--bespoke), 0 4px 10px -4px rgba(20,24,27,.35);
+}
+.msg-flow-label-wrap{display:flex; flex-direction:column; align-items:center; gap:6px; max-width:130px;}
+.msg-flow-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:9px; color:#fff; background:var(--bespoke); border-radius:999px; padding:3px 10px;
+  white-space:nowrap;
+}
+.msg-flow-label{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); line-height:1.3;}
+.msg-flow-desc{font-size:11px; color:var(--ink-faint); line-height:1.4;}
+.msg-flow-step{transition:transform .18s var(--ease);}
+.msg-flow-step:hover{transform:translateY(-3px);}
+.msg-flow-step:hover .msg-flow-label{color:var(--bespoke);}
+.msg-flow-step:hover .msg-flow-node{transform:scale(1.07); box-shadow:0 0 0 2px var(--bespoke), 0 8px 16px -5px rgba(20,24,27,.4);}
+.msg-flow-step.optional .msg-flow-node{
+  background:var(--paper); color:var(--warn); border:2px dashed var(--warn);
+  box-shadow:0 0 0 2px var(--paper);
+}
+.msg-flow-step.optional .msg-flow-tag{background:var(--warn);}
+.msg-flow-step.optional:hover .msg-flow-label{color:var(--warn);}
+.msg-flow-step.optional:hover .msg-flow-node{box-shadow:0 0 0 2px var(--paper), 0 8px 16px -5px rgba(180,105,26,.4);}
+@media (max-width:860px){
+  .msg-flow-track{flex-direction:column; align-items:stretch; gap:0;}
+  .msg-flow-line{display:none;}
+  .msg-flow-step{
+    flex-direction:row; text-align:left; align-items:center; gap:14px; padding:10px 0;
+    position:relative;
+  }
+  .msg-flow-step:not(:last-child)::after{
+    content:''; position:absolute; left:21px; bottom:-2px; width:2px; height:16px;
+    background-image:repeating-linear-gradient(to bottom, var(--line-strong) 0 4px, transparent 4px 8px);
+  }
+  .msg-flow-node{margin-bottom:0;}
+  .msg-flow-label-wrap{align-items:flex-start; max-width:none;}
+}
+
+/* ---------- goods plan tracker (rail) ---------- */
+.pp-body{padding:2px 14px 16px;}
+.plan-section{
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; background:var(--paper);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.plan-section:hover{border-color:var(--line-strong); box-shadow:var(--shadow);}
+.plan-section .ps-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  font-size:10.5px; color:var(--bespoke); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;
+}
+.plan-section .ps-label a{font-size:10.5px; color:var(--ink-faint); text-decoration:underline; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;}
+.plan-section .ps-label a:hover{color:var(--bespoke);}
+.plan-section .ps-value{font-size:13px; color:var(--ink); line-height:1.45; word-break:break-word;}
+.ps-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+.plan-section .ps-sub{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+
+/* ---------- confirm dialog ---------- */
+.confirm-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:300;
+  align-items:center; justify-content:center; padding:20px;
+}
+@keyframes modalOverlayIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes modalBoxIn{ from{opacity:0; transform:translateY(10px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
+.confirm-overlay.open{display:flex; animation:modalOverlayIn .15s var(--ease);}
+.confirm-overlay.open .confirm-box{animation:modalBoxIn .18s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .confirm-overlay.open, .confirm-overlay.open .confirm-box{animation:none;}
+}
+.confirm-box{
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:380px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.4); padding:24px 24px 20px;
+}
+.confirm-icon{
+  width:36px; height:36px; border-radius:50%; background:#FBEEE0; color:var(--warn);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-weight:800; font-size:16px; margin-bottom:14px;
+}
+.confirm-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink); margin:0 0 6px;}
+.confirm-message{font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin:0 0 20px;}
+.confirm-actions{display:flex; justify-content:flex-end; gap:8px;}
+.btn.primary.danger{background:var(--warn); border-color:var(--warn);}
+.btn.primary.danger:hover{background:var(--warn); filter:brightness(1.08); transform:translateY(-1px);}
+
+.btn{
+  font-family:var(--font-body); font-weight:700; letter-spacing:.01em;
+  font-size:12.5px; padding:9px 16px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
+  background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow);
+}
+.btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease, box-shadow .15s ease;}
+.btn:hover{border-color:var(--line-strong); background:#F7F8F7; box-shadow:var(--shadow-hover); transform:translateY(-1px);}
+.btn:active{transform:translateY(0); filter:brightness(.97);}
+.btn:disabled{opacity:.5; cursor:not-allowed; filter:none; transform:none; box-shadow:none;}
+.btn.primary{background:linear-gradient(155deg, var(--stamp), #175738); color:var(--stamp-ink); border-color:var(--stamp); box-shadow:0 1px 2px rgba(20,24,27,.05), 0 10px 20px -10px rgba(30,107,69,.5);}
+.btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px); background:linear-gradient(155deg, var(--stamp), #175738); box-shadow:0 2px 4px rgba(20,24,27,.06), 0 16px 28px -12px rgba(30,107,69,.55);}
+.btn.primary:disabled{opacity:.5; cursor:not-allowed; filter:none;}
+.btn.bespoke{background:linear-gradient(155deg, var(--bespoke), var(--bespoke-dark)); color:#fff; border-color:var(--bespoke); box-shadow:0 1px 2px rgba(20,24,27,.05), 0 10px 20px -10px rgba(30,107,69,.5);}
+.btn.bespoke:hover{filter:brightness(1.1); transform:translateY(-1px); background:linear-gradient(155deg, var(--bespoke), var(--bespoke-dark)); box-shadow:0 2px 4px rgba(20,24,27,.06), 0 16px 28px -12px rgba(30,107,69,.55);}
+.btn.ghost{background:transparent; box-shadow:none;}
+.btn.ghost:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px); box-shadow:var(--shadow-hover);}
+.btn.full{width:100%; text-align:center; justify-content:center;}
+.btn.small{padding:5px 10px; font-size:11px;}
+
+.step-nav{display:flex; justify-content:space-between; gap:10px; margin:32px 0 10px; padding-top:18px; border-top:1px solid var(--line);}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(6px);
+  background:var(--ink); color:var(--paper); font-family:var(--font-display); font-weight:700;
+  font-size:12px; letter-spacing:.02em; padding:9px 16px; border-radius:8px;
+  opacity:0; pointer-events:none; transition:all .2s ease; z-index:100; max-width:80vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ---------- typography split: serif for headings, sans for UI chrome ---------- */
+.eyebrow, .btn, .chip, .step-num, .step-label, .nav-group-label, .msg-tag,
+.concept-chosen-tag, .bespoke-ribbon, .tier-head .tier-badge,
+.msg-flow-tag, .mobile-topbar-step, .rd-clear, .glossary summary,
+.plan-section .ps-label, .msg-card-toggle, .field-grid label, .field-group label, .confirm-icon,
+.toast, .logo-sub, table.shot-table th, .tier-head span.tcount{
+  font-family:var(--font-body); letter-spacing:.01em;
+}
+.eyebrow, .nav-group-label, .msg-tag, .concept-chosen-tag, .bespoke-ribbon,
+.tier-head .tier-badge, .msg-flow-tag, .mobile-topbar-step, .field-grid label,
+.field-group label, table.shot-table th{
+  letter-spacing:.07em;
+}
+</style>
+
+<div class="site-topbar-accent"></div>
+<div class="site-topbar">
+  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <h1>Super Loom</h1>
+  <div class="who">
+    <span>Signed in as Dan</span>
+    <button class="signout">Sign out</button>
+  </div>
+</div>
+
+<div id="app">
+  <nav id="rail">
+    <div class="sidebar-logo">
+      <span class="logo-mark">SL</span>
+      <div class="logo-text">
+        <div class="logo-name">Super Loom</div>
+        <div class="logo-sub">Bespoke Film Builder</div>
+      </div>
+      <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu" aria-label="Close menu">Close</button>
+    </div>
+    <div class="sidebar-progress">
+      <div class="pp-label"><span>Build progress</span><span id="progressLabel">0/7</span></div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <div class="rail-scroll">
+      <div class="nav-groups" id="navGroups"></div>
+      <div class="rail-divider">
+        <span class="eyebrow">Loom Plan</span>
+        <button class="rd-clear" id="clearPlanBtn" title="Clear the whole Super Loom plan">Clear</button>
+      </div>
+      <div class="pp-body" id="ppBody"></div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn bespoke full" id="copyPlanBtn">Copy Plan</button>
+    </div>
+  </nav>
+
+  <main id="content-col">
+    <div class="mobile-topbar">
+      <button class="iconbtn" id="railOpenBtn" title="Menu" aria-label="Open menu">Menu</button>
+      <div class="mobile-topbar-title">
+        <span class="mobile-topbar-step" id="mobileStepEyebrow">Step 1 of 7</span>
+        <span class="mobile-topbar-name" id="mobileStepName">Targeting</span>
+      </div>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="feModalOverlay" role="dialog" aria-modal="true">
+  <div class="modal-box" id="feModalBox"></div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+  <div class="confirm-box">
+    <div class="confirm-icon">!</div>
+    <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn" id="confirmCancelBtn">Cancel</button>
+      <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ DOCTRINE + REFERENCE DATA
+ A Super Loom is the Level 3, 100% bespoke mechanism: every frame
+ scripted, shot and edited for exactly one whale. Nothing here is
+ "same every time" - that is the entire point of the mechanism.
+ ============================================================ */
+const STEPS = [
+  {id:'targeting',  num:1, label:'Targeting'},
+  {id:'research',   num:2, label:'Research Brief'},
+  {id:'hook',       num:3, label:'Hook Lab'},
+  {id:'script',     num:4, label:'Script Builder'},
+  {id:'shotlist',   num:5, label:'Shot List'},
+  {id:'production', num:6, label:'Production'},
+  {id:'delivery',   num:7, label:'Messaging'},
+];
+
+const SUPER_LOOM_TRAITS = [
+  {key:'highValue', label:'High-Value', desc:'Deal size justifies the effort - typically $10k+ contract value minimum. Long-term relationship potential, not a one-off.'},
+  {key:'hardToReach', label:'Hard To Reach', desc:'Receives hundreds of pitches a week, does not respond to standard outreach, surrounded by gatekeepers. Generic templates do not work on them.'},
+  {key:'specific', label:'Specific', desc:'You know exactly who they are - a named person, not a job title. You can identify personal interests and tie your service directly to their situation.'},
+  {key:'whaleLevel', label:'Whale-Level', desc:'8-figure founders, C-suite at scale, successful operators - people with real decision-making power.'},
+];
+
+const RED_FLAGS = [
+  {key:'noInfo', label:'Not enough public footprint', desc:'You cannot find enough information about them to research three layers deep.'},
+  {key:'smallDeal', label:'Deal size unclear or small', desc:'Under roughly $10k, or you genuinely do not know what the deal is worth.'},
+  {key:'notDecisionMaker', label:'Not actually a decision-maker', desc:'A gatekeeper, not a whale - they cannot say yes even if they love it.'},
+  {key:'noSignal', label:'No usable signal', desc:'You cannot identify a specific personal interest or detail strong enough to build a hook around.'},
+];
+
+const RESEARCH_LENSES = [
+  {id:'strategic', name:'Strategic', description:'Direction and worldview - what they’re heading toward, and why.'},
+  {id:'business',  name:'Business',  description:'Mechanics, bottleneck, and edge - how the business actually works, and where the friction is.'},
+  {id:'personal',  name:'Personal',  description:'The human, not the bio - what makes them notice you as a person, not a vendor.'},
+];
+
+const RESEARCH_PROMPTS = [
+  {id:'priorities6to12',  lens:'strategic', key:'priorities6to12',  label:'What are they obviously trying to accomplish in the next 6-12 months?', placeholder:'e.g. stated goal to expand into enterprise, mentioned in a recent interview...'},
+  {id:'recentLaunches',   lens:'strategic', key:'recentLaunches',   label:'What have they recently launched, or are visibly doubling down on?', placeholder:'e.g. shipped a new pricing tier last month, posting about it weekly...'},
+  {id:'growthSignals',    lens:'strategic', key:'growthSignals',    label:'What growth signals show where they’re investing? (hiring, fundraising, new markets, exec hires, rebrand)', placeholder:'e.g. hiring 3 AEs, raised a seed round in March...'},
+  {id:'connectionOffer',  lens:'strategic', key:'connectionOffer',  label:'What specific problem does this person have that your offer solves?', placeholder:'e.g. He has a huge personal brand on LinkedIn but zero long-form YouTube content - exactly the gap our content system fills.'},
+
+  {id:'workingWell',      lens:'business', key:'workingWell',      label:'What’s working extremely well for them right now?', placeholder:'e.g. a specific channel or product line clearly outperforming others...'},
+  {id:'contrarianBelief', lens:'business', key:'contrarianBelief', label:'Founder or business beliefs that they speak about over & over?', placeholder:'e.g. publicly dismisses a tactic most competitors swear by...'},
+  {id:'customerSignal',   lens:'business', key:'customerSignal',   label:'What are customers/reviews saying they love about that the company?', placeholder:'e.g. reviews repeatedly praise X but complain about slow support...'},
+  {id:'directQuotes',     lens:'business', key:'directQuotes',     label:'What has the prospect said in their own words that you can use?', placeholder:'e.g. "My old employer looked at my car to see if I was organised enough for the job" - said on the Client Ascension podcast'},
+
+  {id:'obsessions',       lens:'personal', key:'obsessions',       label:'What does the founder repeatedly talk about outside of work (hobby, cause, story, metaphor)?', placeholder:'e.g. mentions running marathons in nearly every interview...'},
+  {id:'recurringStory',   lens:'personal', key:'recurringStory',   label:'What stories does the founder tell?', placeholder:'e.g. always tells the story of bootstrapping the first version alone...'},
+  {id:'frustrations',     lens:'personal', key:'frustrations',     label:'What frustrates the business/founder in their personal life or business life ?', placeholder:'e.g. visibly annoyed by people assuming they’re VC-backed...'},
+  {id:'trueCares',        lens:'personal', key:'trueCares',        label:'What does the founder truly care about? (hobbies, books, media, sports)', placeholder:'e.g. constantly references sci-fi novels, plays competitive chess...'},
+  {id:'realSignalAction', lens:'personal', key:'realSignalAction', label:'What specific details about this person can be turned into a personalised action?', placeholder:'e.g. Mentioned coconuts on a podcast → we sent one to their HQ.'},
+];
+
+const RESEARCH_SOURCES_TIP = 'Recency beats breadth - a founder\'s last podcast appearance usually tells you more about current priorities than a 2-year-old About page. Work newest-first, then go back for historical context.';
+
+const RESEARCH_SOURCE_GROUPS = [
+  {label:'Company', items:['Careers page & job posts','Docs / help centre','Investor info','Landing / product pages']},
+  {label:'First-Hand', items:['Ask employee on email','Ask employee on LinkedIn']},
+  {label:'Long-form', items:['Conference talks','Email sequences','Guest interviews','Newsletter archive','Podcast appearances','Webinars']},
+  {label:'News', items:['News articles','Press releases']},
+  {label:'Public presence', items:['Facebook','Instagram','Landing Page','LinkedIn','TikTok','X / Twitter','YouTube']},
+  {label:'Voice of customer', items:['Landing Page Reviews','Reddit','Social Media Case Studies','Trustpilot','YouTube comments']},
+];
+
+const SCRIPT_SECTIONS = [
+  {id:'hook', num:1, label:'The Incredible Hook',
+    desc:'The first thing they see. Not good - unprecedented. Whatever concept you locked in Hook Lab happens here. If a jaded 8-figure founder would not stop mid-scroll, it is not enough yet.',
+    placeholder:'e.g. A 20th Century Fox-style title card reads "{name} Superloom." Hologram FX kick in. "He has finally realised the time has come..."'},
+  {id:'intro', num:2, label:'The Introduction',
+    desc:'Address them directly. Tell them plainly this is the best outreach they have ever received, why you made it, and exactly how you want to help. You are setting the agenda, the same way you would in the first 30 seconds of a sales call.',
+    placeholder:'e.g. "{name}, I decided to do something special for you, for two reasons. First, I want to help you [specific outcome]. Second - I need this to be the best outreach you\'ve ever seen in your life."'},
+  {id:'funScene', num:3, label:'Fun Second Scene & The Wager',
+    desc:'Tie back into the hook\'s world and escalate the bit. Then land the wager: what happens if this is not the best outreach they have ever seen. Make it specific to the hook\'s location or theme - the bigger the hook, the bigger the wager.',
+    placeholder:'e.g. "And if this isn\'t the best outreach you\'ve ever seen in your life... me and Alli here will swim all the way to Florida."'},
+  {id:'whoIAm', num:4, label:'Who I Am',
+    desc:'One breath of credibility: who you help, and why you reached out to THEM specifically - the signal you found, not their job title. Then transition into the opportunity. Keep it short - this is the valley of the story, not a peak.',
+    placeholder:'e.g. "Now you\'re probably thinking, who the hell am I and why did I make you this? Fair question. My name is Dan and I help {niche} founders build outreach nobody else is willing to make. And {name}, I reached out to you specifically because..."'},
+  {id:'problem', num:5, label:'The Problem',
+    desc:'Praise what is working first, then contrast it with the specific gap - the good-news sandwich. Use their own words against them. Label them positively so the problem feels earned, not generic. Say why it matters and who has already solved it.',
+    placeholder:'e.g. "Let\'s look at your current situation. Your LinkedIn is absolutely full of great stories - but your YouTube is solely made up of case studies. And that\'s a big opportunity, because..."'},
+  {id:'value', num:6, label:'How You\'ll Solve It',
+    desc:'Maximum two or three concrete moves, numbered. Explain how you will solve it and why your method works - then get ahead of the one objection you already know is coming. Handle it before they can think it.',
+    placeholder:'e.g. "Here\'s exactly how I\'d fix it. First, [specific idea]. Second, [specific idea]. And I already know what you\'re thinking - \'I don\'t have time for this.\' Which is exactly why my team does it for you."'},
+  {id:'proof', num:7, label:'Social Proof',
+    desc:'Show you have solved this exact problem before. Name names where you can. This is also where you prove situational understanding - not just that you help people like them, but that you understand their specific position.',
+    placeholder:'e.g. "Here\'s an 8-figure founder calling this the best outreach he\'s ever seen - one client closed $71K from three hyper-targeted sends."'},
+  {id:'ending', num:8, label:'The Ending & Dream State',
+    desc:'Say why you really did this - the effort was the message. Then paint the dream state in language specific to them. Not "grow your business" - the actual number, the actual outcome they are chasing.',
+    placeholder:'e.g. "The overarching point is - I want to help you go from {current state} to {dream state}. My team and I will do absolutely everything required to make sure you win."'},
+  {id:'cta', num:9, label:'The Bold CTA',
+    desc:'One assumptive ask. Never "let me know your thoughts." Say exactly what you want them to do.',
+    placeholder:'e.g. "Send me your login details. Let\'s make this happen."'},
+  {id:'endingHook', num:10, label:'Ending Hook',
+    desc:'The very last thing they see - delivered right after the ask. Cut back into the hook\'s world for one final, unexpected beat so the video ends on a peak instead of fading out on a request. The Peak-End Rule means they will remember this beat as much as the opening - make it worth screenshotting.',
+    placeholder:'e.g. Cut back to the hologram / the mountain / the writers\' room for one last five-second sting before it cuts to black.'},
+];
+
+/* Emotional-intensity position for each beat, used to draw the twin-peaks arc. 0 = valley floor, 100 = peak. */
+const ARC_POSITIONS = {hook:100, intro:30, funScene:40, whoIAm:20, problem:50, value:60, proof:60, ending:65, cta:70, endingHook:90};
+const ARC_TAGS = {hook:'Peak 1', whoIAm:'The Valley', endingHook:'Peak 2 · Peak-End'};
+
+const SHOT_CONTENT_TYPES = ['A-Roll','Animation','Net Footage'];
+const SHOT_TYPE_GROUPS = [
+  {group:'Unique', items:['Hero Unique','High Negative Space Unique','Low Shutter Unique','Mirror Unique','Object POV Unique','POV Unique','Reverse POV Unique','Shadows Unique','Slow Motion Unique']},
+  {group:'Angled', items:['Ground Angled','High Angled','Low Angled','Straight Up Angled','To The Side Angled','Top Down Angled']},
+  {group:'Close', items:['Close Up','Extreme Close Up','Focus On The Foreground']},
+  {group:'Medium', items:['Behind Medium','Environment Medium','Foreground Medium','Head On Medium','Reveal Medium','Section Medium']},
+  {group:'Wide', items:['AWTA Wide','Behind Wide','Classic Wide','Extreme Wide','Foreground Wide','Head On Wide','Low Wide']},
+];
+
+const SHOT_GLOSSARY = [
+  {t:'Match cut', d:'Two visually similar shots cut together - the eye lines up across the cut.'},
+  {t:'Nine-shot rule', d:'2 drone, 2 wide, 2 medium, 2 close-up, 1 unique - a fast way to plan full coverage of a scene.'},
+  {t:'CCC (cross-cutting)', d:'One scene shows an event, another scene shows a parallel event, then you cut between them.'},
+  {t:'A-Roll', d:'Anything shot on your own camera - the primary footage.'},
+  {t:'Net Footage', d:'Stock or downloaded footage pulled from the internet.'},
+  {t:'Speed ramp', d:'A shot that smoothly shifts between slow motion and normal/fast speed mid-clip.'},
+];
+
+const PRODUCTION_TIERS = [
+  {tier:1, name:'Foundation', note:'Do not touch a camera until every one of these is locked.', items:[
+    {key:'deepResearch', h:'Deep research complete (all three layers)', span:'Business, personal, and signal research each scored 7 or higher on the research checklist.'},
+    {key:'prospectSelection', h:'Prospect selection locked', span:'Cleared the targeting checklist and the matrix. This is a real whale, not a maybe.'},
+    {key:'scriptApproved', h:'Script written and approved', span:'All ten beats drafted in the Script Builder. Nothing left as a placeholder.'},
+  ]},
+  {tier:2, name:'The Build', note:'Build these once Tier 1 is fully locked.', items:[
+    {key:'editPass', h:'Edit and emotional-beat pass complete', span:'The cut follows the twin-peaks arc: build, peak, valley, build, bigger peak, bold ask.'},
+    {key:'locations', h:'Locations and assets sourced', span:'Multiple locations shot to keep the video visually fresh. No single scene carries the whole thing.'},
+    {key:'productionDay', h:'Production day shot', span:'Camera, audio, and lighting all intentional. Every frame looks considered.'},
+    {key:'shotList', h:'Shot list complete', span:'Every beat mapped to a shot type, location, and content type in the Shot List step.'},
+  ]},
+  {tier:3, name:'Delivery & Conversion', note:'Build these only once the video is final.', items:[
+    {key:'channel', h:'Channel selected', span:'Wherever the prospect actually lives. Checked, not guessed.'},
+    {key:'followUp', h:'Follow-up sequence scheduled', span:'All four follow-up emails planned, not just the first send.'},
+    {key:'initialSend', h:'Initial send complete', span:'The Super Loom is out.'},
+    {key:'amplification', h:'Public amplification planned', span:'A plan to post it publicly once it lands, to catch the network effect.'},
+    {key:'thumbnail', h:'Thumbnail and opening message written', span:'A bold, specific preview frame and an opening tease under 80 words.'},
+  ]},
+  {tier:4, name:'The Gut Check', note:'Be honest with yourself here - every no means it is not ready yet.', items:[
+    {key:'onlyThisPerson', h:'Made for one person', span:"This video is clearly built for one specific person. Not a template with a name swapped in."},
+    {key:'differentScenes', h:'Different backgrounds and scenes used', span:'A Super Loom should never sit in one location the whole way through.'},
+    {key:'maxValueShots', h:'Maximum two to three value shots', span:'Unless the hook is genuinely strong enough to earn a longer runtime, more than three value shots drags the video.'},
+    {key:'noDesk', h:'Never at a desk', span:"Is there a moment where you're sat at a desk? The answer should be no."},
+    {key:'hookCool', h:'The hook is actually cool', span:"The prospect thinks it's so cool they would share it with their wife and every friend they have."},
+    {key:'actuallyGood', h:'The video is awesome', span:'Be honest with yourself. You know what awesome looks like.'},
+  ]},
+];
+
+const MESSAGE_SECTIONS = [
+  {id:'publicPost', num:'01', tag:'Optional', label:'Public Posting', desc:'A social post about the send - LinkedIn, X, etc. - announcing the Super Loom once it is live. Andre posted publicly and it produced 6 inbound leads. Michel reposted to 70,000 followers and produced 15. Do not skip this if you can help it.', placeholder:'Write the public post...'},
+  {id:'firstEmail', num:'03', tag:'Opening Send', label:'First Email', desc:'The message that actually delivers the Super Loom. Under 80 words. Tease, do not pitch - the video does the selling.', placeholder:'e.g. {name} - built this specifically for you, nobody else is getting this. 90 seconds, worth it. [link]', hasSubject:true, subjectPlaceholder:'Subject line...'},
+];
+
+const SOCIAL_FOLLOWUP_SECTION = {id:'socialFollowup', num:'02', tag:'Optional', label:'Social Media Follow-Up', desc:'A follow-up post or two keeping the send visible on social after the public post - a comment, quote-post, or repost with a fresh line. Four posts, spaced out over the follow-up window - click a box to write or edit it.'};
+const EMAIL_FOLLOWUP_SECTION = {id:'emailFollowup', num:'04', tag:'Follow-Up', label:'Follow-Up Message', desc:'Your call opener or nudge email once tracking shows it is delivered. Four emails, spaced out over the follow-up sequence - click a box to write or edit it.'};
+function findMessageSection(id){
+  return MESSAGE_SECTIONS.find(s=> s.id===id) || [SOCIAL_FOLLOWUP_SECTION, EMAIL_FOLLOWUP_SECTION].find(s=> s.id===id);
+}
+
+const FOLLOWUP_TOUCHES = [
+  {n:1, num:'01', label:'Follow-Up Email 1', desc:'The first bump after the initial send - short, low-pressure, easy to reply to.', placeholder:'Write the first follow-up email...'},
+  {n:2, num:'02', label:'Follow-Up Email 2', desc:'The second touch in the sequence - keep it just as short.', placeholder:'Write the second follow-up email...'},
+  {n:3, num:'03', label:'Follow-Up Email 3', desc:'The third touch in the sequence.', placeholder:'Write the third follow-up email...'},
+  {n:4, num:'04', label:'Follow-Up Email 4', desc:'The final touch - a direct, no-filler close. Make the ask, then move on.', placeholder:'Write the final follow-up email...'},
+];
+
+const SOCIAL_FOLLOWUP_TOUCHES = [
+  {n:1, num:'01', label:'Social Follow-Up 1', desc:'A follow-up post keeping the send visible after the public posting - a comment, quote-post, or repost with a fresh line.', placeholder:'Write the first follow-up post...'},
+  {n:2, num:'02', label:'Social Follow-Up 2', desc:'A second touch to keep momentum going while prospects are still deciding.', placeholder:'Write the second follow-up post...'},
+  {n:3, num:'03', label:'Social Follow-Up 3', desc:'A third touch in the sequence.', placeholder:'Write the third follow-up post...'},
+  {n:4, num:'04', label:'Social Follow-Up 4', desc:'The final social touch - a direct nudge before you move on.', placeholder:'Write the final follow-up post...'},
+];
+
+/* Template bank per message section - {cat, items:[{id, title, subject, text}]}. Fill freely. */
+const TEMPLATE_BANK = {
+  publicPost: [],
+  socialFollowup: [],
+  firstEmail: [],
+  emailFollowup: [],
+};
+(function ensureTemplateIds(){
+  Object.keys(TEMPLATE_BANK).forEach(sectionId=>{
+    (TEMPLATE_BANK[sectionId]||[]).forEach(g=>{
+      g.items.forEach((it,idx)=>{
+        if(!it.id) it.id = sectionId + '__' + g.cat.replace(/\s+/g,'_') + '__' + idx;
+      });
+    });
+  });
+})();
+function getAllTemplateItems(sectionId){
+  const edits = customTemplateEdits[sectionId] || {};
+  const deletes = customTemplateDeletes[sectionId] || [];
+  const items = [];
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:g.cat}, it, edits[it.id]||{});
+    items.push(eff);
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:'General'}, it, edits[it.id]||{}, {custom:true});
+    items.push(eff);
+  });
+  return items;
+}
+function getCategoryList(sectionId){
+  const set = new Set();
+  getAllTemplateItems(sectionId).forEach(it=> set.add(it.cat||'General'));
+  (customCategories[sectionId]||[]).forEach(c=> set.add(c));
+  if(!set.size) set.add('General');
+  return Array.from(set);
+}
+function getTemplateGroups(sectionId){
+  const items = getAllTemplateItems(sectionId);
+  return getCategoryList(sectionId).map(cat=> ({
+    cat,
+    items: items.filter(it=> (it.cat||'General')===cat),
+  }));
+}
+function renameCategory(sectionId, oldName, newName){
+  newName = (newName||'').trim();
+  if(!newName || newName===oldName) return false;
+  if(getCategoryList(sectionId).indexOf(newName)!==-1){ toast('That category already exists'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===oldName){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:newName});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===oldName) it.cat = newName;
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).map(c=> c===oldName?newName:c);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function deleteCategory(sectionId, name){
+  if(name==='General'){ toast('General is the default category and can\'t be deleted'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===name){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:'General'});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===name) it.cat = 'General';
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).filter(c=> c!==name);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function addCategory(sectionId, name){
+  name = (name||'').trim();
+  if(!name){ toast('Give the category a name first'); return false; }
+  if(getCategoryList(sectionId).indexOf(name)!==-1){ toast('That category already exists'); return false; }
+  if(!customCategories[sectionId]) customCategories[sectionId] = [];
+  customCategories[sectionId].push(name);
+  persistCustomCategories();
+  return true;
+}
+function loadCustomTemplateEdits(){
+  try{
+    const c = JSON.parse(localStorage.getItem('superloom_template_edits'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateEdits(){ localStorage.setItem('superloom_template_edits', JSON.stringify(customTemplateEdits)); }
+function loadCustomTemplateAdds(){
+  try{
+    const c = JSON.parse(localStorage.getItem('superloom_template_adds'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateAdds(){ localStorage.setItem('superloom_template_adds', JSON.stringify(customTemplateAdds)); }
+function loadCustomTemplateDeletes(){
+  try{
+    const c = JSON.parse(localStorage.getItem('superloom_template_deletes'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateDeletes(){ localStorage.setItem('superloom_template_deletes', JSON.stringify(customTemplateDeletes)); }
+function loadCustomCategories(){
+  try{
+    const c = JSON.parse(localStorage.getItem('superloom_template_cats'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomCategories(){ localStorage.setItem('superloom_template_cats', JSON.stringify(customCategories)); }
+let customTemplateEdits = loadCustomTemplateEdits();
+let customTemplateAdds = loadCustomTemplateAdds();
+let customTemplateDeletes = loadCustomTemplateDeletes();
+let customCategories = loadCustomCategories();
+let templateModalSection = null;
+let templateCatManageOpen = false;
+let templateCatEditing = null;
+let templateEditingId = null;
+let templateModalCat = null;
+let templateModalSearch = '';
+let modalFullscreen = false;
+
+/* ============================================================
+ PLAN STATE
+ ============================================================ */
+let activeStep = STEPS[0].id;
+let plan = defaultPlan();
+let optionalExpanded = {};
+
+function defaultPlan(){
+  return {
+    prospect:{name:'', niche:'', company:''},
+    targeting:{traits:{}, redFlags:{}, notes:''},
+    research:{
+      strategic:{priorities6to12:[], recentLaunches:[], growthSignals:[], connectionOffer:[]},
+      business:{workingWell:[], contrarianBelief:[], customerSignal:[], directQuotes:[]},
+      personal:{obsessions:[], recurringStory:[], frustrations:[], trueCares:[], realSignalAction:[]},
+      opportunity:{angle:''},
+    },
+    hook:{archetype:'', chosenTitle:'', chosenConcept:'', wager:'', concepts:[]},
+    script:{hook:'', intro:'', funScene:'', whoIAm:'', problem:'', value:'', proof:'', ending:'', cta:'', endingHook:''},
+    scriptMeta:{},
+    shotList:[],
+    locations:[],
+    production:{checklist:{}},
+    delivery:{publicPost:'', firstEmailSubject:'', firstEmail:'', followups:{1:{subject:'',body:''},2:{subject:'',body:''},3:{subject:'',body:''},4:{subject:'',body:''}}, socialFollowups:{1:'',2:'',3:'',4:''}},
+  };
+}
+function loadPlan(){
+  try{
+    const p = JSON.parse(localStorage.getItem('superloom_plan'));
+    if(p){
+      const d = defaultPlan();
+      plan = Object.assign(d, p, {
+        prospect: Object.assign(d.prospect, p.prospect||{}),
+        targeting: Object.assign(d.targeting, p.targeting||{}, {traits:Object.assign({},p.targeting&&p.targeting.traits), redFlags:Object.assign({},p.targeting&&p.targeting.redFlags)}),
+        research: {
+          strategic: Object.assign({}, d.research.strategic, p.research&&p.research.strategic),
+          business: Object.assign({}, d.research.business, p.research&&p.research.business),
+          personal: Object.assign({}, d.research.personal, p.research&&p.research.personal),
+          opportunity: Object.assign({}, d.research.opportunity, p.research&&p.research.opportunity),
+        },
+        hook: Object.assign(d.hook, p.hook||{}, {concepts:(p.hook&&p.hook.concepts)||[]}),
+        script: Object.assign(d.script, p.script||{}),
+        scriptMeta: Object.assign(d.scriptMeta, p.scriptMeta||{}),
+        shotList: (p.shotList||[]),
+        locations: (p.locations||[]),
+        production: Object.assign(d.production, p.production||{}, {
+          checklist:Object.assign({}, p.production && p.production.checklist),
+        }),
+        delivery: Object.assign(d.delivery, p.delivery||{}, {
+          followups: (()=>{
+            const raw = (p.delivery && p.delivery.followups) || {};
+            const out = {};
+            [1,2,3,4].forEach(n=>{
+              const v = raw[n];
+              if(v && typeof v === 'object') out[n] = {subject:v.subject||'', body:v.body||''};
+              else out[n] = {subject:'', body: (typeof v === 'string' ? v : '')};
+            });
+            return out;
+          })(),
+          socialFollowups: Object.assign({1:'',2:'',3:'',4:''}, p.delivery && p.delivery.socialFollowups),
+        }),
+      });
+    }
+  }catch(e){}
+}
+function persistPlan(){ localStorage.setItem('superloom_plan', JSON.stringify(plan)); }
+loadPlan();
+
+/* Hook ledger persists independently of Clear Plan - the whole point is it remembers every
+   concept ever used in this tool so Hook Lab never repeats itself across different whales. */
+function loadHookLedger(){
+  try{ const l = JSON.parse(localStorage.getItem('superloom_hook_ledger')); if(Array.isArray(l)) return l; }catch(e){}
+  return [];
+}
+function persistHookLedger(){ localStorage.setItem('superloom_hook_ledger', JSON.stringify(hookLedger)); }
+let hookLedger = loadHookLedger();
+
+/* ============================================================
+ AI API KEY - shared with VSL Loom\'s key if already set, but
+ stored under its own namespace and never touched by Clear Plan.
+ ============================================================ */
+function getApiKey(){ return localStorage.getItem('superloom_api_key') || localStorage.getItem('vslloom_api_key') || ''; }
+function setApiKey(key){
+  if(key) localStorage.setItem('superloom_api_key', key);
+  else localStorage.removeItem('superloom_api_key');
+}
+const API_KEY_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M21 2l-9.6 9.6"></path><path d="M15.5 7.5l3 3L22 7l-3-3"></path></svg>';
+function apiKeySetupCardHtml(prefix, description){
+  const key = getApiKey();
+  return '<div class="ai-setup-card">'
+    + '<div class="ai-setup-icon">' + API_KEY_ICON_SVG + '</div>'
+    + '<div class="ai-setup-main">'
+      + '<div class="ai-setup-title-row"><h4>Anthropic API Key</h4>'
+        + '<span class="ai-setup-status ' + (key ? 'set' : 'unset') + '" id="' + prefix + '-apikey-status">' + (key ? 'Key saved on this device' : 'No key set yet') + '</span>'
+      + '</div>'
+      + '<p class="ai-setup-desc">' + description + ' Stored only in this browser - <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">get a key from the Anthropic Console</a>.</p>'
+      + '<div class="ai-setup-row">'
+        + '<div class="ai-setup-input-wrap">' + API_KEY_ICON_SVG + '<input type="password" id="' + prefix + '-apikey" placeholder="sk-ant-..." value="' + escAttr(key) + '" autocomplete="off"></div>'
+        + '<button type="button" class="btn primary small" id="' + prefix + '-apikey-save">Save Key</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+
+/* ============================================================
+ HELPERS
+ ============================================================ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+function uid(){ return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+let _confirmResolve = null;
+function showConfirm({title='Are you sure?', message='', confirmLabel='Confirm', cancelLabel='Cancel'} = {}){
+  return new Promise((resolve)=>{
+    _confirmResolve = resolve;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = confirmLabel;
+    document.getElementById('confirmCancelBtn').textContent = cancelLabel;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+  });
+}
+function closeConfirm(result){
+  const overlay = document.getElementById('confirmOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
+}
+function copyText(s){
+  navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+}
+function fillTokens(str){
+  const name = plan.prospect.name.trim();
+  const niche = plan.prospect.niche.trim();
+  return (str||'')
+    .replace(/\{name\}/gi, name || '{name}')
+    .replace(/\{niche\}/gi, niche || '{niche}');
+}
+function wordCount(s){ return (s||'').trim().split(/\s+/).filter(Boolean).length; }
+
+/* ============================================================
+ AI CALLS
+ ============================================================ */
+const AI_MODEL = 'claude-haiku-4-5-20251001';
+
+async function callClaude(promptText, maxTokens){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'x-api-key': getApiKey(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      max_tokens: maxTokens || 1400,
+      messages: [{role:'user', content: promptText}],
+    }),
+  });
+  if(!res.ok){
+    if(res.status === 401) throw new Error('API key rejected - check it above and save again.');
+    throw new Error('AI request failed (' + res.status + ').');
+  }
+  const data = await res.json();
+  let text = (data.content && data.content[0] && data.content[0].text || '').trim();
+  text = text.replace(/^```(?:json)?/i, '').replace(/```$/,'').trim();
+  try{ return JSON.parse(text); }
+  catch(e){ throw new Error('AI returned something we couldn\'t read - try generating again.'); }
+}
+
+function findingsSummary(lensId){
+  const lens = plan.research[lensId];
+  return Object.values(lens).reduce((flat,arr)=> flat.concat(arr), []).map(f=> (f.text||'').trim()).filter(Boolean).join('; ');
+}
+
+function buildHookPrompt(){
+  const excludeList = hookLedger.length
+    ? hookLedger.map((h,i)=> (i+1)+'. '+h.title+' - '+h.concept).join('\n')
+    : '(none yet - this is the first Super Loom built in this tool)';
+  return 'You are ghostwriting OPENING HOOK CONCEPTS for a "Super Loom" - a 100% bespoke, cinematic cold-outreach video built for exactly one whale prospect (a mechanism used by the outbound agency Lincko). The entire point of a Super Loom is that the hook must be unprecedented and DIFFERENT EVERY SINGLE TIME - a jaded 8-figure founder must never be able to say "I have seen outreach like this before."\n\n'
+    + 'Doctrine: the Attention Law (you must earn attention before anything else matters), effort bias (the more visible and unreasonable the effort, the more valuable it is perceived to be), and the Individual Law (you are addressing a human, not a job title).\n\n'
+    + 'Real hook concepts Lincko has actually shot, for calibration of ambition only (NEVER reuse these, they are reference material): flew 19 hours to the prospect\'s home country because of their heritage; shot a cinematic skiing movie on a mountain because they loved skiing; sent a coconut to their HQ because they mentioned coconuts on a podcast; built a Star Wars hologram sequence with a 20th Century Fox-style title card; opened on a "writers\' room" of team members pitching bad generic ideas before landing on the real one; shot on a beach with printed headshots of the prospect.\n\n'
+    + 'Prospect:\n- Name: ' + (plan.prospect.name.trim() || '(unknown - use a generic but warm address)') + '\n- Industry/market: ' + (plan.prospect.niche.trim() || '(unknown)') + '\n- Company: ' + (plan.prospect.company.trim() || '(unknown)') + '\n\n'
+    + 'Research brief:\nStrategic: ' + (findingsSummary('strategic') || '(none provided)') + '\nBusiness: ' + (findingsSummary('business') || '(none provided)') + '\nPersonal (the richest source of hook material): ' + (findingsSummary('personal') || '(none provided)') + '\nOutreach angle: ' + (plan.research.opportunity.angle.trim() || '(none provided)') + '\n\n'
+    + 'Hook concepts already used in this tool before - DO NOT propose anything sharing the same mechanism, location-type, or theme as any of these, they must feel like a different mind came up with them:\n' + excludeList + '\n\n'
+    + 'Generate 4 wildly different hook concepts. Each must be groundable in the research above (do not invent facts not implied by the research) OR clearly be a creative swing that does not depend on unconfirmed facts. Each of the 4 must differ from the OTHER 3 in mechanism too - do not propose two "travel somewhere" concepts in the same batch.\n\n'
+    + 'Respond with ONLY raw JSON, no markdown fences, no extra prose, matching exactly this shape:\n'
+    + '{"concepts":[{"title":"...","concept":"2-3 sentences describing what happens on screen","why":"one sentence on why this specific prospect earns this specific idea","wager":"one bold, specific \'if this isn\'t the best outreach you\'ve ever seen...\' forfeit line tied to the concept"}]}';
+}
+
+async function generateHookConcepts(){
+  if(!plan.prospect.name.trim()){ toast('Add a Whale Name in Targeting first'); return; }
+  if(!getApiKey()){
+    toast('Add your API key below first');
+    const el = document.getElementById('hk-apikey'); if(el) el.focus();
+    return;
+  }
+  const btn = document.getElementById('generateHooksBtn');
+  const original = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Dreaming up concepts...'; }
+  try{
+    const result = await callClaude(buildHookPrompt(), 1400);
+    if(!result.concepts || !Array.isArray(result.concepts)) throw new Error('Unexpected AI response');
+    plan.hook.concepts = result.concepts.map(c=> ({id:uid(), title:c.title||'Untitled concept', concept:c.concept||'', why:c.why||'', wager:c.wager||''}));
+    persistPlan();
+    toast('4 fresh concepts generated');
+    renderHookStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }catch(e){
+    toast(e.message || 'AI request failed');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = original; }
+  }
+}
+
+function buildScriptPrompt(){
+  return 'You are ghostwriting a full "Super Loom" script - a 100% bespoke cold-outreach video script for one whale prospect, in the voice of Dan James / Lincko: direct, confident, a little unhinged, funny, never corporate. Every beat is bespoke - nothing here is templated.\n\n'
+    + 'The 10-beat structure, in order:\n'
+    + '1. hook - the opening moment (built from the concept below)\n'
+    + '2. intro - direct address: who they are, that this is the best outreach they have ever seen, why you made it, how you want to help\n'
+    + '3. funScene - ties back into the hook\'s world, escalates the bit, lands a bold "if this isn\'t the best outreach you\'ve ever seen" wager tied to the hook\n'
+    + '4. whoIAm - one breath of credibility: who you help, why you reached out to THEM specifically (tie to the signal), transition into the opportunity\n'
+    + '5. problem - praise what is working, then contrast with the specific gap (the "good news sandwich"), why it matters\n'
+    + '6. value - 2-3 concrete numbered ways you would solve it, why your method works, pre-handle the one objection they will have\n'
+    + '7. proof - social proof, specific results, situational understanding\n'
+    + '8. ending - why you really did this, the dream state in language specific to them\n'
+    + '9. cta - one bold assumptive ask, never "let me know your thoughts"\n'
+    + '10. endingHook - one final unexpected beat that cuts back into the hook\'s world, so the video ends on a peak (the Peak-End Rule) instead of fading out on the ask\n\n'
+    + 'Voice reference (match this register exactly):\n"{name}, I decided to do something special for you, for two reasons..."\n"And if this isn\'t the best outreach you\'ve ever seen in your life, I\'ll [X]."\n"Now you\'re probably thinking, who the hell am I and why did I reach out to you specifically..."\n\n'
+    + 'Prospect: ' + (plan.prospect.name.trim() || '(unknown)') + ' - ' + (plan.prospect.niche.trim() || '(unknown industry)') + ' - ' + (plan.prospect.company.trim() || '') + '\n'
+    + 'Research: Strategic: ' + (findingsSummary('strategic') || 'n/a') + ' | Business: ' + (findingsSummary('business') || 'n/a') + ' | Personal: ' + (findingsSummary('personal') || 'n/a') + '\n'
+    + 'Problem you already see (anchor beat 5 on this if provided): ' + (plan.research.opportunity.angle.trim() || '(infer honestly from the research)') + '\n'
+    + 'Chosen hook concept (anchor beats 1 and 3 on this): ' + (plan.hook.chosenConcept.trim() || plan.hook.chosenTitle.trim() || '(no hook chosen yet - invent one consistent with the research and note it clearly)') + '\n'
+    + (plan.hook.wager.trim() ? ('Wager line to build beat 3 around: ' + plan.hook.wager.trim() + '\n') : '')
+    + '\nNever fabricate specific numbers, names or events not present in the input. Use {name} as a token for the prospect\'s first name anywhere it repeats naturally.\n\n'
+    + 'Respond with ONLY raw JSON, no markdown fences, no extra prose, matching exactly this shape:\n'
+    + '{"hook":"...","intro":"...","funScene":"...","whoIAm":"...","problem":"...","value":"...","proof":"...","ending":"...","cta":"...","endingHook":"..."}';
+}
+
+async function generateFullScript(){
+  if(!plan.prospect.name.trim()){ toast('Add a Whale Name in Targeting first'); return; }
+  if(!getApiKey()){
+    toast('Add your API key in Hook Lab first');
+    setActiveStep('hook');
+    setTimeout(()=>{ const el = document.getElementById('hk-apikey'); if(el) el.focus(); }, 50);
+    return;
+  }
+  const hasContent = SCRIPT_SECTIONS.some(s=> (plan.script[s.id]||'').trim());
+  if(hasContent){
+    const ok = await showConfirm({
+      title:'Overwrite the script?',
+      message:'This replaces all 10 beats with a fresh AI draft. Anything you\'ve written will be lost.',
+      confirmLabel:'Generate Draft',
+    });
+    if(!ok) return;
+  }
+  const btn = document.getElementById('generateScriptBtn');
+  const original = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Writing all 10 beats...'; }
+  try{
+    const result = await callClaude(buildScriptPrompt(), 2200);
+    SCRIPT_SECTIONS.forEach(s=>{
+      if(typeof result[s.id] === 'string' && result[s.id].trim()) plan.script[s.id] = result[s.id].trim();
+    });
+    persistPlan();
+    toast('Full script drafted - review and personalise every beat');
+    renderScriptStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }catch(e){
+    toast(e.message || 'AI request failed');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = original; }
+  }
+}
+
+/* ============================================================
+ SIDEBAR: nav + progress
+ ============================================================ */
+function stepStatus(id){
+  if(id==='targeting'){
+    const t = plan.targeting;
+    const n = Object.values(t.traits).filter(Boolean).length;
+    if(!plan.prospect.name.trim() && n===0) return 'pending';
+    return (n>=4 && plan.prospect.name.trim()) ? 'done' : 'progress';
+  }
+  if(id==='research'){
+    return findingsCount()>0 ? 'done' : 'pending';
+  }
+  if(id==='hook'){
+    if(!plan.hook.chosenTitle.trim() && plan.hook.concepts.length===0) return 'pending';
+    return plan.hook.chosenTitle.trim() ? 'done' : 'progress';
+  }
+  if(id==='script'){
+    const filled = SCRIPT_SECTIONS.filter(s=> (plan.script[s.id]||'').trim()).length;
+    if(filled===0) return 'pending';
+    return filled>=SCRIPT_SECTIONS.length ? 'done' : 'progress';
+  }
+  if(id==='shotlist'){
+    if(plan.shotList.length===0) return 'pending';
+    return plan.shotList.length>=SCRIPT_SECTIONS.length ? 'done' : 'progress';
+  }
+  if(id==='production'){
+    const total = PRODUCTION_TIERS.reduce((n,t)=> n+t.items.length, 0);
+    const done = Object.values(plan.production.checklist).filter(Boolean).length;
+    if(done===0) return 'pending';
+    return done>=total ? 'done' : 'progress';
+  }
+  if(id==='delivery'){
+    const anyFilled = plan.delivery.publicPost.trim() || plan.delivery.firstEmail.trim()
+      || Object.values(plan.delivery.followups).some(v=> (v.subject||'').trim() || (v.body||'').trim())
+      || Object.values(plan.delivery.socialFollowups).some(v=> v.trim());
+    if(plan.delivery.firstEmailSubject.trim() && plan.delivery.firstEmail.trim()) return 'done';
+    return anyFilled ? 'progress' : 'pending';
+  }
+  return 'pending';
+}
+function doneStepCount(){ return STEPS.filter(s=>stepStatus(s.id)==='done').length; }
+
+function renderNav(){
+  const html = '<div class="nav-group">'
+    + '<div class="nav-group-label">Builder</div>'
+    + STEPS.map(s=>{
+      const status = stepStatus(s.id);
+      return '<button class="step-item ' + status + ' ' + (s.id===activeStep?'active':'') + '" data-step="' + s.id + '">'
+        + '<span class="step-num">' + s.num + '</span>'
+        + '<span class="step-label">' + esc(s.label) + '</span>'
+      + '</button>';
+    }).join('')
+    + '</div>';
+  document.getElementById('navGroups').innerHTML = html;
+  document.querySelectorAll('.step-item').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.step)));
+}
+function renderProgress(){
+  const n = doneStepCount();
+  document.getElementById('progressLabel').textContent = n + '/' + STEPS.length;
+  document.getElementById('progressFill').style.width = (n/STEPS.length*100) + '%';
+}
+function setActiveStep(id){
+  activeStep = id;
+  render();
+  const ph = document.querySelector('.page-header');
+  if(ph) ph.classList.add('step-enter');
+  document.getElementById('content').scrollTop = 0;
+  if(window.innerWidth <= 980){ document.getElementById('rail').classList.remove('open'); }
+}
+
+/* ============================================================
+ SHARED PAGE HEADER + STEP NAV
+ ============================================================ */
+function pageHeaderHtml(eyebrow, title){
+  return '<div class="page-header">'
+    + '<div class="ph-eyebrow">' + esc(eyebrow) + '</div>'
+    + '<div class="ph-top"><div><h1>' + esc(title) + '</h1></div></div>'
+  + '</div>';
+}
+function stepNavHtml(){
+  if(activeStep==='checks'){
+    const prod = STEPS.find(s=>s.id==='production'), delivery = STEPS.find(s=>s.id==='delivery');
+    return '<div class="step-nav">'
+      + '<div>' + (prod ? '<button class="btn" data-nav="' + prod.id + '">&larr; ' + esc(prod.label) + '</button>' : '') + '</div>'
+      + '<div>' + (delivery ? '<button class="btn bespoke" data-nav="' + delivery.id + '">' + esc(delivery.label) + ' &rarr;</button>' : '') + '</div>'
+    + '</div>';
+  }
+  const idx = STEPS.findIndex(s=>s.id===activeStep);
+  const prev = STEPS[idx-1], next = STEPS[idx+1];
+  return '<div class="step-nav">'
+    + '<div>' + (prev ? '<button class="btn" data-nav="' + prev.id + '">&larr; ' + esc(prev.label) + '</button>' : '') + '</div>'
+    + '<div>' + (next ? '<button class="btn bespoke" data-nav="' + next.id + '">' + esc(next.label) + ' &rarr;</button>' : '') + '</div>'
+  + '</div>';
+}
+function wireStepNav(box){
+  box.querySelectorAll('[data-nav]').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.nav)));
+}
+
+/* ============================================================
+ STEP 1: TARGETING
+ ============================================================ */
+function renderTargetingStep(){
+  let html = pageHeaderHtml('Step 1 of 7', 'Targeting');
+
+  html += '<div class="group-title">Whale Snapshot</div>';
+  html += '<div class="field-grid">'
+    + '<div class="field"><label for="tg-name">Whale Name</label><input type="text" id="tg-name" placeholder="e.g. Andre" value="' + escAttr(plan.prospect.name) + '"></div>'
+    + '<div class="field"><label for="tg-niche">Industry / Market</label><input type="text" id="tg-niche" placeholder="e.g. B2B SaaS, AI automation" value="' + escAttr(plan.prospect.niche) + '"></div>'
+    + '<div class="field"><label for="tg-company">Company</label><input type="text" id="tg-company" placeholder="e.g. Client Ascension" value="' + escAttr(plan.prospect.company) + '"></div>'
+  + '</div>';
+
+  html += '<div class="group-title">Does This Whale Deserve One?</div>';
+  html += '<div class="card">' + SUPER_LOOM_TRAITS.map(t=>{
+    const checked = !!plan.targeting.traits[t.key];
+    return '<div class="check-item ' + (checked?'done':'') + '">'
+      + '<input type="checkbox" id="trait-' + t.key + '" data-trait="' + t.key + '" ' + (checked?'checked':'') + '>'
+      + '<label for="trait-' + t.key + '"><b>' + esc(t.label) + '</b><span>' + esc(t.desc) + '</span></label>'
+    + '</div>';
+  }).join('') + '</div>';
+
+  html += '<div class="group-title">Red Flags - Do Not Super Loom If</div>';
+  html += '<div class="card">' + RED_FLAGS.map(f=>{
+    const checked = !!plan.targeting.redFlags[f.key];
+    return '<div class="check-item warn ' + (checked?'done':'') + '">'
+      + '<input type="checkbox" id="flag-' + f.key + '" data-flag="' + f.key + '" ' + (checked?'checked':'') + '>'
+      + '<label for="flag-' + f.key + '"><b>' + esc(f.label) + '</b><span>' + esc(f.desc) + '</span></label>'
+    + '</div>';
+  }).join('') + '</div>';
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  ['name','niche','company'].forEach(key=>{
+    const elId = 'tg-' + key;
+    const el = document.getElementById(elId);
+    el.addEventListener('input', ()=>{
+      plan.prospect[key] = el.value;
+      persistPlan();
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+  });
+  document.querySelectorAll('[data-trait]').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.targeting.traits[cb.dataset.trait] = cb.checked;
+    persistPlan();
+    renderTargetingStep(); renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  document.querySelectorAll('[data-flag]').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.targeting.redFlags[cb.dataset.flag] = cb.checked;
+    persistPlan();
+    renderTargetingStep(); renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 2: RESEARCH BRIEF
+ ============================================================ */
+let addingFindingFor = null;
+const CONFIDENCE_LABELS = {low:'Low', medium:'Medium', high:'High'};
+const CONFIDENCE_BADGE = {low:'tier-high', medium:'tier-mid', high:'tier-low'};
+
+function promptById(id){ return RESEARCH_PROMPTS.find(p=> p.id===id); }
+function newFindingId(){ return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function findingsCount(){
+  let n = 0;
+  ['strategic','business','personal'].forEach(lens=>{
+    Object.values(plan.research[lens]).forEach(arr=> n += arr.length);
+  });
+  return n;
+}
+function researchFlowStepHtml(lens, idx){
+  return '<div class="msg-flow-step">'
+    + '<div class="msg-flow-node">' + esc(String(idx+1).padStart(2,'0')) + '</div>'
+    + '<div class="msg-flow-label-wrap"><span class="msg-flow-tag">Lens ' + (idx+1) + '</span><span class="msg-flow-label">' + esc(lens.name) + '</span></div>'
+  + '</div>';
+}
+function researchFlowHtml(){
+  const parts = RESEARCH_LENSES.map(researchFlowStepHtml);
+  return '<div class="msg-flow">'
+    + '<p class="msg-flow-eyebrow">Research, Start To Finish</p>'
+    + '<h3 class="msg-flow-title">Three lenses on the way to one outreach angle</h3>'
+    + '<div class="msg-flow-track"><div class="msg-flow-line"></div>' + parts.join('') + '</div>'
+  + '</div>';
+}
+function findingRowHtml(prompt, finding){
+  const meta = [finding.source, finding.confidence?CONFIDENCE_LABELS[finding.confidence]:'', finding.date].filter(Boolean).join(' &middot; ');
+  return '<div class="finding-row">'
+    + '<div class="finding-row-body">'
+      + '<div class="finding-row-text">&bull; ' + esc(finding.text) + '</div>'
+      + (meta ? '<div class="finding-row-meta">' + meta + (finding.confidence ? ' <span class="tier-badge ' + CONFIDENCE_BADGE[finding.confidence] + '" style="margin-left:4px;">' + esc(CONFIDENCE_LABELS[finding.confidence]) + '</span>' : '') + '</div>' : '')
+    + '</div>'
+    + '<button class="btn ghost small danger" data-remove-finding="' + escAttr(prompt.id) + '::' + escAttr(finding.id) + '" title="Remove">&times;</button>'
+  + '</div>';
+}
+function findingFormHtml(prompt){
+  const pid = escAttr(prompt.id);
+  return '<div class="add-finding-form">'
+    + '<div class="field"><label>Finding</label><textarea id="findingText-' + pid + '" placeholder="' + escAttr(prompt.placeholder) + '"></textarea></div>'
+    + '<div class="row">'
+      + '<div class="field"><label>Source (optional)</label><input type="text" id="findingSource-' + pid + '" placeholder="e.g. LinkedIn post, 3 May 2026"></div>'
+      + '<div class="field"><label>Date observed (optional)</label><input type="text" id="findingDate-' + pid + '" placeholder="e.g. May 2026"></div>'
+    + '</div>'
+    + '<div class="field"><label>Confidence</label>'
+      + '<select id="findingConf-' + pid + '">'
+        + '<option value="low">Low</option>'
+        + '<option value="medium" selected>Medium</option>'
+        + '<option value="high">High</option>'
+      + '</select>'
+    + '</div>'
+    + '<div class="rowbtns">'
+      + '<button type="button" class="btn primary small" data-save-finding="' + pid + '">Save finding</button>'
+      + '<button type="button" class="btn ghost small" data-cancel-finding="' + pid + '">Cancel</button>'
+    + '</div>'
+  + '</div>';
+}
+function researchCardHtml(prompt){
+  const findings = plan.research[prompt.lens][prompt.key];
+  let html = '<div class="card"><h3>' + esc(prompt.label) + '</h3>' + findings.map(f=> findingRowHtml(prompt, f)).join('');
+  if(addingFindingFor === prompt.id){
+    html += findingFormHtml(prompt);
+  } else {
+    html += '<div style="margin-top:' + (findings.length?8:4) + 'px;"><button class="btn ghost small" data-add-finding="' + escAttr(prompt.id) + '">+ Add finding</button></div>';
+  }
+  html += '</div>';
+  return html;
+}
+function sourceGroupsHtml(){
+  let html = '<div class="doctrine-hero">'
+    + '<div class="doctrine-badge">Sourcing Doctrine</div>'
+    + '<h2 class="doctrine-headline">The more research the better.</h2>'
+    + '<p class="doctrine-body">Go as deep as possible - all the way from recent podcasts to things said years ago.</p>'
+    + '<div class="doctrine-principle"><span class="dp-label">Work Order</span><p>Work newest-first, then go back for historical context.</p></div>'
+  + '</div>';
+  html += '<div class="source-grid">' + RESEARCH_SOURCE_GROUPS.map(g=>
+    '<div class="source-card"><h4>' + esc(g.label) + '</h4><div class="source-chips">' + g.items.map(i=> '<span class="source-chip">' + esc(i) + '</span>').join('') + '</div></div>'
+  ).join('') + '</div>';
+  return html;
+}
+function renderResearchStep(){
+  let html = pageHeaderHtml('Step 2 of 7', 'Research Brief');
+
+  html += apiKeySetupCardHtml('rs', 'Paste your key to unlock Generate in Hook Lab and Script Builder. Never included in Copy Plan.');
+
+  html += researchFlowHtml();
+
+  html += '<div class="group-title">Where to look</div>';
+  html += sourceGroupsHtml();
+
+  RESEARCH_LENSES.forEach(lens=>{
+    html += '<div class="group-title">' + esc(lens.name) + '</div>';
+    html += '<p style="margin:-4px 0 12px; font-size:13px; color:var(--ink-soft);">' + esc(lens.description) + '</p>';
+    RESEARCH_PROMPTS.filter(p=> p.lens===lens.id).forEach(p=>{ html += researchCardHtml(p); });
+  });
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.getElementById('rs-apikey-save').addEventListener('click', ()=>{
+    const val = document.getElementById('rs-apikey').value.trim();
+    setApiKey(val);
+    const statusEl = document.getElementById('rs-apikey-status');
+    statusEl.textContent = val ? 'Key saved on this device' : 'No key set yet';
+    statusEl.className = 'ai-setup-status ' + (val ? 'set' : 'unset');
+    toast(val ? 'API key saved' : 'API key cleared');
+  });
+
+  document.querySelectorAll('[data-add-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    addingFindingFor = b.dataset.addFinding;
+    renderResearchStep();
+  }));
+  document.querySelectorAll('[data-cancel-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    addingFindingFor = null;
+    renderResearchStep();
+  }));
+  document.querySelectorAll('[data-save-finding]').forEach(b=> b.addEventListener('click', ()=>{
+    const pid = b.dataset.saveFinding;
+    const prompt = promptById(pid);
+    const text = document.getElementById('findingText-' + pid).value.trim();
+    if(!text){ toast('Add some finding text first'); return; }
+    const source = document.getElementById('findingSource-' + pid).value.trim();
+    const date = document.getElementById('findingDate-' + pid).value.trim();
+    const confidence = document.getElementById('findingConf-' + pid).value;
+    plan.research[prompt.lens][prompt.key].push({id:newFindingId(), text, source, date, confidence, addedAt:Date.now()});
+    persistPlan();
+    addingFindingFor = null;
+    toast('Finding added');
+    renderResearchStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  document.querySelectorAll('[data-remove-finding]').forEach(b=> b.addEventListener('click', async ()=>{
+    const parts = b.dataset.removeFinding.split('::');
+    const pid = parts[0], fid = parts[1];
+    const prompt = promptById(pid);
+    const arr = plan.research[prompt.lens][prompt.key];
+    const idx = arr.findIndex(f=> f.id===fid);
+    if(idx === -1) return;
+    const ok = await showConfirm({
+      title:'Remove this finding?',
+      message:'"' + arr[idx].text + '" will be removed from this prompt. This can\'t be undone.',
+      confirmLabel:'Remove',
+    });
+    if(!ok) return;
+    arr.splice(idx, 1);
+    persistPlan();
+    renderResearchStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+
+}
+
+/* ============================================================
+ STEP 3: HOOK LAB
+ ============================================================ */
+function conceptCardHtml(c){
+  const chosen = plan.hook.chosenTitle === c.title;
+  return '<div class="concept-card ' + (chosen?'chosen':'') + '">'
+    + '<div class="concept-card-top"><h4>' + esc(c.title) + '</h4>' + (chosen ? '<span class="concept-chosen-tag">Chosen</span>' : '') + '</div>'
+    + '<p>' + esc(c.concept) + '</p>'
+    + (c.why ? '<div class="cc-why">' + esc(c.why) + '</div>' : '')
+    + (c.wager ? '<div class="cc-wager">"' + esc(c.wager) + '"</div>' : '')
+    + '<button type="button" class="btn ' + (chosen?'ghost':'bespoke') + ' small" data-choose-concept="' + escAttr(c.id) + '">' + (chosen ? 'Chosen for this Super Loom' : 'Use this concept') + '</button>'
+  + '</div>';
+}
+function renderHookStep(){
+  let html = pageHeaderHtml('Step 3 of 7', 'Hook Lab');
+
+  html += apiKeySetupCardHtml('hk', 'Paste your key to unlock the concept generator.');
+
+  html += '<div class="doctrine-hero">'
+    + '<div class="doctrine-badge">The Mad-Hook Doctrine</div>'
+    + '<h2 class="doctrine-headline">Make it ridiculous.</h2>'
+    + '<p class="doctrine-body">The people you are reaching out to are not small business owners - you are earning their attention second by second against a lifetime of pattern recognition. Safe gets scrolled past.</p>'
+    + '<div class="doctrine-principle"><span class="dp-label">Effort Bias</span><p>The more visible and unreasonable the effort, the more valuable it is perceived to be.</p></div>'
+  + '</div>';
+
+  html += '<div class="callout generate-bar">'
+    + '<div><b>Generate Hook Concepts.</b> Reads your Research Brief and every concept you have used before, then drafts 4 concepts that cannot overlap with past hooks or with each other.</div>'
+    + '<button type="button" class="btn bespoke" id="generateHooksBtn">Generate 4 Concepts</button>'
+  + '</div>';
+
+  if(plan.hook.concepts.length){
+    html += '<div class="group-title">Concepts For ' + esc(plan.prospect.name.trim() || 'This Whale') + '</div>';
+    html += plan.hook.concepts.map(conceptCardHtml).join('');
+  }
+
+  html += '<div class="group-title">Lock It In</div>';
+  html += '<div class="field-group"><label for="hk-chosen-title">Chosen Hook Title</label>'
+    + '<input type="text" id="hk-chosen-title" placeholder="e.g. The Star Wars Superloom" value="' + escAttr(plan.hook.chosenTitle) + '"></div>';
+  html += '<div class="field-group"><label for="hk-chosen-concept">Chosen Hook Concept<span class="fg-hint">What actually happens on screen, beat by beat.</span></label>'
+    + '<textarea id="hk-chosen-concept" placeholder="Describe the concept in full - this feeds directly into Script Builder.">' + esc(plan.hook.chosenConcept) + '</textarea></div>';
+  html += '<div class="field-group"><label for="hk-wager">The Wager<span class="fg-hint">"If this isn\'t the best outreach you\'ve ever seen, I\'ll..." Make it specific to the hook\'s world.</span></label>'
+    + '<input type="text" id="hk-wager" placeholder="e.g. swim to Florida / shave my beard / jump off this building" value="' + escAttr(plan.hook.wager) + '"></div>';
+  if(plan.hook.wager.trim()){
+    html += '<div class="wager-box"><b>The wager:</b> "And if this isn\'t the best outreach ' + esc(plan.prospect.name.trim()||'{name}') + ' has ever seen in their life... ' + esc(plan.hook.wager.trim()) + '."</div>';
+  }
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.getElementById('hk-apikey-save').addEventListener('click', ()=>{
+    const val = document.getElementById('hk-apikey').value.trim();
+    setApiKey(val);
+    const statusEl = document.getElementById('hk-apikey-status');
+    statusEl.textContent = val ? 'Key saved on this device' : 'No key set yet';
+    statusEl.className = 'ai-setup-status ' + (val ? 'set' : 'unset');
+    toast(val ? 'API key saved' : 'API key cleared');
+  });
+  document.getElementById('generateHooksBtn').addEventListener('click', generateHookConcepts);
+
+  document.querySelectorAll('[data-choose-concept]').forEach(b=> b.addEventListener('click', ()=>{
+    const c = plan.hook.concepts.find(x=> x.id===b.dataset.chooseConcept);
+    if(!c) return;
+    plan.hook.chosenTitle = c.title;
+    plan.hook.chosenConcept = c.concept;
+    plan.hook.wager = c.wager || plan.hook.wager;
+    hookLedger.push({title:c.title, concept:c.concept, prospect:plan.prospect.name.trim(), date:new Date().toISOString().slice(0,10)});
+    persistHookLedger();
+    persistPlan();
+    toast('Hook locked in - archived so it never repeats');
+    renderHookStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+
+  document.getElementById('hk-chosen-title').addEventListener('input', (e)=>{ plan.hook.chosenTitle = e.target.value; persistPlan(); renderNav(); renderProgress(); renderPlanPanel(); });
+  document.getElementById('hk-chosen-concept').addEventListener('input', (e)=>{ plan.hook.chosenConcept = e.target.value; persistPlan(); });
+  document.getElementById('hk-wager').addEventListener('input', (e)=>{ plan.hook.wager = e.target.value; persistPlan(); });
+}
+
+/* ============================================================
+ STEP 4: SCRIPT BUILDER (twin-peaks arc + 9 bespoke beats)
+ ============================================================ */
+/* Catmull-Rom -> cubic bezier, so the curve passes through every beat exactly but reads
+   as one continuous sweep instead of jagged straight-line segments. */
+function smoothPath(pts){
+  if(pts.length < 3) return 'M ' + pts.map(p=> p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L ');
+  let d = 'M ' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1) + ' ';
+  for(let i=0;i<pts.length-1;i++){
+    const p0 = pts[i-1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i+1];
+    const p3 = pts[i+2] || p2;
+    const c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+    const c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
+    d += 'C ' + c1x.toFixed(1)+','+c1y.toFixed(1)+' '+c2x.toFixed(1)+','+c2y.toFixed(1)+' '+p2[0].toFixed(1)+','+p2[1].toFixed(1)+' ';
+  }
+  return d;
+}
+function arcSvgHtml(){
+  const W = 1000, H = 300, top = 46, bottom = 224, margin = 46;
+  const n = SCRIPT_SECTIONS.length;
+  const xs = {};
+  SCRIPT_SECTIONS.forEach((s,i)=>{ xs[s.id] = margin + i * ((W-margin*2)/(n-1)); });
+  function yFor(id){ const pct = ARC_POSITIONS[id]/100; return bottom - pct*(bottom-top); }
+  const pts = SCRIPT_SECTIONS.map(s=> [xs[s.id], yFor(s.id)]);
+  const linePath = smoothPath(pts);
+  const areaPath = linePath + ' L ' + pts[n-1][0].toFixed(1) + ',' + bottom + ' L ' + pts[0][0].toFixed(1) + ',' + bottom + ' Z';
+
+  const guides = pts.map(p=> '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + p[0].toFixed(1) + '" y2="' + bottom + '" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 4"></line>').join('');
+
+  const markers = SCRIPT_SECTIONS.map((s,i)=>{
+    const [x,y] = pts[i];
+    const tag = ARC_TAGS[s.id];
+    const r = tag ? 15 : 10;
+    const numSize = tag ? 12.5 : 10;
+    let pill = '';
+    if(tag){
+      const above = y > (top+40);
+      const pillY = above ? y - 30 : y + 30;
+      const pillW = tag.length * 6.6 + 22;
+      pill = '<g>'
+        + '<rect x="' + (x-pillW/2).toFixed(1) + '" y="' + (pillY-15).toFixed(1) + '" width="' + pillW.toFixed(1) + '" height="24" rx="12" fill="var(--bespoke)"></rect>'
+        + '<text x="' + x.toFixed(1) + '" y="' + (pillY+4).toFixed(1) + '" text-anchor="middle" class="arc-pill-text" font-size="10">' + esc(tag) + '</text>'
+      + '</g>';
+    }
+    return '<g class="arc-marker-group" data-arc-id="' + escAttr(s.id) + '" tabindex="0" role="button" aria-label="' + escAttr(s.num + '. ' + s.label + (tag ? ' - ' + tag : '')) + '">'
+      + '<circle class="arc-marker-ring" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (r+7) + '" fill="var(--bespoke)" opacity="' + (tag?0.14:0) + '"></circle>'
+      + '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r + '" fill="' + (tag ? 'var(--bespoke)' : '#fff') + '" stroke="' + (tag ? '#fff' : 'var(--bespoke)') + '" stroke-width="' + (tag?2.5:1.75) + '"></circle>'
+      + '<text x="' + x.toFixed(1) + '" y="' + (y+4).toFixed(1) + '" text-anchor="middle" class="arc-marker-num ' + (tag?'':'dim') + '" font-size="' + numSize + '">' + s.num + '</text>'
+      + pill
+      + '<circle class="arc-hit" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (r+10) + '"></circle>'
+    + '</g>';
+  }).join('');
+
+  return '<div class="arc-svg-wrap"><svg class="arc-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">'
+    + '<defs><linearGradient id="arcFill" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0%" stop-color="#1E6B45" stop-opacity="0.20"></stop>'
+      + '<stop offset="100%" stop-color="#1E6B45" stop-opacity="0"></stop>'
+    + '</linearGradient></defs>'
+    + '<line x1="' + margin + '" y1="' + bottom + '" x2="' + (W-margin) + '" y2="' + bottom + '" stroke="var(--line-strong)" stroke-width="1.5"></line>'
+    + guides
+    + '<path d="' + areaPath + '" fill="url(#arcFill)"></path>'
+    + '<path d="' + linePath + '" fill="none" stroke="#1E6B45" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>'
+    + markers
+    + '<text x="' + margin + '" y="' + (bottom+22) + '" text-anchor="start" class="arc-axis-label" font-size="9.5">Send opens</text>'
+    + '<text x="' + (W-margin) + '" y="' + (bottom+22) + '" text-anchor="end" class="arc-axis-label" font-size="9.5">Send ends</text>'
+  + '</svg></div>';
+}
+function arcLegendHtml(){
+  return '<div class="arc-legend">' + SCRIPT_SECTIONS.map(s=>{
+    const tag = ARC_TAGS[s.id];
+    return '<div class="arc-legend-chip ' + (tag?'tagged':'') + '" data-arc-id="' + escAttr(s.id) + '" tabindex="0" role="button">'
+      + '<span class="aln">' + s.num + '</span>'
+      + '<span class="all">' + esc(s.label) + '</span>'
+      + (tag ? '<span class="alt">' + esc(tag) + '</span>' : '')
+    + '</div>';
+  }).join('') + '</div>';
+}
+function scriptCardHtml(s){
+  const val = plan.script[s.id] || '';
+  const arcTag = ARC_TAGS[s.id];
+  let html = '<div class="msg-card" id="msgcard-' + escAttr(s.id) + '">'
+    + '<div class="msg-card-top">'
+      + '<div class="msg-num">' + s.num + '</div>'
+      + '<div class="msg-heading">'
+        + '<div class="msg-title-row"><h3>' + esc(s.label) + '</h3>' + (arcTag ? '<span class="msg-tag">' + esc(arcTag) + '</span>' : '') + '</div>'
+        + '<p class="msg-desc">' + esc(s.desc) + '</p>'
+      + '</div>'
+    + '</div>'
+    + (plan.scriptMeta[s.id] ? '<div class="script-source-tag">Generated from your research brief and chosen hook.</div>' : '')
+    + '<textarea class="msg-textarea" id="script-' + escAttr(s.id) + '" data-script="' + escAttr(s.id) + '" placeholder="' + escAttr(s.placeholder) + '">' + esc(val) + '</textarea>'
+    + '<div class="msg-foot">'
+      + '<span class="msg-count" id="scriptCount-' + escAttr(s.id) + '">' + val.length + ' character' + (val.length===1?'':'s') + '</span>'
+      + '<button type="button" class="btn primary small" data-script-save="' + escAttr(s.id) + '">Save Beat</button>'
+    + '</div>';
+  const live = fillTokens(val || s.placeholder);
+  html += '<div class="token-preview"><span class="tp-label">Preview with {name} / {niche} filled in</span><span class="tp-live" id="scriptPreview-' + escAttr(s.id) + '">' + esc(live) + '</span></div>';
+  html += '</div>';
+  return html;
+}
+function renderScriptStep(){
+  let html = pageHeaderHtml('Step 4 of 7', 'Script Builder');
+
+  html += '<div class="script-generate-card">'
+    + '<div class="sgc-top">'
+      + '<div class="sgc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8L12 3z"></path><path d="M19.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"></path></svg></div>'
+      + '<div class="sgc-main">'
+        + '<div class="sgc-eyebrow">AI Assist &middot; One-Pass Draft</div>'
+        + '<h3 class="sgc-title">Generate Full Script Draft</h3>'
+        + '<p class="sgc-desc">Pulls your Research Brief and the hook you chose in Hook Lab, then drafts all 10 beats in a single pass.</p>'
+      + '</div>'
+    + '</div>'
+    + '<div class="sgc-flow">'
+      + '<div class="sgc-flow-group">'
+        + '<span class="sgc-node"><span class="sgc-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></span><span class="sgc-node-label">Research Brief</span></span>'
+        + '<span class="sgc-source-plus">+</span>'
+        + '<span class="sgc-node"><span class="sgc-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L16 10"></path></svg></span><span class="sgc-node-label">Chosen Hook</span></span>'
+      + '</div>'
+      + '<span class="sgc-flow-arrow"><svg viewBox="0 0 40 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h30"></path><path d="M25 2l7 6-7 6"></path></svg></span>'
+      + '<span class="sgc-node output"><span class="sgc-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"></path><path d="M10 19V5"></path><path d="M16 19v-7"></path><path d="M22 19v-3"></path></svg></span><span class="sgc-node-label">10 Beats</span></span>'
+    + '</div>'
+    + '<div class="sgc-footer">'
+      + '<button type="button" class="btn bespoke sgc-btn" id="generateScriptBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8L12 3z"></path></svg>Generate Full Script Draft</button>'
+    + '</div>'
+  + '</div>';
+
+  html += '<div class="arc-card">'
+    + '<div class="arc-head">'
+      + '<div><div class="arc-eyebrow">The Emotional Arc</div>'
+      + '<div class="arc-title">Twin peaks, not a straight line</div>'
+      + '<p class="arc-sub">Open on the biggest peak, drop into the valley of "Who I Am," then climb - beat by beat - back up to a second, higher peak on the final Ending Hook.</p></div>'
+      + '<span class="arc-peakend-badge">Peak-End Rule</span>'
+    + '</div>'
+    + arcSvgHtml()
+    + '<div class="arc-tooltip" id="arcTooltip"></div>'
+    + arcLegendHtml()
+  + '</div>';
+
+  html += '<div class="msg-sections">' + SCRIPT_SECTIONS.map(scriptCardHtml).join('') + '</div>';
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.getElementById('generateScriptBtn').addEventListener('click', generateFullScript);
+  wireArcInteractivity();
+
+  SCRIPT_SECTIONS.forEach(s=>{
+    const el = document.getElementById('script-'+s.id);
+    el.addEventListener('input', ()=>{
+      plan.script[s.id] = el.value;
+      if(plan.scriptMeta[s.id]) delete plan.scriptMeta[s.id];
+      persistPlan();
+      document.getElementById('scriptCount-'+s.id).textContent = el.value.length + ' character' + (el.value.length===1?'':'s');
+      const prev = document.getElementById('scriptPreview-'+s.id);
+      if(prev) prev.textContent = fillTokens(el.value || s.placeholder);
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+  });
+  document.querySelectorAll('[data-script-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.scriptSave;
+    plan.script[id] = document.getElementById('script-'+id).value;
+    persistPlan();
+    toast('Beat saved');
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+function wireArcInteractivity(){
+  const wrap = document.querySelector('.arc-svg-wrap');
+  const container = document.querySelector('.arc-card');
+  const tooltip = document.getElementById('arcTooltip');
+  const nodes = document.querySelectorAll('.arc-marker-group, .arc-legend-chip');
+  if(!wrap || !container || !tooltip || !nodes.length) return;
+
+  function setActive(id){
+    document.querySelectorAll('[data-arc-id]').forEach(el=>{
+      el.classList.toggle('is-active', el.dataset.arcId === id);
+    });
+  }
+  function clearActive(){
+    document.querySelectorAll('[data-arc-id]').forEach(el=> el.classList.remove('is-active'));
+    tooltip.classList.remove('show');
+  }
+  function showTooltip(id, s){
+    const tag = ARC_TAGS[s.id];
+    tooltip.innerHTML = '<span>' + esc(tag || ('Beat ' + s.num)) + '</span><b>' + esc(s.num + '. ' + s.label) + '</b>' + esc(s.desc.length > 110 ? s.desc.slice(0,110) + '...' : s.desc);
+    // Always anchor to the point's own marker on the graph, regardless of
+    // whether the hover came from that marker or the legend chip below,
+    // so the tooltip lands in the same spot either way.
+    const point = document.querySelector('.arc-marker-group[data-arc-id="' + id + '"] circle.arc-hit');
+    if(!point) return;
+    const containerRect = container.getBoundingClientRect();
+    const pointRect = point.getBoundingClientRect();
+    const rawLeft = (pointRect.left + pointRect.width/2) - containerRect.left;
+    const top = (pointRect.top + pointRect.height/2) - containerRect.top;
+    const minLeft = 120, maxLeft = containerRect.width - 120;
+    const left = Math.max(minLeft, Math.min(maxLeft, rawLeft));
+    // Once the box gets clamped off the point's true x, the arrow no longer
+    // lines up with the number below it, so drop the arrow in that case.
+    tooltip.classList.toggle('no-arrow', left !== rawLeft);
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    tooltip.classList.add('show');
+  }
+  function jumpTo(id){
+    const card = document.getElementById('msgcard-' + id);
+    if(!card) return;
+    card.scrollIntoView({behavior:'smooth', block:'center'});
+    card.classList.add('is-jump-highlight');
+    setTimeout(()=> card.classList.remove('is-jump-highlight'), 1400);
+  }
+
+  nodes.forEach(el=>{
+    const id = el.dataset.arcId;
+    const s = SCRIPT_SECTIONS.find(sec=> sec.id === id);
+    if(!s) return;
+    el.addEventListener('mouseenter', ()=>{ setActive(id); showTooltip(id, s); });
+    el.addEventListener('mouseleave', clearActive);
+    el.addEventListener('focus', ()=>{ setActive(id); showTooltip(id, s); });
+    el.addEventListener('blur', clearActive);
+    el.addEventListener('click', ()=> jumpTo(id));
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); jumpTo(id); }
+    });
+  });
+}
+
+/* ============================================================
+ STEP 5: SHOT LIST
+ ============================================================ */
+function shotTypeOptionsHtml(current){
+  const known = new Set();
+  SHOT_TYPE_GROUPS.forEach(g=> g.items.forEach(i=> known.add(i)));
+  let html = '<option value="" ' + (!current?'selected':'') + ' disabled hidden>Select shot type&hellip;</option>';
+  if(current && !known.has(current)){
+    html += '<optgroup label="Current"><option value="' + escAttr(current) + '" selected>' + esc(current) + '</option></optgroup>';
+  }
+  SHOT_TYPE_GROUPS.forEach(g=>{
+    html += '<optgroup label="' + escAttr(g.group) + '">' + g.items.map(i=>
+      '<option value="' + escAttr(i) + '" ' + (current===i?'selected':'') + '>' + esc(i) + '</option>'
+    ).join('') + '</optgroup>';
+  });
+  return html;
+}
+function locationOptionsHtml(current){
+  const saved = plan.locations.slice();
+  if(current && !saved.includes(current)) saved.push(current);
+  let html = '<option value="" ' + (!current?'selected':'') + ' disabled hidden>e.g. Flew 19hrs to a Lebanese mountain range&hellip;</option>';
+  if(saved.length){
+    html += '<optgroup label="Saved Locations">' + saved.map(l=>
+      '<option value="' + escAttr(l) + '" ' + (current===l?'selected':'') + '>' + esc(l) + '</option>'
+    ).join('') + '</optgroup>';
+  }
+  html += '<option value="__add__">+ Add new location&hellip;</option>';
+  return html;
+}
+function shotRowHtml(row, idx){
+  const opts = SHOT_CONTENT_TYPES.map(c=> '<option value="' + escAttr(c) + '" ' + (row.contentType===c?'selected':'') + '>' + esc(c) + '</option>').join('');
+  return '<tr data-shot-id="' + escAttr(row.id) + '">'
+    + '<td class="col-num"><span class="shot-num-badge">' + (idx+1) + '</span></td>'
+    + '<td class="col-scene"><input type="text" data-shot-field="scene" value="' + escAttr(row.scene) + '" placeholder="e.g. Hook"></td>'
+    + '<td class="col-shottype"><select class="shot-type-select" data-shot-field="shotType">' + shotTypeOptionsHtml(row.shotType) + '</select></td>'
+    + '<td><textarea data-shot-field="description" placeholder="What happens in frame...">' + esc(row.description) + '</textarea></td>'
+    + '<td><textarea data-shot-field="dialogue" placeholder="Line or VO snippet...">' + esc(row.dialogue) + '</textarea></td>'
+    + '<td class="col-content"><select data-shot-field="contentType">' + opts + '</select></td>'
+    + '<td class="col-location"><select data-shot-field="location">' + locationOptionsHtml(row.location) + '</select></td>'
+    + '<td class="col-del"><button type="button" class="shot-del-btn" data-shot-remove title="Remove shot">&times;</button></td>'
+  + '</tr>';
+}
+function autoPopulateShotList(){
+  const existingScenes = new Set(plan.shotList.map(r=> r.scene));
+  SCRIPT_SECTIONS.forEach(s=>{
+    if(existingScenes.has(s.label)) return;
+    const text = (plan.script[s.id]||'').trim();
+    if(!text && plan.shotList.length>0) return;
+    plan.shotList.push({
+      id:uid(), scene:s.label, shotType:'', description:text ? text.slice(0,90) + (text.length>90?'...':'') : '',
+      dialogue:'', contentType:'A-Roll', location:''
+    });
+  });
+}
+function renderShotlistStep(){
+  let html = pageHeaderHtml('Step 5 of 7', 'Shot List');
+
+  html += '<div class="callout"><b>Why this matters.</b> Once you understand the shots you need, walk onto set with a tablet, not your memory. The goal is to stop thinking on the day and just execute what you already planned.</div>';
+
+  html += '<div class="shot-table-actions">'
+    + '<button type="button" class="btn bespoke" id="autoFillShotsBtn">Auto-Fill From Script</button>'
+    + '<button type="button" class="btn small" id="addShotRowBtn">+ Add Shot Row</button>'
+  + '</div>';
+
+  html += '<div class="shot-table-wrap"><table class="shot-table"><thead><tr>'
+    + '<th>#</th><th>Scene</th><th>Shot Type</th><th>Description</th><th>Dialogue / VO</th><th>Content Type</th><th>Location</th><th></th>'
+  + '</tr></thead><tbody id="shotTableBody">'
+    + (plan.shotList.length ? plan.shotList.map(shotRowHtml).join('') : '<tr><td colspan="8" style="padding:26px; text-align:center; color:var(--ink-faint); font-style:italic;">No shots yet - auto-fill from your script or add a row manually.</td></tr>')
+  + '</tbody></table></div>';
+
+  html += '<details class="glossary"><summary>Shot & Content Type Glossary</summary><div class="glossary-body">' + SHOT_GLOSSARY.map(g=>
+    '<div class="gterm"><b>' + esc(g.t) + '</b><span>' + esc(g.d) + '</span></div>'
+  ).join('') + '</div></details>';
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  function wireRows(){
+    document.querySelectorAll('#shotTableBody tr[data-shot-id]').forEach(tr=>{
+      const id = tr.dataset.shotId;
+      const row = plan.shotList.find(r=> r.id===id);
+      if(!row) return;
+      tr.querySelectorAll('[data-shot-field]').forEach(inp=>{
+        if(inp.dataset.shotField==='location'){
+          inp.addEventListener('change', ()=>{
+            if(inp.value==='__add__'){
+              const val = (prompt('New location:')||'').trim();
+              if(val){
+                if(!plan.locations.includes(val)) plan.locations.push(val);
+                row.location = val;
+                persistPlan();
+              }
+              renderShotlistStep();
+              renderNav(); renderProgress(); renderPlanPanel();
+              return;
+            }
+            row.location = inp.value;
+            persistPlan();
+          });
+          return;
+        }
+        inp.addEventListener('input', ()=>{ row[inp.dataset.shotField] = inp.value; persistPlan(); });
+      });
+      const rm = tr.querySelector('[data-shot-remove]');
+      if(rm) rm.addEventListener('click', ()=>{
+        plan.shotList = plan.shotList.filter(r=> r.id!==id);
+        persistPlan();
+        renderShotlistStep();
+        renderNav(); renderProgress(); renderPlanPanel();
+      });
+    });
+  }
+  wireRows();
+
+  document.getElementById('autoFillShotsBtn').addEventListener('click', ()=>{
+    autoPopulateShotList();
+    persistPlan();
+    toast('Shot list populated from your script beats');
+    renderShotlistStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+  document.getElementById('addShotRowBtn').addEventListener('click', ()=>{
+    plan.shotList.push({id:uid(), scene:'', shotType:'', description:'', dialogue:'', contentType:'A-Roll', location:''});
+    persistPlan();
+    renderShotlistStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+}
+
+/* ============================================================
+ STEP 6: PRODUCTION
+ ============================================================ */
+function tierScoreCardHtml(){
+  const total = PRODUCTION_TIERS.reduce((n,t)=> n+t.items.length, 0);
+  const done = Object.values(plan.production.checklist).filter(Boolean).length;
+  const pct = Math.round((done/total)*100);
+  let verdict, verdictColor;
+  if(done>=14){ verdict = 'You are producing real Super Looms. Focus on refining emotional beats, production quality, and follow-up conversion.'; }
+  else if(done>=8){ verdict = 'The foundation is there but the system is leaking. Identify which stages you skip most and fix those first.'; }
+  else { verdict = 'This is not a Super Loom yet - it is a Loom. Go back to Tier 1 and build in order.'; }
+  return '<div class="tier-score-card">'
+    + '<div class="tier-score-ring" style="--pct:' + pct + ';"><div class="inner">' + done + '/' + total + '</div></div>'
+    + '<div class="tier-score-text"><h3>Score your setup</h3><p>' + esc(verdict) + '</p></div>'
+  + '</div>';
+}
+function renderProductionStep(){
+  let html = pageHeaderHtml('Step 6 of 7', 'Production');
+
+  html += tierScoreCardHtml();
+
+  PRODUCTION_TIERS.forEach(t=>{
+    const doneInTier = t.items.filter(i=> plan.production.checklist[i.key]).length;
+    html += '<div class="tier-group">'
+      + '<div class="tier-head"><span class="tier-badge">Tier ' + t.tier + '</span><h3>' + esc(t.name) + '</h3><span class="tcount">' + doneInTier + '/' + t.items.length + '</span></div>'
+      + '<div class="card">' + t.items.map(item=>{
+          const checked = !!plan.production.checklist[item.key];
+          return '<div class="check-item ' + (checked?'done':'') + '">'
+            + '<input type="checkbox" id="prod-' + item.key + '" data-prod="' + item.key + '" ' + (checked?'checked':'') + '>'
+            + '<label for="prod-' + item.key + '"><b>' + esc(item.h) + '</b><span>' + esc(item.span) + '</span></label>'
+          + '</div>';
+        }).join('') + '</div>'
+    + '</div>';
+  });
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.querySelectorAll('[data-prod]').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.production.checklist[cb.dataset.prod] = cb.checked;
+    persistPlan();
+    renderProductionStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 7: CHECKS
+ The last gate before a Super Loom ships - one honest pass against
+ every quality bar the doctrine above actually demands.
+ ============================================================ */
+function checksScoreCardHtml(){
+  const total = QUALITY_CHECKS.reduce((n,g)=> n+g.items.length, 0);
+  const done = Object.values(plan.checks.checklist).filter(Boolean).length;
+  const pct = Math.round((done/total)*100);
+  let verdict;
+  if(done>=total){ verdict = 'Every check clears. This is ready to send - move on to Messaging.'; }
+  else if(done>=Math.ceil(total*0.6)){ verdict = 'Close, but not there yet. Fix what is unchecked before this goes out - a near-great Super Loom still reads as a Loom.'; }
+  else { verdict = 'Not ready. Too many gaps to send this - go back and tighten the hook, the personalization, or the craft first.'; }
+  return '<div class="tier-score-card">'
+    + '<div class="tier-score-ring" style="--pct:' + pct + ';"><div class="inner">' + done + '/' + total + '</div></div>'
+    + '<div class="tier-score-text"><h3>Is this actually great?</h3><p>' + esc(verdict) + '</p></div>'
+  + '</div>';
+}
+function renderChecksStep(){
+  let html = pageHeaderHtml('Quality Gate', 'Checks');
+
+  html += '<div class="callout bespoke"><b>The Clear Checks.</b> Every group below is a gate, not a suggestion - a Super Loom that fails one of these reads as a generic Loom no matter how much time went into it. Go in order: the hook first, since nothing after it matters if that fails.</div>';
+
+  html += checksScoreCardHtml();
+
+  QUALITY_CHECKS.forEach(g=>{
+    const doneInGroup = g.items.filter(i=> plan.checks.checklist[i.key]).length;
+    html += '<div class="tier-group">'
+      + '<div class="tier-head"><span class="tier-badge">' + esc(g.group) + '</span><span class="tcount">' + doneInGroup + '/' + g.items.length + '</span></div>'
+      + '<p style="margin:0 0 8px; font-size:12.5px; color:var(--ink-soft);">' + esc(g.note) + '</p>'
+      + '<div class="card">' + g.items.map(item=>{
+          const checked = !!plan.checks.checklist[item.key];
+          return '<div class="check-item ' + (checked?'done':'') + '">'
+            + '<input type="checkbox" id="chk-' + item.key + '" data-check="' + item.key + '" ' + (checked?'checked':'') + '>'
+            + '<label for="chk-' + item.key + '"><b>' + esc(item.h) + '</b><span>' + esc(item.span) + '</span></label>'
+          + '</div>';
+        }).join('') + '</div>'
+    + '</div>';
+  });
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.querySelectorAll('[data-check]').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.checks.checklist[cb.dataset.check] = cb.checked;
+    persistPlan();
+    renderChecksStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 7: DELIVERY & FOLLOW-UP
+ ============================================================ */
+function messagingFlowSteps(){
+  return [
+    {node:'01', tag:'Optional', label:'Public Posting', optional:true},
+    {node:'02', tag:'Optional', label:'Social Media Follow-Up', optional:true},
+    {node:'03', tag:'Opening Send', label:'First Email', optional:false},
+    {node:'04', tag:'Follow-Up', label:'Email Follow-Up', optional:false},
+  ];
+}
+function messagingFlowStepHtml(s){
+  return '<div class="msg-flow-step' + (s.optional ? ' optional' : '') + '">'
+    + '<div class="msg-flow-node">' + esc(s.node) + '</div>'
+    + '<div class="msg-flow-label-wrap"><span class="msg-flow-tag">' + esc(s.tag) + '</span><span class="msg-flow-label">' + esc(s.label) + '</span></div>'
+  + '</div>';
+}
+function renderMessagingFlowHtml(){
+  const parts = messagingFlowSteps().map(messagingFlowStepHtml);
+  return '<div class="msg-flow">'
+    + '<p class="msg-flow-eyebrow">The Send, Start To Finish</p>'
+    + '<h3 class="msg-flow-title">Four moments of contact, from the public post to the email follow-up</h3>'
+    + '<div class="msg-flow-track"><div class="msg-flow-line"></div>' + parts.join('') + '</div>'
+  + '</div>';
+}
+function touchGridCardHtml(kind, cfg){
+  const isOptional = cfg.tag === 'Optional';
+  const collapsed = isOptional && !optionalExpanded[cfg.id];
+  const cls = 'msg-card' + (isOptional ? ' optional' : '') + (collapsed ? ' collapsed' : '');
+
+  let html = '<div class="' + cls + '"' + (collapsed ? ' data-optional-toggle="' + escAttr(cfg.id) + '" role="button" tabindex="0" aria-expanded="false"' : '') + '>'
+    + '<div class="msg-card-top">'
+      + '<div class="msg-num">' + esc(cfg.num) + '</div>'
+      + '<div class="msg-heading">'
+        + '<div class="msg-title-row"><h3>' + esc(cfg.label) + '</h3><span class="msg-tag">' + esc(cfg.tag) + '</span></div>'
+        + '<p class="msg-desc">' + esc(cfg.desc) + '</p>'
+      + '</div>'
+      + (isOptional && !collapsed ? '<button type="button" class="msg-card-toggle" data-optional-toggle="' + escAttr(cfg.id) + '">Collapse &uarr;</button>' : '')
+    + '</div>';
+
+  if(collapsed){
+    const anyFilled = cfg.touches.some(t=>{
+      const v = cfg.getVal(t);
+      return cfg.hasSubject ? ((v.subject||'').trim() || (v.body||'').trim()) : (v||'').trim();
+    });
+    html += anyFilled
+      ? '<div class="msg-collapsed-hint filled">Some written already - click to edit</div>'
+      : '<div class="msg-collapsed-hint">Skip this if it does not apply - click to add it</div>';
+    html += '</div>';
+    return html;
+  }
+
+  html += '<div class="fe-grid">' + cfg.touches.map((t,i)=>{
+    const v = cfg.getVal(t);
+    const subj = cfg.hasSubject ? (v.subject||'') : '';
+    const body = cfg.hasSubject ? (v.body||'') : (v||'');
+    const hasContent = subj.trim() || body.trim();
+    return '<button type="button" class="fe-box ' + (hasContent?'filled':'') + '" data-touch-open="' + kind + ':' + i + '">'
+      + '<div class="fe-box-label">' + esc(t.label) + '</div>'
+      + (cfg.hasSubject ? '<div class="fe-box-subject">' + (subj.trim() ? esc(subj) : '<span class="ps-empty">Subject line...</span>') + '</div>' : '')
+      + '<div class="fe-box-body">' + (body.trim() ? esc(body) : '<span class="ps-empty">Click to write this ' + (cfg.hasSubject ? 'follow-up email' : 'follow-up post') + '...</span>') + '</div>'
+    + '</button>';
+  }).join('') + '</div></div>';
+  return html;
+}
+let touchModalKind = null;
+let touchModalIdx = null;
+let templateReturnTouch = null;
+function fullscreenBtnHtml(){
+  return '<button type="button" class="modal-fullscreen-btn" id="modalFullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M9 3H5a2 2 0 0 0-2 2v4"></path>'
+      + '<path d="M15 3h4a2 2 0 0 1 2 2v4"></path>'
+      + '<path d="M9 21H5a2 2 0 0 1-2-2v-4"></path>'
+      + '<path d="M15 21h4a2 2 0 0 0 2-2v-4"></path>'
+    + '</svg>'
+  + '</button>';
+}
+function wireFullscreenBtn(){
+  const btn = document.getElementById('modalFullscreenBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    modalFullscreen = !modalFullscreen;
+    document.getElementById('feModalBox').classList.toggle('fullscreen', modalFullscreen);
+    document.getElementById('feModalOverlay').classList.toggle('fullscreen', modalFullscreen);
+  });
+}
+function openTouchModal(kind, idx){
+  touchModalKind = kind;
+  touchModalIdx = idx;
+  modalFullscreen = false;
+  renderTouchModal();
+  document.getElementById('feModalOverlay').classList.add('open');
+}
+function closeTouchModal(){
+  touchModalKind = null;
+  touchModalIdx = null;
+  templateModalSection = null;
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  templateReturnTouch = null;
+  modalFullscreen = false;
+  document.getElementById('feModalOverlay').classList.remove('open', 'fullscreen');
+  document.getElementById('feModalBox').classList.remove('fullscreen');
+}
+function renderTouchModal(){
+  const kind = touchModalKind;
+  const idx = touchModalIdx;
+  const hasSubject = kind === 'email';
+  const touches = hasSubject ? FOLLOWUP_TOUCHES : SOCIAL_FOLLOWUP_TOUCHES;
+  const t = touches[idx];
+  const val = hasSubject ? plan.delivery.followups[t.n] : {subject:'', body: plan.delivery.socialFollowups[t.n]};
+  const bodyLen = (val.body||'').length;
+  const templateSectionId = hasSubject ? 'emailFollowup' : 'socialFollowup';
+  const tplCount = getTemplateGroups(templateSectionId).reduce((n,g)=> n+g.items.length, 0);
+
+  let html = '<div class="modal-head">'
+    + '<div><div class="modal-eyebrow">' + (hasSubject ? 'Follow-Up Message' : 'Social Media Follow-Up') + '</div><h2>' + esc(t.label) + '</h2></div>'
+    + '<div class="modal-head-right">' + fullscreenBtnHtml() + '<button class="btn ghost small" id="feModalCloseBtn">Close</button></div>'
+  + '</div>';
+  html += '<div class="modal-scroll">'
+    + '<button type="button" class="tpl-trigger" id="feModalTplBtn">'
+      + '<span class="tpl-trigger-icon">&#9776;</span>'
+      + '<span class="tpl-trigger-text">'
+        + '<span class="tpl-trigger-title">Browse Template Bank</span>'
+        + '<span class="tpl-trigger-sub">' + tplCount + ' template' + (tplCount===1?'':'s') + ' available - pick one to start from</span>'
+      + '</span>'
+      + '<span class="tpl-trigger-arrow">&rarr;</span>'
+    + '</button>'
+    + (hasSubject ? '<input type="text" class="msg-subject" id="feModalSubject" placeholder="Subject line..." value="' + escAttr(val.subject||'') + '">' : '')
+    + '<textarea class="msg-textarea fe-modal-body" id="feModalBody" placeholder="' + escAttr(t.placeholder) + '">' + esc(val.body||'') + '</textarea>'
+    + '<div class="msg-foot">'
+      + '<span class="msg-count" id="feModalCount">' + bodyLen + ' character' + (bodyLen===1?'':'s') + '</span>'
+      + '<button type="button" class="btn primary" id="feModalSaveBtn">Save</button>'
+    + '</div>'
+  + '</div>';
+
+  const box = document.getElementById('feModalBox');
+  box.className = 'modal-box' + (modalFullscreen ? ' fullscreen' : '');
+  box.innerHTML = html;
+  document.getElementById('feModalCloseBtn').addEventListener('click', closeTouchModal);
+  wireFullscreenBtn();
+  document.getElementById('feModalTplBtn').addEventListener('click', ()=>{
+    templateReturnTouch = {kind, idx};
+    openTemplateModal(templateSectionId);
+  });
+  const bodyEl = document.getElementById('feModalBody');
+  bodyEl.addEventListener('input', ()=>{
+    document.getElementById('feModalCount').textContent = bodyEl.value.length + ' character' + (bodyEl.value.length===1?'':'s');
+  });
+  document.getElementById('feModalSaveBtn').addEventListener('click', ()=>{
+    if(hasSubject){
+      plan.delivery.followups[t.n] = {
+        subject: document.getElementById('feModalSubject').value,
+        body: bodyEl.value,
+      };
+    } else {
+      plan.delivery.socialFollowups[t.n] = bodyEl.value;
+    }
+    persistPlan();
+    toast(hasSubject ? 'Email saved' : 'Post saved');
+    closeTouchModal();
+    renderMessagingStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+}
+
+/* ============================================================
+ TEMPLATE BANK MODAL
+ ============================================================ */
+function openTemplateModal(sectionId){
+  templateModalSection = sectionId;
+  templateModalCat = null;
+  templateModalSearch = '';
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  modalFullscreen = false;
+  renderTemplateModal();
+  document.getElementById('feModalOverlay').classList.add('open');
+}
+function templateMatches(item, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  return (item.title||'').toLowerCase().includes(q) || (item.subject||'').toLowerCase().includes(q) || (item.text||'').toLowerCase().includes(q);
+}
+function findTemplateById(groups, id){
+  for(const g of groups){
+    const item = g.items.find(it=> it.id===id);
+    if(item) return item;
+  }
+  return null;
+}
+function templateEditFormHtml(section, it, catList){
+  const catOptions = catList.map(c=> '<option value="' + escAttr(c) + '" ' + (((it.cat||'General')===c)?'selected':'') + '>' + esc(c) + '</option>').join('');
+  return '<div class="tpl-card tpl-card-editing">'
+    + '<input type="text" class="tpl-edit-title" id="tplEditTitle" placeholder="Template name..." value="' + escAttr(it.title||'') + '">'
+    + '<select class="tpl-edit-cat" id="tplEditCat">' + catOptions + '</select>'
+    + '<input type="text" class="tpl-edit-subject" id="tplEditSubject" placeholder="Subject line..." value="' + escAttr(it.subject||'') + '">'
+    + '<textarea class="tpl-edit-text" id="tplEditText" placeholder="Template body...">' + esc(it.text||'') + '</textarea>'
+    + '<div class="tpl-edit-actions">'
+      + (it.id!=='NEW' ? '<button type="button" class="tpl-edit-delete" data-tpl-delete="' + escAttr(it.id) + '" title="Delete this template">Delete</button>' : '<span></span>')
+      + '<div class="tpl-edit-actions-right">'
+        + '<button type="button" class="btn ghost small" data-tpl-edit-cancel="' + escAttr(it.id) + '">Cancel</button>'
+        + '<button type="button" class="btn primary small" data-tpl-edit-save="' + escAttr(it.id) + '">Save Template</button>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+function renderTemplateModal(){
+  const section = findMessageSection(templateModalSection);
+  if(!section) return;
+  const groups = getTemplateGroups(section.id);
+  const catList = getCategoryList(section.id);
+  const q = templateModalSearch.trim();
+  const activeCat = templateModalCat && groups.some(g=> g.cat===templateModalCat) ? templateModalCat : null;
+
+  const visibleGroups = groups
+    .filter(g=> !activeCat || g.cat===activeCat)
+    .map(g=> ({cat:g.cat, items: g.items.filter(it=> templateMatches(it, q))}))
+    .filter(g=> g.items.length);
+  const totalCount = groups.reduce((n,g)=> n+g.items.length, 0);
+
+  let html = '<div class="tpl-modal-head">'
+    + '<div>'
+      + '<div class="modal-eyebrow">Template Bank</div>'
+      + '<h2>' + esc(section.label) + '</h2>'
+      + '<p class="tpl-modal-sub">' + esc(section.desc) + '</p>'
+    + '</div>'
+    + '<div class="tpl-modal-head-actions">'
+      + fullscreenBtnHtml()
+      + '<button class="btn primary small" id="tplNewBtn">+ New Template</button>'
+      + '<button class="btn ghost small" id="modalCloseBtn">Close</button>'
+    + '</div>'
+  + '</div>';
+
+  html += '<div class="tpl-modal-controls">'
+    + '<input type="text" class="tpl-search" id="tplSearch" placeholder="Search templates..." value="' + escAttr(templateModalSearch) + '">'
+    + '<div class="tpl-cat-chips">'
+      + '<button class="chip small ' + (!activeCat?'active':'') + '" data-tpl-cat="">All <span class="tpl-chip-count">' + totalCount + '</span></button>'
+      + groups.map(g=> '<button class="chip small ' + (activeCat===g.cat?'active':'') + '" data-tpl-cat="' + escAttr(g.cat) + '">' + esc(g.cat) + ' <span class="tpl-chip-count">' + g.items.length + '</span></button>').join('')
+      + '<button class="chip small tpl-cat-manage-toggle ' + (templateCatManageOpen?'active':'') + '" id="tplCatManageBtn">&#9881; Manage Categories</button>'
+    + '</div>'
+    + (templateCatManageOpen ? '<div class="tpl-cat-manage">'
+      + catList.map(c=>{
+        if(c===templateCatEditing){
+          return '<div class="tpl-cat-manage-row tpl-cat-manage-row-editing">'
+            + '<input type="text" class="tpl-cat-rename-input" id="tplCatRenameInput" value="' + escAttr(c) + '">'
+            + '<button type="button" class="btn ghost small" data-tpl-cat-rename-cancel="1">Cancel</button>'
+            + '<button type="button" class="btn primary small" data-tpl-cat-rename-save="' + escAttr(c) + '">Save</button>'
+          + '</div>';
+        }
+        return '<div class="tpl-cat-manage-row">'
+          + '<span class="tpl-cat-manage-name">' + esc(c) + '</span>'
+          + '<button type="button" class="tpl-card-edit" data-tpl-cat-rename="' + escAttr(c) + '" title="Rename category">&#9998;</button>'
+          + (c!=='General' ? '<button type="button" class="tpl-card-delete" data-tpl-cat-delete="' + escAttr(c) + '" title="Delete category">&times;</button>' : '')
+        + '</div>';
+      }).join('')
+      + '<div class="tpl-cat-manage-add">'
+        + '<input type="text" class="tpl-cat-new-input" id="tplCatNewInput" placeholder="New category name...">'
+        + '<button type="button" class="btn primary small" id="tplCatAddBtn">+ Add Category</button>'
+      + '</div>'
+    + '</div>' : '')
+  + '</div>';
+
+  html += '<div class="tpl-modal-body">';
+  if(templateEditingId === 'NEW'){
+    html += '<div class="tpl-group">'
+      + '<div class="tpl-group-label">New Template</div>'
+      + '<div class="tpl-grid">' + templateEditFormHtml(section, {id:'NEW', cat:catList[0]}, catList) + '</div>'
+    + '</div>';
+  }
+  if(!totalCount){
+    html += '<div class="tpl-empty">'
+      + '<div class="tpl-empty-icon">&#9998;</div>'
+      + '<h3>No templates yet</h3>'
+      + '<p>Add some to the <b>' + esc(section.label) + '</b> bank and they\'ll show up here, ready to pick and drop straight into your plan.</p>'
+    + '</div>';
+  } else if(!visibleGroups.length){
+    html += '<div class="tpl-empty">'
+      + '<div class="tpl-empty-icon">&#128269;</div>'
+      + '<h3>No matches</h3>'
+      + '<p>Try a different search term or category.</p>'
+    + '</div>';
+  } else {
+    visibleGroups.forEach(g=>{
+      html += '<div class="tpl-group">'
+        + '<div class="tpl-group-label">' + esc(g.cat) + '</div>'
+        + '<div class="tpl-grid">' + g.items.map(it=>{
+          if(it.id === templateEditingId){
+            return templateEditFormHtml(section, it, catList);
+          }
+          return '<div class="tpl-card">'
+            + '<div class="tpl-card-top-row">'
+              + (it.title ? '<div class="tpl-card-title">' + esc(it.title) + '</div>' : '<div></div>')
+              + '<div class="tpl-card-top-actions">'
+                + '<button type="button" class="tpl-card-edit" data-tpl-edit="' + escAttr(it.id) + '" title="Edit this template">&#9998;</button>'
+                + '<button type="button" class="tpl-card-add" data-tpl-use="' + escAttr(it.id) + '" title="Add to ' + escAttr(section.label) + '">+</button>'
+              + '</div>'
+            + '</div>'
+            + (it.subject ? '<div class="tpl-card-subject">' + esc(it.subject) + '</div>' : '')
+            + '<div class="tpl-card-text">' + esc(it.text) + '</div>'
+            + '<button class="btn primary small full" data-tpl-use="' + escAttr(it.id) + '">Use this template</button>'
+          + '</div>';
+        }).join('') + '</div>'
+      + '</div>';
+    });
+  }
+  html += '</div>';
+
+  const box = document.getElementById('feModalBox');
+  box.className = 'modal-box tpl-modal-box' + (modalFullscreen ? ' fullscreen' : '');
+  box.innerHTML = html;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeTouchModal);
+  wireFullscreenBtn();
+  document.getElementById('tplNewBtn').addEventListener('click', ()=>{
+    templateEditingId = 'NEW';
+    renderTemplateModal();
+  });
+  document.getElementById('tplSearch').addEventListener('input', (e)=>{
+    templateModalSearch = e.target.value;
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-cat]').forEach(b=> b.addEventListener('click', ()=>{
+    templateModalCat = b.dataset.tplCat || null;
+    renderTemplateModal();
+  }));
+  document.getElementById('tplCatManageBtn').addEventListener('click', ()=>{
+    templateCatManageOpen = !templateCatManageOpen;
+    templateCatEditing = null;
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-cat-rename]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = b.dataset.tplCatRename;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const oldName = b.dataset.tplCatRenameSave;
+    const newName = document.getElementById('tplCatRenameInput').value;
+    if(renameCategory(section.id, oldName, newName)){
+      if(templateModalCat === oldName) templateModalCat = newName.trim();
+    }
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-delete]').forEach(b=> b.addEventListener('click', async ()=>{
+    const name = b.dataset.tplCatDelete;
+    const ok = await showConfirm({
+      title:'Delete this category?',
+      message:'Delete "' + name + '"? Any templates in it will move to General.',
+      confirmLabel:'Delete', cancelLabel:'Cancel',
+    });
+    if(!ok) return;
+    if(deleteCategory(section.id, name)){
+      if(templateModalCat === name) templateModalCat = null;
+    }
+    renderTemplateModal();
+  }));
+  const catAddBtn = document.getElementById('tplCatAddBtn');
+  if(catAddBtn) catAddBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('tplCatNewInput');
+    if(addCategory(section.id, input.value)) toast('Category added');
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-edit]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = b.dataset.tplEdit;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-delete]').forEach(b=> b.addEventListener('click', async ()=>{
+    const id = b.dataset.tplDelete;
+    const existing = findTemplateById(groups, id);
+    const ok = await showConfirm({
+      title:'Delete this template?',
+      message:'Delete "' + (existing ? existing.title : 'this template') + '"? This can\'t be undone.',
+      confirmLabel:'Delete', cancelLabel:'Cancel',
+    });
+    if(!ok) return;
+    customTemplateAdds[section.id] = (customTemplateAdds[section.id]||[]).filter(it=> it.id!==id);
+    if(!customTemplateDeletes[section.id]) customTemplateDeletes[section.id] = [];
+    if(customTemplateDeletes[section.id].indexOf(id)===-1) customTemplateDeletes[section.id].push(id);
+    if(customTemplateEdits[section.id]) delete customTemplateEdits[section.id][id];
+    persistCustomTemplateAdds();
+    persistCustomTemplateEdits();
+    persistCustomTemplateDeletes();
+    templateEditingId = null;
+    toast('Template deleted');
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.tplEditSave;
+    const title = document.getElementById('tplEditTitle').value.trim();
+    const subject = document.getElementById('tplEditSubject').value;
+    const text = document.getElementById('tplEditText').value;
+    const cat = document.getElementById('tplEditCat').value;
+    if(id==='NEW'){
+      const newId = section.id + '__custom__' + uid();
+      if(!customTemplateAdds[section.id]) customTemplateAdds[section.id] = [];
+      customTemplateAdds[section.id].push({id:newId, title, subject, text, cat});
+      persistCustomTemplateAdds();
+      toast('Template added');
+    } else {
+      if(!customTemplateEdits[section.id]) customTemplateEdits[section.id] = {};
+      customTemplateEdits[section.id][id] = {title, subject, text, cat};
+      persistCustomTemplateEdits();
+      toast('Template updated');
+    }
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-use]').forEach(b=> b.addEventListener('click', ()=>{
+    const item = findTemplateById(groups, b.dataset.tplUse);
+    if(!item) return;
+    if(templateReturnTouch){
+      const {kind, idx} = templateReturnTouch;
+      if(kind==='email'){
+        const t = FOLLOWUP_TOUCHES[idx];
+        plan.delivery.followups[t.n] = {
+          subject: item.subject || plan.delivery.followups[t.n].subject,
+          body: item.text,
+        };
+      } else {
+        const t = SOCIAL_FOLLOWUP_TOUCHES[idx];
+        plan.delivery.socialFollowups[t.n] = item.text;
+      }
+      persistPlan();
+      toast('Template applied');
+      openTouchModal(kind, idx);
+      return;
+    }
+    plan.delivery[section.id] = item.text;
+    if(section.hasSubject && item.subject) plan.delivery[section.id + 'Subject'] = item.subject;
+    persistPlan();
+    closeTouchModal();
+    toast('Template applied');
+    renderMessagingStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+function msgCardHtml(s){
+  const val = plan.delivery[s.id] || '';
+  const count = val.length;
+  const tplCount = getTemplateGroups(s.id).reduce((n,g)=> n+g.items.length, 0);
+  const subjectKey = s.id + 'Subject';
+  const isOptional = s.tag === 'Optional';
+  const hasContent = val.trim().length>0 || (s.hasSubject && (plan.delivery[subjectKey]||'').trim().length>0);
+  const collapsed = isOptional && !optionalExpanded[s.id];
+  const cls = 'msg-card' + (isOptional ? ' optional' : '') + (collapsed ? ' collapsed' : '');
+
+  let html = '<div class="' + cls + '"' + (collapsed ? ' data-optional-toggle="' + escAttr(s.id) + '" role="button" tabindex="0" aria-expanded="false"' : '') + '>'
+    + '<div class="msg-card-top">'
+      + '<div class="msg-num">' + esc(s.num) + '</div>'
+      + '<div class="msg-heading">'
+        + '<div class="msg-title-row"><h3>' + esc(s.label) + '</h3><span class="msg-tag">' + esc(s.tag) + '</span></div>'
+        + '<p class="msg-desc">' + esc(s.desc) + '</p>'
+      + '</div>'
+      + (isOptional && !collapsed ? '<button type="button" class="msg-card-toggle" data-optional-toggle="' + escAttr(s.id) + '">Collapse &uarr;</button>' : '')
+    + '</div>';
+
+  if(collapsed){
+    html += hasContent
+      ? '<div class="msg-collapsed-hint filled">' + count + ' character' + (count===1?'':'s') + ' written - click to edit</div>'
+      : '<div class="msg-collapsed-hint">Skip this if it does not apply - click to add it</div>';
+    html += '</div>';
+    return html;
+  }
+
+  html += '<button type="button" class="tpl-trigger" data-tpl-open="' + escAttr(s.id) + '">'
+      + '<span class="tpl-trigger-icon">&#9776;</span>'
+      + '<span class="tpl-trigger-text">'
+        + '<span class="tpl-trigger-title">Browse Template Bank</span>'
+        + '<span class="tpl-trigger-sub">' + tplCount + ' template' + (tplCount===1?'':'s') + ' available - pick one to start from</span>'
+      + '</span>'
+      + '<span class="tpl-trigger-arrow">&rarr;</span>'
+    + '</button>'
+    + (s.hasSubject ? '<input type="text" class="msg-subject" id="msgSubject-' + escAttr(s.id) + '" placeholder="' + escAttr(s.subjectPlaceholder||'Subject line...') + '" value="' + escAttr(plan.delivery[subjectKey]||'') + '">' : '')
+    + '<textarea class="msg-textarea" id="msg-' + escAttr(s.id) + '" placeholder="' + escAttr(s.placeholder) + '">' + esc(val) + '</textarea>'
+    + '<div class="msg-foot"><span class="msg-count" id="msgCount-' + escAttr(s.id) + '">' + count + ' character' + (count===1?'':'s') + '</span></div>'
+  + '</div>';
+  return html;
+}
+function renderMessagingStep(){
+  let html = pageHeaderHtml('Step 7 of 7', 'Messaging');
+
+  html += renderMessagingFlowHtml();
+
+  const publicSection = MESSAGE_SECTIONS.find(s=> s.id==='publicPost');
+  const firstEmailSection = MESSAGE_SECTIONS.find(s=> s.id==='firstEmail');
+
+  html += '<div class="msg-sections">';
+  html += msgCardHtml(publicSection);
+  html += touchGridCardHtml('social', Object.assign({
+    touches: SOCIAL_FOLLOWUP_TOUCHES, getVal: t=> plan.delivery.socialFollowups[t.n], hasSubject:false,
+  }, SOCIAL_FOLLOWUP_SECTION));
+  html += msgCardHtml(firstEmailSection);
+  html += '</div>';
+
+  html += '<div class="group-title">Email Follow-Up</div>';
+  html += '<div class="msg-sections">' + touchGridCardHtml('email', Object.assign({
+    touches: FOLLOWUP_TOUCHES, getVal: t=> plan.delivery.followups[t.n], hasSubject:true,
+  }, EMAIL_FOLLOWUP_SECTION)) + '</div>';
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.querySelectorAll('[data-optional-toggle]').forEach(b=>{
+    const toggle = (e)=>{
+      e.stopPropagation();
+      const id = b.dataset.optionalToggle;
+      optionalExpanded[id] = !optionalExpanded[id];
+      renderMessagingStep();
+    };
+    b.addEventListener('click', toggle);
+    if(b.getAttribute('role')==='button'){
+      b.addEventListener('keydown', (e)=>{
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(e); }
+      });
+    }
+  });
+
+  MESSAGE_SECTIONS.forEach(s=>{
+    const el = document.getElementById('msg-' + s.id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      plan.delivery[s.id] = el.value;
+      persistPlan();
+      document.getElementById('msgCount-' + s.id).textContent = el.value.length + ' character' + (el.value.length===1?'':'s');
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+    if(s.hasSubject){
+      const subjEl = document.getElementById('msgSubject-' + s.id);
+      subjEl.addEventListener('input', ()=>{
+        plan.delivery[s.id + 'Subject'] = subjEl.value;
+        persistPlan();
+        renderNav(); renderProgress(); renderPlanPanel();
+      });
+    }
+  });
+
+  document.querySelectorAll('[data-touch-open]').forEach(b=> b.addEventListener('click', ()=>{
+    const [kind, idx] = b.dataset.touchOpen.split(':');
+    openTouchModal(kind, Number(idx));
+  }));
+
+  document.querySelectorAll('[data-tpl-open]').forEach(b=> b.addEventListener('click', ()=>{
+    templateReturnTouch = null;
+    openTemplateModal(b.dataset.tplOpen);
+  }));
+}
+
+/* ============================================================
+ RAIL: PLAN PANEL
+ ============================================================ */
+function planSectionHtml(label, value, emptyText, jumpTo){
+  return '<div class="plan-section">'
+    + '<div class="ps-label"><span>' + esc(label) + '</span><a data-jump="' + escAttr(jumpTo) + '">' + (value?'Change':'Set') + ' &rarr;</a></div>'
+    + '<div class="ps-value">' + (value ? value : '<span class="ps-empty">' + esc(emptyText||'Not set yet') + '</span>') + '</div>'
+  + '</div>';
+}
+function renderPlanPanel(){
+  let html = '';
+
+  let prospectVal = null;
+  if(plan.prospect.name.trim()){
+    prospectVal = esc(plan.prospect.name.trim());
+    if(plan.prospect.niche.trim()) prospectVal += '<div class="ps-sub">' + esc(plan.prospect.niche.trim()) + '</div>';
+  }
+  html += planSectionHtml('Whale', prospectVal, 'Not set yet', 'targeting');
+
+  const traitCount = Object.values(plan.targeting.traits).filter(Boolean).length;
+  html += planSectionHtml('Targeting', traitCount + '/4 traits cleared', null, 'targeting');
+
+  const findCount = findingsCount();
+  html += planSectionHtml('Research', findCount + ' finding' + (findCount===1?'':'s') + ' logged', null, 'research');
+
+  html += planSectionHtml('Hook', plan.hook.chosenTitle.trim() ? esc(plan.hook.chosenTitle.trim()) : null, 'Not chosen yet', 'hook');
+
+  const scriptFilled = SCRIPT_SECTIONS.filter(s=> (plan.script[s.id]||'').trim()).length;
+  html += planSectionHtml('Script', scriptFilled + '/' + SCRIPT_SECTIONS.length + ' beats written', null, 'script');
+
+  html += planSectionHtml('Shot List', plan.shotList.length + ' shot' + (plan.shotList.length===1?'':'s') + ' planned', null, 'shotlist');
+
+  const prodTotal = PRODUCTION_TIERS.reduce((n,t)=> n+t.items.length, 0);
+  const prodDone = Object.values(plan.production.checklist).filter(Boolean).length;
+  html += planSectionHtml('Production', prodDone + '/' + prodTotal + ' stages checked', null, 'production');
+
+  const checksTotal = QUALITY_CHECKS.reduce((n,g)=> n+g.items.length, 0);
+  const checksDone = Object.values(plan.checks.checklist).filter(Boolean).length;
+  html += planSectionHtml('Checks', checksDone + '/' + checksTotal + ' checks cleared', null, 'checks');
+
+  const followupFilledCount = Object.values(plan.delivery.followups).filter(v=> (v.subject||'').trim() || (v.body||'').trim()).length;
+  const socialFilledCount = Object.values(plan.delivery.socialFollowups).filter(v=> v.trim()).length;
+  const msgFilled = (plan.delivery.publicPost.trim()?1:0) + (plan.delivery.firstEmail.trim()?1:0) + followupFilledCount + socialFilledCount;
+  html += planSectionHtml('Messaging', msgFilled + '/10 messages written', null, 'delivery');
+
+  document.getElementById('ppBody').innerHTML = html;
+  document.querySelectorAll('[data-jump]').forEach(a=> a.addEventListener('click', ()=> setActiveStep(a.dataset.jump)));
+}
+
+/* ============================================================
+ COPY PLAN AS TEXT
+ ============================================================ */
+function planText(){
+  const lines = [];
+  lines.push('SUPER LOOM PLAN');
+  lines.push('');
+  lines.push('WHALE');
+  lines.push('  Name: ' + (plan.prospect.name.trim() || '(not set)'));
+  lines.push('  Industry/Market: ' + (plan.prospect.niche.trim() || '(not set)'));
+  lines.push('  Company: ' + (plan.prospect.company.trim() || '(not set)'));
+  lines.push('');
+  lines.push('TARGETING');
+  SUPER_LOOM_TRAITS.forEach(t=> lines.push('  [' + (plan.targeting.traits[t.key]?'x':' ') + '] ' + t.label));
+  lines.push('');
+  lines.push('RESEARCH BRIEF');
+  RESEARCH_LENSES.forEach(lens=>{
+    lines.push('  ' + lens.name + ':');
+    RESEARCH_PROMPTS.filter(p=> p.lens===lens.id).forEach(p=>{
+      const findings = plan.research[lens.id][p.key];
+      lines.push('    ' + p.label);
+      if(findings.length){
+        findings.forEach(f=> lines.push('      - ' + f.text + (f.source ? ' [source: ' + f.source + ']' : '')));
+      } else lines.push('      (none logged)');
+    });
+  });
+  lines.push('  Outreach angle: ' + (plan.research.opportunity.angle.trim() || '(not written)'));
+  lines.push('');
+  lines.push('HOOK');
+  lines.push('  Chosen concept: ' + (plan.hook.chosenTitle.trim() || '(not chosen)'));
+  lines.push('  Description: ' + (plan.hook.chosenConcept.trim() || '(not written)'));
+  lines.push('  Wager: ' + (plan.hook.wager.trim() || '(none)'));
+  lines.push('');
+  lines.push('SCRIPT (10 beats, in order - 100% bespoke, every one)');
+  SCRIPT_SECTIONS.forEach(s=>{
+    lines.push('');
+    lines.push('  ' + s.num + '. ' + s.label);
+    const raw = (plan.script[s.id]||'').trim();
+    lines.push('     ' + (raw ? fillTokens(raw) : '(not written yet)'));
+  });
+  lines.push('');
+  lines.push('SHOT LIST');
+  if(plan.shotList.length){
+    plan.shotList.forEach((r,i)=> lines.push('  ' + (i+1) + '. [' + (r.scene||'scene') + '] ' + (r.shotType||'shot type?') + ' - ' + (r.description||'') + (r.location? ' @ ' + r.location : '')));
+  } else lines.push('  (no shots planned yet)');
+  lines.push('');
+  lines.push('PRODUCTION CHECKLIST');
+  PRODUCTION_TIERS.forEach(t=>{
+    lines.push('  Tier ' + t.tier + ' - ' + t.name + ':');
+    t.items.forEach(item=> lines.push('    [' + (plan.production.checklist[item.key]?'x':' ') + '] ' + item.h));
+  });
+  lines.push('');
+  lines.push('CHECKS');
+  QUALITY_CHECKS.forEach(g=>{
+    lines.push('  ' + g.group + ':');
+    g.items.forEach(item=> lines.push('    [' + (plan.checks.checklist[item.key]?'x':' ') + '] ' + item.h));
+  });
+  lines.push('');
+  lines.push('MESSAGING');
+  lines.push('  Public post: ' + (plan.delivery.publicPost.trim() || '(not written)'));
+  lines.push('  Social media follow-up posts:');
+  SOCIAL_FOLLOWUP_TOUCHES.forEach(t=> lines.push('    ' + t.label + ': ' + ((plan.delivery.socialFollowups[t.n]||'').trim() || '(not written)')));
+  lines.push('  First email subject: ' + (plan.delivery.firstEmailSubject.trim() || '(not set)'));
+  lines.push('  First email: ' + (plan.delivery.firstEmail.trim() || '(not written)'));
+  lines.push('  Email follow-ups:');
+  FOLLOWUP_TOUCHES.forEach(t=>{
+    const v = plan.delivery.followups[t.n] || {subject:'', body:''};
+    lines.push('    ' + t.label + ' subject: ' + (v.subject.trim() || '(not set)'));
+    lines.push('    ' + t.label + ': ' + (v.body.trim() || '(not written)'));
+  });
+  return lines.join('\n');
+}
+
+/* ============================================================
+ RENDER ALL
+ ============================================================ */
+function renderStepContent(){
+  if(activeStep==='targeting')  return renderTargetingStep();
+  if(activeStep==='research')   return renderResearchStep();
+  if(activeStep==='hook')       return renderHookStep();
+  if(activeStep==='script')     return renderScriptStep();
+  if(activeStep==='shotlist')   return renderShotlistStep();
+  if(activeStep==='production') return renderProductionStep();
+  if(activeStep==='checks')     return renderChecksStep();
+  if(activeStep==='delivery')   return renderMessagingStep();
+}
+function renderMobileTopbar(){
+  const idx = STEPS.findIndex(s=> s.id===activeStep);
+  const step = STEPS[idx];
+  if(!step) return;
+  document.getElementById('mobileStepEyebrow').textContent = 'Step ' + (idx+1) + ' of ' + STEPS.length;
+  document.getElementById('mobileStepName').textContent = step.label;
+}
+function render(){
+  renderNav();
+  renderProgress();
+  renderStepContent();
+  renderPlanPanel();
+  renderMobileTopbar();
+}
+
+render();
+
+document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
+document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
+document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
+document.getElementById('feModalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='feModalOverlay') closeTouchModal(); });
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
+  if(e.key==='Escape' && document.getElementById('feModalOverlay').classList.contains('open')) closeTouchModal();
+});
+document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
+document.getElementById('clearPlanBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirm({
+    title:'Clear the whole Super Loom plan?',
+    message:'This clears the whale, research, hook, script, shot list, production, checks and delivery for this plan. Your Hook Archive is kept - it never resets, so future concepts still never repeat. This cannot be undone.',
+    confirmLabel:'Clear Plan',
+  });
+  if(ok){
+    plan = defaultPlan();
+    persistPlan();
+    activeStep = STEPS[0].id;
+    render();
+  }
+});
+document.getElementById('content').addEventListener('scroll', (e)=>{
+  const ph = document.querySelector('.page-header');
+  if(ph) ph.classList.toggle('scrolled', e.target.scrollTop > 4);
+});
+</script>

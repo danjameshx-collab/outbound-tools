@@ -223,6 +223,49 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 /* ---------- research: where to look ---------- */
 .source-tip{margin:-4px 0 14px; font-size:12.5px; color:var(--ink-faint); font-style:italic; line-height:1.5; max-width:70ch;}
 .source-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:22px;}
+
+/* ---------- doctrine hero (sourcing tip) ---------- */
+.doctrine-hero{
+  position:relative; overflow:hidden; border-radius:20px; margin-bottom:28px;
+  padding:36px 40px; background:linear-gradient(155deg, #143d28, var(--stamp) 55%, #0e2c1c);
+  box-shadow:0 2px 4px rgba(20,24,27,.06), 0 28px 50px -22px rgba(14,44,28,.55);
+  color:#fff;
+}
+.doctrine-hero::before{
+  content:''; position:absolute; top:-90px; right:-90px; width:280px; height:280px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.14), transparent 70%); pointer-events:none;
+}
+.doctrine-hero::after{
+  content:''; position:absolute; bottom:-110px; left:-60px; width:220px; height:220px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%); pointer-events:none;
+}
+.doctrine-badge{
+  display:inline-flex; align-items:center; gap:7px; font-family:var(--font-display); font-weight:800;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:#fff; background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.3); border-radius:999px; padding:5px 14px; margin-bottom:16px; position:relative;
+}
+.doctrine-badge::before{content:''; width:6px; height:6px; border-radius:50%; background:#fff;}
+.doctrine-headline{
+  position:relative; font-family:var(--font-display); font-weight:800; font-size:32px; letter-spacing:-.015em;
+  margin:0 0 12px; line-height:1.12; text-wrap:balance;
+}
+.doctrine-body{position:relative; margin:0 0 22px; font-size:14.5px; line-height:1.6; color:rgba(255,255,255,.86); max-width:none;}
+.doctrine-principle{
+  position:relative; display:flex; align-items:flex-start; gap:16px; background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:16px 20px;
+  backdrop-filter:blur(6px);
+}
+.doctrine-principle .dp-label{
+  flex:0 0 auto; font-family:var(--font-display); font-weight:800; font-size:11px; text-transform:uppercase;
+  letter-spacing:.06em; color:#fff; background:rgba(255,255,255,.16); border-radius:8px; padding:6px 11px;
+  white-space:nowrap;
+}
+.doctrine-principle p{margin:0; font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.92);}
+@media (max-width:640px){
+  .doctrine-hero{padding:26px 22px;}
+  .doctrine-headline{font-size:25px;}
+  .doctrine-principle{flex-direction:column; gap:8px;}
+}
 .source-card{
   border:1px solid var(--line); border-radius:var(--radius); background:var(--paper-raised);
   box-shadow:var(--shadow); padding:14px 16px;
@@ -236,9 +279,6 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   font-size:12px; padding:4px 10px; border-radius:999px; background:var(--paper);
   border:1px solid var(--line); color:var(--ink-soft); white-space:nowrap;
 }
-
-/* ---------- research: outreach angle hint ---------- */
-.opp-hint{margin:-4px 0 12px; font-size:13px; color:var(--ink-soft); line-height:1.5;}
 
 /* ---------- goods catalog table (inside modal) ---------- */
 .tier-badge{
@@ -631,48 +671,80 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
 
 /* ---------- messaging: flow diagram (before/inside/public/follow-up overview) ---------- */
 .msg-flow{
-  background:var(--paper); border:1px solid var(--line); border-radius:14px;
-  padding:22px 26px 24px; margin-bottom:26px;
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(140% 160% at 102% -10%, rgba(47,143,91,.08), transparent 55%),
+    var(--paper-raised);
+  border:1px solid var(--line); border-radius:16px;
+  padding:24px 28px 28px; margin-bottom:28px;
+  box-shadow:var(--shadow);
+}
+.msg-flow::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--stamp), var(--mimeo) 55%, var(--warn));
 }
 .msg-flow-eyebrow{
-  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
-  font-size:10.5px; color:var(--stamp); margin:0 0 4px;
+  display:flex; align-items:center; gap:7px;
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--stamp); margin:0 0 6px;
 }
-.msg-flow-title{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); margin:0 0 20px;}
+.msg-flow-eyebrow::before{content:''; width:14px; height:1.5px; border-radius:2px; background:var(--stamp);}
+.msg-flow-title{
+  font-family:var(--font-display); font-weight:800; font-size:17px; letter-spacing:-.01em;
+  color:var(--ink); margin:0 0 26px;
+}
 .msg-flow-track{display:flex; align-items:flex-start;}
 .msg-flow-step{
   flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center;
+  transition:transform .18s var(--ease);
 }
+.msg-flow-step:hover{transform:translateY(-3px);}
+.msg-flow-step:hover .msg-flow-label{color:var(--stamp);}
+.msg-flow-step.optional:hover .msg-flow-label{color:var(--warn);}
 .msg-flow-node{
-  flex:0 0 auto; width:40px; height:40px; border-radius:50%; margin-bottom:10px;
+  flex:0 0 auto; width:46px; height:46px; border-radius:50%; margin-bottom:12px;
   display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-weight:800; font-size:13.5px;
-  background:var(--stamp); color:var(--stamp-ink); border:2px solid var(--stamp);
+  font-family:var(--font-display); font-weight:800; font-size:14.5px;
+  background:linear-gradient(155deg, var(--mimeo), var(--stamp)); color:var(--stamp-ink);
+  border:2px solid var(--stamp); position:relative; z-index:2;
+  box-shadow:0 4px 14px -5px rgba(30,107,69,.45), inset 0 0 0 3px rgba(255,255,255,.16);
+  transition:box-shadow .18s ease, transform .18s ease;
 }
+.msg-flow-step:hover .msg-flow-node{transform:scale(1.06); box-shadow:0 8px 20px -6px rgba(30,107,69,.55), inset 0 0 0 3px rgba(255,255,255,.16);}
 .msg-flow-step.optional .msg-flow-node{
-  background:var(--paper); color:var(--warn); border:2px dashed #E0A868;
+  background:var(--paper-raised); color:var(--warn); border:2px dashed #E0A868;
+  box-shadow:0 2px 10px -5px rgba(180,105,26,.3);
 }
-.msg-flow-label-wrap{display:flex; flex-direction:column; align-items:center; gap:5px;}
+.msg-flow-step.optional:hover .msg-flow-node{box-shadow:0 8px 18px -6px rgba(180,105,26,.4), inset 0 0 0 3px rgba(255,255,255,.16);}
+.msg-flow-label-wrap{display:flex; flex-direction:column; align-items:center; gap:6px;}
 .msg-flow-tag{
-  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-  font-size:9.5px; color:var(--stamp); background:var(--mimeo-ink); border-radius:999px; padding:2.5px 9px;
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:9.5px; color:var(--stamp-ink); background:var(--stamp); border-radius:999px; padding:3px 10px;
   white-space:nowrap;
 }
 .msg-flow-step.optional .msg-flow-tag{color:var(--warn); background:#FBEEE0;}
-.msg-flow-label{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); line-height:1.3;}
+.msg-flow-label{
+  font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); line-height:1.3;
+  transition:color .15s ease;
+}
 .msg-flow-connector{
-  flex:1 1 32px; height:2px; background:var(--line-strong); margin-top:19px; position:relative; min-width:14px;
+  flex:1 1 32px; height:2px; margin-top:22px; position:relative; min-width:14px; align-self:flex-start;
+  background:linear-gradient(90deg, var(--stamp), var(--mimeo) 55%, var(--warn));
+  opacity:.3;
 }
 .msg-flow-connector::after{
   content:'\2192'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  color:var(--ink-faint); font-size:13px; background:var(--paper); padding:0 3px; line-height:1;
+  width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  color:var(--ink-faint); font-size:11px; line-height:1; background:var(--paper-raised);
+  border:1px solid var(--line); box-shadow:var(--shadow); opacity:1;
 }
 @media (max-width:720px){
   .msg-flow-track{flex-direction:column; align-items:stretch;}
-  .msg-flow-step{flex-direction:row; text-align:left; align-items:center; gap:12px;}
+  .msg-flow-step{flex-direction:row; text-align:left; align-items:center; gap:14px;}
+  .msg-flow-step:hover{transform:translateX(3px);}
   .msg-flow-node{margin-bottom:0;}
   .msg-flow-label-wrap{align-items:flex-start;}
-  .msg-flow-connector{flex:0 0 auto; width:2px; height:20px; margin:0 0 0 19px;}
+  .msg-flow-connector{flex:0 0 auto; width:2px; height:22px; margin:0 0 0 22px; align-self:auto;}
   .msg-flow-connector::after{content:'\2193';}
 }
 
@@ -1235,7 +1307,12 @@ function findingsCount(){
 }
 function newFindingId(){ return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 function sourceGroupsHtml(){
-  let html = `<p class="source-tip">${esc(RESEARCH_SOURCES_TIP)}</p>`;
+  let html = `<div class="doctrine-hero">
+    <div class="doctrine-badge">Sourcing Doctrine</div>
+    <h2 class="doctrine-headline">The more research the better.</h2>
+    <p class="doctrine-body">Go as deep as possible - all the way from recent podcasts to things said years ago.</p>
+    <div class="doctrine-principle"><span class="dp-label">Work Order</span><p>Work newest-first, then go back for historical context.</p></div>
+  </div>`;
   html += `<div class="source-grid">` + RESEARCH_SOURCE_GROUPS.map(g=>`
     <div class="source-card">
       <h4>${esc(g.label)}</h4>
@@ -1251,8 +1328,7 @@ function stepStatus(id){
   if(id==='catalog')   return plan.good ? 'done' : 'pending';
   if(id==='cost')      return plan.costTier ? 'done' : 'pending';
   if(id==='research'){
-    if(plan.research.opportunity.angle.trim()) return 'done';
-    return findingsCount()>0 ? 'progress' : 'pending';
+    return findingsCount()>0 ? 'done' : 'pending';
   }
   if(id==='checklist'){
     const n = Object.values(plan.checklist).filter(Boolean).length;
@@ -1685,20 +1761,14 @@ function researchCardHtml(prompt){
 function renderResearchStep(){
   let html = pageHeaderHtml('Step 1 of 6', 'Research Fit', 'Understand this prospect from three angles, then land on one outreach idea worth sending.');
 
+  html += `<div class="group-title">Where to look</div>`;
+  html += sourceGroupsHtml();
+
   RESEARCH_LENSES.forEach(lens=>{
     html += `<div class="group-title">${esc(lens.name)}</div>`;
     html += `<p style="margin:-4px 0 12px; font-size:13px; color:var(--ink-soft);">${esc(lens.description)}</p>`;
     RESEARCH_PROMPTS.filter(p=> p.lens===lens.id).forEach(p=>{ html += researchCardHtml(p); });
   });
-
-  html += `<div class="group-title">Where to look</div>`;
-  html += sourceGroupsHtml();
-
-  html += `<div class="group-title">Outreach Angle</div>`;
-  html += `<p class="opp-hint">What's the absolute best thing worth saying to this company given all of the above?</p>`;
-  html += `<div class="field-group">
-    <textarea id="oppAngle" placeholder="The outreach angle...">${esc(plan.research.opportunity.angle)}</textarea>
-  </div>`;
 
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
@@ -1742,14 +1812,6 @@ function renderResearchStep(){
     persistPlan();
     render();
   }));
-
-  document.getElementById('oppAngle').addEventListener('input', (e)=>{
-    plan.research.opportunity.angle = e.target.value;
-    persistPlan();
-    renderNav();
-    renderProgress();
-    renderPlanPanel();
-  });
 }
 
 function quizQuestionsHtml(questions, answers){
@@ -2360,15 +2422,9 @@ function renderPlanPanel(){
 
   html += planSectionHtml('Cost Tier', plan.costTier ? `${esc(tierById(plan.costTier).name)} &middot; ${esc(tierById(plan.costTier).range)}` : null, 'Not set yet', 'cost');
 
-  let researchVal = null;
   const fCount = findingsCount();
-  if(plan.research.opportunity.angle.trim()){
-    researchVal = esc(plan.research.opportunity.angle.trim());
-    if(fCount) researchVal += `<div class="ps-sub">${fCount} finding${fCount===1?'':'s'} across 3 lenses</div>`;
-  } else if(fCount){
-    researchVal = `<span class="ps-empty">${fCount} finding${fCount===1?'':'s'} logged - angle not set yet</span>`;
-  }
-  html += planSectionHtml('Research Angle', researchVal, 'Not set yet', 'research');
+  const researchVal = fCount ? `${fCount} finding${fCount===1?'':'s'} across 3 lenses` : null;
+  html += planSectionHtml('Research', researchVal, 'Not set yet', 'research');
 
   const doneCount = Object.values(plan.checklist).filter(Boolean).length;
   html += planSectionHtml('Package Checklist', `${doneCount}/${PACKAGE_CHECKLIST.length} checked`, null, 'checklist');
@@ -2423,12 +2479,6 @@ function planText(){
       });
     });
   });
-  const opp = plan.research.opportunity;
-  if(opp.angle.trim()){
-    lines.push('');
-    lines.push('OUTREACH ANGLE:');
-    lines.push('  ' + opp.angle.trim());
-  }
   lines.push('');
   lines.push('Package Checklist:');
   PACKAGE_CHECKLIST.forEach(item=>{

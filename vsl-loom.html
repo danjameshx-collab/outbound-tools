@@ -1,0 +1,1943 @@
+<title>VSL Loom</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style id="app-styles">
+:root{
+  --paper:#FFFFFF; --paper-raised:#FFFFFF; --paper-tab:#FFFFFF;
+  --ink:#14181B; --ink-soft:#5B6560; --ink-faint:#757E78;
+  --stamp:#1E6B45; --stamp-ink:#FFFFFF;
+  --mimeo:#2F8F5B; --mimeo-ink:#E6F4EC;
+  --line:#E4E9E6; --line-strong:#CCD5D0;
+  --good:#2F8F5B; --warn:#B4691A;
+  --shadow: 0 1px 0 rgba(20,24,27,.03), 0 8px 20px -12px rgba(20,24,27,.14);
+  --shadow-hover: 0 1px 0 rgba(20,24,27,.03), 0 14px 30px -14px rgba(20,24,27,.22);
+  --radius: 8px;
+  --sidebar-w: 372px;
+  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --dur-fast: .12s; --dur-base: .18s;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:14.5px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+}
+::selection{background:var(--mimeo); color:var(--mimeo-ink);}
+a{color:inherit;}
+button{font-family:inherit;}
+svg{display:block;}
+
+:focus-visible{outline:2px solid var(--stamp); outline-offset:2px; border-radius:4px;}
+.eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; color:var(--ink-faint);
+}
+
+/* ---------- site topbar ---------- */
+.site-topbar-accent{height:4px; background:#231F2E; flex:0 0 auto;}
+.site-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 20px; border-bottom:1px solid var(--line); flex:0 0 auto;
+  font-family:var(--font-display);
+}
+.site-topbar .back-link{
+  display:flex; align-items:center; gap:6px;
+  color:var(--ink-soft); font-size:13.5px; text-decoration:none; white-space:nowrap;
+}
+.site-topbar .back-link:hover{color:var(--ink);}
+.site-topbar h1{font-size:16px; margin:0; font-weight:700; text-align:center; flex:1 1 auto;}
+.site-topbar .who{display:flex; align-items:center; gap:14px; white-space:nowrap;}
+.site-topbar .who span{color:var(--ink-soft); font-size:13px; font-family:var(--font-body);}
+.site-topbar .signout{
+  background:var(--paper); border:1px solid var(--line-strong); border-radius:6px;
+  padding:6px 12px; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer;
+  font-family:var(--font-body);
+}
+.site-topbar .signout:hover{background:#F7F8F7;}
+
+/* ---------- app shell: full-height sidebar + content ---------- */
+#app{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-areas: "rail main";
+  flex:1 1 auto; min-height:0;
+  overflow:hidden;
+}
+@media (max-width: 980px){
+  #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  nav#rail{
+    position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
+    transform:translateX(-100%); transition:transform .2s ease;
+  }
+  nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+}
+
+/* ---------- sidebar ---------- */
+nav#rail{
+  grid-area:rail; background:var(--paper-tab); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; overflow:hidden; min-height:0;
+}
+.sidebar-logo{display:flex; align-items:center; gap:10px; padding:18px 18px 4px;}
+.logo-mark{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:28px; height:28px; border-radius:7px; background:var(--stamp); color:var(--stamp-ink);
+  font-family:var(--font-display); font-weight:800; font-size:11.5px;
+}
+.logo-text{line-height:1.25;}
+.logo-name{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); letter-spacing:-.01em;}
+.logo-sub{font-family:var(--font-display); font-size:11.5px; color:var(--ink-faint);}
+.rail-close-mobile{display:none;}
+@media (max-width:980px){.rail-close-mobile{display:flex; margin-left:auto;}}
+.sidebar-progress{padding:12px 18px 6px;}
+.sidebar-progress .pp-label{
+  display:flex; justify-content:space-between; font-family:var(--font-display);
+  font-size:11px; color:var(--ink-faint); margin-bottom:5px;
+}
+.progress-bar{height:6px; background:var(--paper); border:1px solid var(--line); border-radius:3px; overflow:hidden; margin:0 0 4px;}
+.progress-bar .fill{height:100%; background:var(--good); width:0%; transition:width .2s;}
+
+.rail-scroll{flex:1 1 auto; min-height:0; overflow-y:auto;}
+.nav-groups{padding:12px 10px 4px;}
+.nav-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--ink-faint); padding:6px 8px 6px;
+}
+.step-item{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:9px 8px; border:none; background:transparent; color:var(--ink-soft);
+  font-family:var(--font-body); font-size:13.5px; cursor:pointer; border-radius:7px; margin-bottom:2px;
+  transition:background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.step-item:hover{background:var(--paper);}
+.step-item.active{background:var(--mimeo-ink); color:var(--stamp); font-weight:600; box-shadow:inset 3px 0 0 var(--stamp);}
+.step-num{
+  flex:0 0 auto; width:20px; height:20px; border-radius:50%; border:1.5px solid var(--line-strong);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-size:10.5px; font-weight:700; color:var(--ink-faint);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.step-item.progress .step-num{border-color:var(--good); color:var(--good);}
+.step-item.done .step-num{background:var(--stamp); border-color:var(--stamp); color:var(--stamp-ink);}
+.step-item.active .step-num{border-color:var(--stamp);}
+.step-label{flex:1 1 auto;}
+.step-status{font-size:12px; color:var(--good); flex:0 0 auto;}
+
+.rail-divider{
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin:14px 14px 10px; padding-top:18px; border-top:1.5px solid var(--line-strong);
+}
+.rail-divider::before{
+  content:''; position:absolute; top:-1.5px; left:0; width:38px; height:1.5px; background:var(--stamp);
+}
+.rail-divider .eyebrow{color:var(--stamp); font-size:11px;}
+.rail-divider .rd-clear{
+  font-family:var(--font-display); font-weight:700; font-size:10.5px; color:var(--ink-faint);
+  background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.rail-divider .rd-clear:hover{border-color:var(--warn); color:var(--warn);}
+
+.sidebar-footer{flex:0 0 auto; border-top:1px solid var(--line); padding:12px 14px; background:var(--paper-tab);}
+.sidebar-footer .btn{width:100%;}
+.mobile-topbar{display:none;}
+.mobile-topbar-title{display:flex; flex-direction:column; gap:0; min-width:0;}
+.mobile-topbar-step{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  font-size:10px; color:var(--stamp);
+}
+.mobile-topbar-name{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+@media (max-width:980px){
+  .mobile-topbar{
+    display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+  }
+}
+.iconbtn{border:1px solid var(--line); background:var(--paper); border-radius:7px; padding:6px 10px; font-size:12px; cursor:pointer;}
+
+/* ---------- main content + page header ---------- */
+main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0; height:100%;}
+#content{
+  flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
+  padding:0 30px 60px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+}
+@media (max-width:640px){
+  #content{padding:0 16px 50px;}
+  .page-header{padding:18px 16px 14px; margin:0 -16px 16px;}
+}
+@keyframes stepFadeIn{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
+.page-header{
+  position:sticky; top:0; z-index:5; background:var(--paper); padding:26px 30px 16px; margin:0 -30px 20px;
+  border-bottom:1px solid var(--line);
+}
+.page-header.step-enter{animation:stepFadeIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){ .page-header.step-enter{animation:none;} }
+.page-header .ph-top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.page-header .ph-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--stamp); margin:0 0 4px;}
+.page-header h1{
+  font-family:var(--font-display); font-weight:800; letter-spacing:-.01em;
+  font-size:23px; margin:0 0 4px; color:var(--ink); text-wrap:balance;
+}
+.page-header .ph-sub{margin:0; color:var(--ink-soft); font-size:13.5px; max-width:66ch;}
+
+.group-title{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:12px; color:var(--stamp); margin:26px 0 10px; padding-top:14px; border-top:1px solid var(--line);
+}
+.group-title:first-of-type{border-top:none; margin-top:0; padding-top:0;}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); margin-bottom:10px; padding:14px 16px;
+  transition:box-shadow .15s ease, border-color .15s ease;
+}
+.card:hover{border-color:var(--line-strong); box-shadow:var(--shadow-hover);}
+.card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+.card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+
+/* ---------- callouts ---------- */
+.callout{
+  border:1.5px solid var(--stamp); background:var(--mimeo-ink); border-radius:var(--radius);
+  padding:14px 18px; margin-bottom:22px; font-size:13.5px; color:var(--ink); line-height:1.55;
+}
+.callout b{font-family:var(--font-display);}
+.callout.warn{border-color:var(--warn); background:#FBEEE0;}
+.callout.generate-bar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.callout.generate-bar .btn{flex:0 0 auto; white-space:nowrap;}
+
+/* ---------- research: field grid + source grid ---------- */
+.field-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;}
+.field-grid .field{display:flex; flex-direction:column; gap:6px;}
+.field-grid .field.full{grid-column:1 / -1;}
+.field-grid label{
+  font-family:var(--font-display); font-weight:700; font-size:11px; text-transform:uppercase;
+  letter-spacing:.04em; color:var(--ink-faint);
+}
+.field-grid input[type=text]{
+  border:1px solid var(--line); border-radius:8px; background:var(--paper-raised); color:var(--ink);
+  font-family:var(--font-body); font-size:13.5px; padding:10px 12px;
+}
+.field-grid input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+@media (max-width:640px){.field-grid{grid-template-columns:1fr;}}
+
+.ai-setup{display:flex; flex-direction:column; gap:10px;}
+.ai-setup-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.ai-setup-row input[type=password]{
+  flex:1 1 260px; min-width:0; border:1px solid var(--line); border-radius:8px; background:var(--paper-raised);
+  color:var(--ink); font-family:var(--font-mono); font-size:13px; padding:9px 12px;
+}
+.ai-setup-row input[type=password]:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.ai-setup-status{font-size:12px; color:var(--ink-faint);}
+.ai-setup-status.set{color:var(--good);}
+.ai-setup-status.unset{color:var(--warn);}
+
+.content-textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:11px 14px; min-height:140px; resize:vertical; line-height:1.55;
+}
+.content-textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+
+.script-source-tag{
+  font-size:12px; color:var(--stamp); background:var(--mimeo-ink); border-radius:8px;
+  padding:8px 12px; margin-bottom:10px; line-height:1.5;
+}
+.script-source-tag b{font-family:var(--font-display);}
+
+.field-group{margin-top:18px;}
+.field-group label{
+  display:block; font-family:var(--font-display); font-weight:700; font-size:11.5px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:6px;
+}
+.field-group textarea{
+  width:100%; border:1px solid var(--line); border-radius:8px; background:var(--paper-raised);
+  color:var(--ink); font-family:var(--font-body); font-size:13.5px; padding:10px 12px;
+  min-height:80px; resize:vertical;
+}
+.field-group textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+
+/* ---------- script sections: legend + flow diagram ---------- */
+.legend-row{display:flex; gap:18px; margin:-6px 0 20px; flex-wrap:wrap;}
+.legend-item{display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft);}
+.legend-dot{width:11px; height:11px; border-radius:3px; flex:0 0 auto;}
+.legend-dot.bespoke{background:var(--stamp);}
+.legend-dot.same{background:var(--line-strong); border:1px solid var(--ink-faint);}
+
+.msg-flow{
+  position:relative; background:var(--paper); border:1px solid var(--line); border-radius:16px;
+  padding:24px 30px 28px; margin-bottom:26px; box-shadow:var(--shadow); overflow:hidden;
+}
+.msg-flow::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--stamp), var(--mimeo));
+}
+.msg-flow-eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--stamp); margin:2px 0 5px;
+}
+.msg-flow-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink); margin:0 0 26px; letter-spacing:-.01em;}
+.msg-flow-track{position:relative; display:flex; align-items:flex-start; justify-content:space-between; gap:4px;}
+.msg-flow-line{
+  position:absolute; top:21px; left:21px; right:21px; height:2px; z-index:0;
+  background-image:repeating-linear-gradient(to right, var(--line-strong) 0 5px, transparent 5px 10px);
+}
+.msg-flow-step{
+  position:relative; z-index:1; flex:1 1 0; min-width:0; display:flex; flex-direction:column;
+  align-items:center; text-align:center;
+}
+.msg-flow-node{
+  flex:0 0 auto; width:42px; height:42px; border-radius:50%; margin-bottom:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:14px;
+  background:linear-gradient(160deg, var(--stamp), #164f33); color:var(--stamp-ink);
+  border:3px solid var(--paper); box-shadow:0 0 0 2px var(--stamp), 0 4px 10px -4px rgba(20,24,27,.35);
+}
+.msg-flow-step.same .msg-flow-node{
+  background:var(--paper); color:var(--ink-faint);
+  border:3px solid var(--paper); box-shadow:0 0 0 2px var(--line-strong), 0 2px 6px -3px rgba(20,24,27,.15);
+}
+.msg-flow-label-wrap{display:flex; flex-direction:column; align-items:center; gap:6px; max-width:120px;}
+.msg-flow-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:9px; color:var(--stamp-ink); background:var(--stamp); border-radius:999px; padding:3px 10px;
+  white-space:nowrap;
+}
+.msg-flow-step.same .msg-flow-tag{color:var(--ink-faint); background:var(--paper); border:1px solid var(--line-strong); padding:2px 9px;}
+.msg-flow-label{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); line-height:1.3;}
+@media (max-width:860px){
+  .msg-flow-track{flex-direction:column; align-items:stretch; gap:0;}
+  .msg-flow-line{display:none;}
+  .msg-flow-step{
+    flex-direction:row; text-align:left; align-items:center; gap:14px; padding:10px 0;
+    position:relative;
+  }
+  .msg-flow-step:not(:last-child)::after{
+    content:''; position:absolute; left:21px; bottom:-2px; width:2px; height:16px;
+    background-image:repeating-linear-gradient(to bottom, var(--line-strong) 0 4px, transparent 4px 8px);
+  }
+  .msg-flow-node{margin-bottom:0;}
+  .msg-flow-label-wrap{align-items:flex-start; max-width:none;}
+}
+
+/* ---------- script sections: cards ---------- */
+.msg-sections{display:flex; flex-direction:column; gap:20px; margin-bottom:28px;}
+.msg-card{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+  box-shadow:var(--shadow); padding:22px 24px 20px; overflow:hidden;
+  transition:box-shadow .18s ease, transform .18s ease;
+}
+.msg-card:hover{box-shadow:0 10px 28px -12px rgba(0,0,0,.22); transform:translateY(-1px);}
+.msg-card::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--stamp), var(--mimeo));
+}
+.msg-card.same::before{background:linear-gradient(90deg, var(--line-strong), var(--ink-faint));}
+.msg-card-top{display:flex; align-items:flex-start; gap:14px; margin-bottom:14px;}
+.msg-num{
+  flex:0 0 auto; width:32px; height:32px; border-radius:9px; background:var(--mimeo-ink);
+  color:var(--stamp); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.msg-card.same .msg-num{background:var(--paper); color:var(--ink-faint); border:1px solid var(--line-strong);}
+.msg-heading{flex:1 1 auto; min-width:0;}
+.msg-title-row{display:flex; align-items:center; gap:9px; flex-wrap:wrap;}
+.msg-title-row h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink);}
+.msg-tag{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--stamp); background:var(--mimeo-ink); border-radius:999px; padding:3px 9px;
+}
+.msg-tag.same{color:var(--ink-faint); background:var(--paper); border:1px solid var(--line-strong);}
+.msg-desc{margin:5px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.55; max-width:74ch;}
+.msg-subject{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:11px 14px; margin-bottom:12px; transition:border-color .15s ease;
+}
+.msg-subject:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.msg-textarea{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:13px 14px; min-height:110px; resize:vertical; line-height:1.6; transition:border-color .15s ease;
+}
+.msg-textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px; background:var(--paper-raised);}
+.msg-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; gap:10px; flex-wrap:wrap;}
+.msg-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+.msg-count.over{color:var(--warn); font-weight:700;}
+
+.token-preview{
+  margin-top:12px; padding:11px 14px; border-radius:8px; background:var(--paper);
+  border:1px dashed var(--line-strong); font-size:12.5px; color:var(--ink-soft); line-height:1.55;
+}
+.token-preview .tp-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--stamp); display:block; margin-bottom:5px;
+}
+.token-preview .tp-live{color:var(--ink); font-style:normal;}
+
+/* ---------- production: checklist + tool chips ---------- */
+.check-item{
+  display:flex; gap:10px; align-items:flex-start; padding:11px 10px; margin:0 -10px;
+  border-bottom:1px solid var(--line); border-radius:7px; transition:background-color .15s ease;
+}
+.check-item:hover{background:var(--paper);}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{
+  appearance:none; -webkit-appearance:none; margin-top:2px; flex:0 0 auto;
+  width:18px; height:18px; border-radius:5px; border:2px solid var(--line-strong);
+  background:var(--paper-raised); cursor:pointer; position:relative;
+  transition:background-color .15s ease, border-color .15s ease;
+}
+.check-item input[type=checkbox]:hover{border-color:var(--good);}
+.check-item input[type=checkbox]:checked{background:var(--good); border-color:var(--good);}
+.check-item input[type=checkbox]:checked::after{
+  content:''; position:absolute; left:5px; top:1px; width:5px; height:9px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+.check-item label{font-size:13.5px; flex:1; cursor:pointer;}
+.check-item label b{display:block; font-weight:700; margin-bottom:2px; transition:color .15s ease;}
+.check-item.done label b{color:var(--ink-faint); text-decoration:line-through;}
+.check-item.done label span{color:var(--ink-faint);}
+
+.tool-chips{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 24px;}
+.tool-chip{
+  font-family:var(--font-mono); font-size:12px; padding:6px 12px; border-radius:999px;
+  background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); white-space:nowrap;
+}
+
+/* ---------- send: channel chips ---------- */
+.chiprow{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.chip{
+  font-family:var(--font-display); font-size:12.5px; font-weight:700;
+  letter-spacing:.02em; padding:8px 16px; border-radius:999px; border:1.5px solid var(--line);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
+  text-align:center; box-shadow:var(--shadow);
+  transition:border-color .15s ease, background-color .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.chip:hover{border-color:var(--mimeo); box-shadow:var(--shadow-hover); transform:translateY(-1px);}
+.chip.active{background:var(--mimeo); color:var(--mimeo-ink); border-color:var(--mimeo);}
+
+/* ---------- goods plan tracker (rail) ---------- */
+.pp-body{padding:2px 14px 16px;}
+.plan-section{
+  border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; background:var(--paper);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.plan-section:hover{border-color:var(--line-strong); box-shadow:var(--shadow);}
+.plan-section .ps-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  font-size:10.5px; color:var(--stamp); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;
+}
+.plan-section .ps-label a{font-size:10.5px; color:var(--ink-faint); text-decoration:underline; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;}
+.plan-section .ps-label a:hover{color:var(--stamp);}
+.plan-section .ps-value{font-size:13px; color:var(--ink); line-height:1.45; word-break:break-word;}
+.ps-empty{font-size:12.5px; color:var(--ink-faint); font-style:italic;}
+.plan-section .ps-sub{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+
+/* ---------- modal (template bank) ---------- */
+.modal-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.45); z-index:200;
+  align-items:center; justify-content:center; padding:26px;
+}
+.modal-overlay.open{display:flex; animation:modalOverlayIn .18s var(--ease);}
+.modal-overlay.open .modal-box{animation:modalBoxIn .22s var(--ease);}
+.modal-overlay.fullscreen{padding:0;}
+@media (prefers-reduced-motion: reduce){
+  .modal-overlay.open, .modal-overlay.open .modal-box{animation:none;}
+}
+.modal-box{
+  background:var(--paper-raised); border-radius:12px; width:100%; max-width:1180px; max-height:85vh;
+  display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 60px -20px rgba(0,0,0,.4);
+  transition:max-width .18s var(--ease), max-height .18s var(--ease), border-radius .18s var(--ease);
+}
+.modal-box.fullscreen{
+  width:100vw; height:100vh; max-width:100vw; max-height:100vh; border-radius:0;
+}
+.modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.modal-head-right{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+.modal-fullscreen-btn{
+  flex:0 0 auto; width:28px; height:28px; border-radius:50%; border:1px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.modal-fullscreen-btn:hover{background:var(--ink); color:#fff; border-color:var(--ink);}
+.modal-fullscreen-btn svg{width:14px; height:14px;}
+.modal-eyebrow{font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--ink-faint);}
+.modal-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
+.modal-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:0 24px 24px;}
+@media (max-width:720px){
+  .modal-overlay{padding:0;}
+  .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+}
+
+/* ---------- messaging: template bank trigger + modal ---------- */
+.tpl-trigger{
+  width:100%; display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer;
+  border:1.5px dashed var(--line-strong); border-radius:9px; background:var(--paper);
+  padding:11px 14px; margin-bottom:14px; font-family:inherit; transition:border-color .15s ease, background-color .15s ease, transform .12s ease;
+}
+.tpl-trigger:hover{border-color:var(--stamp); border-style:solid; background:var(--mimeo-ink); transform:translateY(-1px);}
+.tpl-trigger-icon{
+  flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--stamp); color:var(--stamp-ink);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.tpl-trigger-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:1px;}
+.tpl-trigger-title{font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);}
+.tpl-trigger-sub{font-size:11.5px; color:var(--ink-faint);}
+.tpl-trigger-arrow{flex:0 0 auto; color:var(--stamp); font-size:15px;}
+
+.tpl-modal-box{max-width:980px;}
+.tpl-modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:22px 26px 16px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.tpl-modal-head-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.tpl-modal-sub{margin:6px 0 0; font-size:13px; color:var(--ink-soft); max-width:64ch; line-height:1.5;}
+.tpl-modal-controls{
+  flex:0 0 auto; padding:16px 26px; border-bottom:1px solid var(--line); background:var(--paper);
+  display:flex; flex-direction:column; gap:12px;
+}
+.tpl-search{
+  width:100%; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:9px;
+  background:var(--paper-raised); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
+  padding:10px 14px;
+}
+.tpl-search:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-chips{display:flex; flex-wrap:wrap; gap:7px;}
+.chip.small{padding:5px 12px; font-size:11.5px;}
+.tpl-chip-count{opacity:.65; font-weight:600; margin-left:2px;}
+.tpl-cat-manage-toggle{margin-left:auto;}
+.tpl-cat-manage{
+  border:1px solid var(--line); border-radius:9px; background:var(--paper-raised);
+  padding:12px 14px; display:flex; flex-direction:column; gap:8px;
+}
+.tpl-cat-manage-row{display:flex; align-items:center; gap:8px; padding:4px 0;}
+.tpl-cat-manage-name{flex:1 1 auto; font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-cat-manage-row-editing{align-items:center;}
+.tpl-cat-rename-input, .tpl-cat-new-input{
+  flex:1 1 auto; box-sizing:border-box; border:1px solid var(--line-strong); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:7px 10px;
+}
+.tpl-cat-rename-input:focus, .tpl-cat-new-input:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-cat-manage-add{display:flex; gap:8px; padding-top:6px; border-top:1px dashed var(--line);}
+.tpl-modal-body{flex:1 1 auto; min-height:0; overflow-y:auto; padding:20px 26px 26px;}
+.tpl-group{margin-bottom:22px;}
+.tpl-group:last-child{margin-bottom:0;}
+.tpl-group-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:11px; color:var(--stamp); margin-bottom:10px;
+}
+.tpl-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
+.tpl-card{
+  display:flex; flex-direction:column; gap:9px; border:1px solid var(--line); border-radius:10px;
+  background:var(--paper-raised); box-shadow:var(--shadow); padding:14px 15px;
+  transition:box-shadow .15s ease, border-color .15s ease;
+}
+.tpl-card:hover{box-shadow:var(--shadow-hover); border-color:var(--line-strong);}
+.tpl-card-top-row{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+.tpl-card-top-actions{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.tpl-card-add, .tpl-card-edit, .tpl-card-delete{
+  flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--stamp);
+  background:var(--mimeo-ink); color:var(--stamp); font-family:var(--font-display); font-weight:800;
+  font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  padding:0; transition:background-color .15s ease, transform .12s ease;
+}
+.tpl-card-edit{font-size:11px; border-color:var(--line-strong); color:var(--ink-soft);}
+.tpl-card-delete{border-color:var(--warn); color:var(--warn); font-size:16px;}
+.tpl-card-add:hover{background:var(--stamp); color:var(--stamp-ink); transform:scale(1.08);}
+.tpl-card-edit:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:scale(1.08);}
+.tpl-card-delete:hover{background:var(--warn); color:#fff; transform:scale(1.08);}
+.tpl-card-title{font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink);}
+.tpl-card-subject{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--stamp);}
+
+.tpl-card-editing{gap:9px;}
+.tpl-edit-title, .tpl-edit-subject, .tpl-edit-cat{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:8px 10px;
+}
+.tpl-edit-title{font-family:var(--font-display); font-weight:700;}
+.tpl-edit-cat{font-family:var(--font-display); font-weight:700; color:var(--stamp); cursor:pointer;}
+.tpl-edit-title:focus, .tpl-edit-subject:focus, .tpl-edit-text:focus, .tpl-edit-cat:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-edit-text{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px;
+  padding:8px 10px; min-height:120px; resize:vertical; line-height:1.5;
+}
+.tpl-edit-actions{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.tpl-edit-actions-right{display:flex; gap:8px;}
+.tpl-edit-delete{
+  border:1px solid var(--warn); color:var(--warn); background:transparent; border-radius:999px;
+  font-family:var(--font-display); font-weight:700; font-size:11px; padding:5px 10px; cursor:pointer;
+}
+.tpl-edit-delete:hover{background:var(--warn); color:#fff;}
+.tpl-card-text{
+  font-size:12.5px; color:var(--ink-soft); line-height:1.5; white-space:pre-wrap;
+  max-height:150px; overflow-y:auto; flex:1 1 auto;
+}
+.tpl-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  gap:6px; padding:50px 20px; color:var(--ink-soft);
+}
+.tpl-empty-icon{
+  width:44px; height:44px; border-radius:50%; background:var(--mimeo-ink); color:var(--stamp);
+  display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:6px;
+}
+.tpl-empty h3{margin:0; font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink);}
+.tpl-empty p{margin:0; font-size:13px; max-width:44ch; line-height:1.5;}
+
+/* ---------- confirm dialog ---------- */
+.confirm-overlay{
+  display:none; position:fixed; inset:0; background:rgba(20,24,27,.5); z-index:300;
+  align-items:center; justify-content:center; padding:20px;
+}
+@keyframes modalOverlayIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes modalBoxIn{ from{opacity:0; transform:translateY(10px) scale(.97);} to{opacity:1; transform:translateY(0) scale(1);} }
+.confirm-overlay.open{display:flex; animation:modalOverlayIn .15s var(--ease);}
+.confirm-overlay.open .confirm-box{animation:modalBoxIn .18s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .confirm-overlay.open, .confirm-overlay.open .confirm-box{animation:none;}
+}
+.confirm-box{
+  background:var(--paper-raised); border-radius:14px; width:100%; max-width:380px;
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.4); padding:24px 24px 20px;
+}
+.confirm-icon{
+  width:36px; height:36px; border-radius:50%; background:#FBEEE0; color:var(--warn);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+  font-weight:800; font-size:16px; margin-bottom:14px;
+}
+.confirm-title{font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--ink); margin:0 0 6px;}
+.confirm-message{font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin:0 0 20px;}
+.confirm-actions{display:flex; justify-content:flex-end; gap:8px;}
+.btn.primary.danger{background:var(--warn); border-color:var(--warn);}
+.btn.primary.danger:hover{background:var(--warn); filter:brightness(1.08); transform:translateY(-1px);}
+
+.btn{
+  font-family:var(--font-display); font-weight:700; letter-spacing:0;
+  font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
+  background:var(--paper-raised); color:var(--ink);
+}
+.btn{transition:background-color .15s ease, border-color .15s ease, color .15s ease, filter .15s ease, transform .12s ease, box-shadow .15s ease;}
+.btn:hover{border-color:var(--line-strong); background:#F7F8F7;}
+.btn:active{transform:translateY(0); filter:brightness(.97);}
+.btn:disabled{opacity:.5; cursor:not-allowed; filter:none; transform:none;}
+.btn.primary{background:var(--stamp); color:var(--stamp-ink); border-color:var(--stamp);}
+.btn.primary:hover{filter:brightness(1.1); transform:translateY(-1px); background:var(--stamp);}
+.btn.primary:disabled{opacity:.5; cursor:not-allowed; filter:none;}
+.btn.ghost{background:transparent;}
+.btn.ghost:hover{background:var(--ink); color:#fff; border-color:var(--ink); transform:translateY(-1px);}
+.btn.full{width:100%; text-align:center;}
+.btn.small{padding:5px 10px; font-size:11px;}
+
+.step-nav{display:flex; justify-content:space-between; gap:10px; margin:32px 0 10px; padding-top:18px; border-top:1px solid var(--line);}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(6px);
+  background:var(--ink); color:var(--paper); font-family:var(--font-display); font-weight:700;
+  font-size:12px; letter-spacing:.02em; padding:9px 16px; border-radius:8px;
+  opacity:0; pointer-events:none; transition:all .2s ease; z-index:100;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+</style>
+
+<div class="site-topbar-accent"></div>
+<div class="site-topbar">
+  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <h1>VSL Loom</h1>
+  <div class="who">
+    <span>Signed in as Dan</span>
+    <button class="signout">Sign out</button>
+  </div>
+</div>
+
+<div id="app">
+  <nav id="rail">
+    <div class="sidebar-logo">
+      <span class="logo-mark">VL</span>
+      <div class="logo-text">
+        <div class="logo-name">VSL Loom</div>
+        <div class="logo-sub">Send Builder</div>
+      </div>
+      <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu">Close</button>
+    </div>
+    <div class="sidebar-progress">
+      <div class="pp-label"><span>Plan progress</span><span id="progressLabel">0/4</span></div>
+      <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    </div>
+    <div class="rail-scroll">
+      <div class="nav-groups" id="navGroups"></div>
+      <div class="rail-divider">
+        <span class="eyebrow">Loom Plan</span>
+        <button class="rd-clear" id="clearPlanBtn" title="Clear the whole Loom Plan">Clear</button>
+      </div>
+      <div class="pp-body" id="ppBody"></div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn primary full" id="copyPlanBtn">Copy Plan</button>
+    </div>
+  </nav>
+
+  <main id="content-col">
+    <div class="mobile-topbar">
+      <button class="iconbtn" id="railOpenBtn" title="Menu">Menu</button>
+      <div class="mobile-topbar-title">
+        <span class="mobile-topbar-step" id="mobileStepEyebrow">Step 1 of 4</span>
+        <span class="mobile-topbar-name" id="mobileStepName">Research Fit</span>
+      </div>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+  <div class="confirm-box">
+    <div class="confirm-icon">!</div>
+    <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn" id="confirmCancelBtn">Cancel</button>
+      <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+ DATA
+ ============================================================ */
+const STEPS = [
+  {id:'research',   num:1, label:'Research Fit'},
+  {id:'script',     num:2, label:'Script Builder'},
+  {id:'record',     num:3, label:'Record Loom'},
+  {id:'messaging',  num:4, label:'Messaging'},
+];
+
+// Seven beats of a VSL Loom. tag: 'bespoke' = re-record every send, 'same' = batch-record once and reuse.
+// Bespoke beats (Hook, Problem You See) are AI-drafted from the whale's pasted content in Script Builder.
+const SCRIPT_SECTIONS = [
+  {id:'hook', num:1, label:'Hook', tag:'bespoke',
+    desc:'First 5 seconds. Say their name, do the unexpected - tied to who they are as a person, not their job title. The bar is not good outreach, it is unprecedented outreach - if a jaded 8-figure founder would not stop mid-scroll, it is not enough yet.',
+    placeholder:'e.g. "{name}, I flew to find you. Nobody sends senior buyers this. Come, come now - I built something just for you."'},
+  {id:'reason', num:2, label:'Reason For Reaching Out', tag:'same',
+    desc:'Proves the Individual Law - you researched them as a human, not just a company. Non-negotiable - cutting this line is what tanks reply rates. Batch-record once.',
+    placeholder:'e.g. "You built the {niche} space from nothing, and that is exactly the kind of market leader we love working with - not just another logo for a deck."'},
+  {id:'problem', num:3, label:'Problem You See', tag:'bespoke',
+    desc:'The specific, true gap in their growth model, outbound, or market position - named plainly and tied back to the {niche} space so it reads as observed, not generic.',
+    placeholder:'e.g. "You are stuck in the volume trap - dozens of smaller clients instead of the handful of whales that would actually change your year."'},
+  {id:'whoiam', num:4, label:'Who I Am', tag:'same',
+    desc:'One line of credibility. Not a bio dump - just enough to earn the right to move into the value section. Batch-record once.',
+    placeholder:'e.g. "My name is Dan, and my team and I build the outreach that signs 7 and 8-figure founders - the kind of outreach nobody else is willing to make."'},
+  {id:'solution', num:5, label:'How You Can Solve It', tag:'same',
+    desc:'The mechanism. Max 2 value shots: problem → why it matters → how you close it → why you’re the one. Batch-record once per offer.',
+    placeholder:'e.g. "The first way I’ll help you make more money is by building the outreach that earns attention from senior buyers before anyone else even gets seen - here’s everything that goes into it..."'},
+  {id:'proof', num:6, label:'Social Proof', tag:'same',
+    desc:'Results, whale logos, the dream state you’re selling toward. Never changes whale to whale - batch-record once.',
+    placeholder:'e.g. "Here’s an 8-figure founder calling this the best outreach he has ever seen - one client closed $71K from 3 hyper-targeted sends."'},
+  {id:'cta', num:7, label:'CTA', tag:'same',
+    desc:'One bold, assumptive ask. Never "let me know your thoughts." Batch-record once.',
+    placeholder:'e.g. "Send me your calendar, let’s do this!" or "I’ve blocked the time, I’ll book myself in - just say the word."'},
+];
+
+const PRODUCTION_CHECKLIST = [
+  {key:'researched', h:'Researched the specific problem', span:'Confirmed via their business model, market position, or outbound - not a guess.'},
+  {key:'batched', h:'Batch-recorded the templated beats', span:'Reason For Reaching Out, Who I Am, How You Solve It (max 2 value shots), Social Proof, CTA.'},
+  {key:'bespoke', h:'Shot the bespoke beats fresh', span:'Hook and Problem You See - this whale only.'},
+  {key:'runtime', h:'Kept runtime tight', span:'Full VSL runs 4-7 minutes - the bespoke segment alone should be under 30 seconds.'},
+  {key:'locations', h:'New Locations', span:'Have you shot in different locations to keep the video fresh.'},
+];
+
+const TOOLS = ['DaVinci Resolve', 'Adobe Premiere', 'CapCut', 'Magnetic Mask (compositing)', 'Artlist.io (music)', 'Loom (delivery + open tracking)'];
+
+const MESSAGE_SECTIONS = [
+  {id:'firstMessage', num:'01', label:'First Message', desc:'Tease, don’t pitch. Keep it under 80 words - the Loom does the selling, not the message around it.', placeholder:'e.g. Built this specifically for you - nobody else is sending this. 90 seconds, worth it. [link]', hasSubject:false},
+  {id:'followup', num:'02', label:'Follow-Up', desc:'Bump the send if it goes unanswered - reference the Loom directly, never re-pitch from scratch.', placeholder:'e.g. Hey {name}, saw you had a look at the video - wanted to bump this in case it got buried.', hasSubject:true, subjectPlaceholder:'Subject line...'},
+];
+
+/* Template bank per message section - {cat, items:[{id, title, subject, text}]}. Fill freely. */
+const TEMPLATE_BANK = {
+  firstMessage: [
+    {cat:'General', items:[
+      {title:'Built This For You', subject:'', text:'{name} - built this specifically for you, nobody else is getting this. 90 seconds, worth it. [loom link]'},
+      {title:'Direct Tease', subject:'', text:'{name}, I flew to find you. Sending senior buyers a video like this is not something anyone else does. 90 seconds - come see.'},
+    ]},
+  ],
+  followup: [
+    {cat:'General', items:[
+      {title:'Simple Bump', subject:'Bumping this up', text:'Hey {name}, saw you had a look at the video - wanted to bump this in case it got buried. Still worth the 90 seconds.'},
+      {title:'Reference The Loom', subject:'In case it got lost', text:'{name}, following up on the Loom I sent over - built it specifically with {niche} in mind. Happy to send the calendar link if it landed.'},
+    ]},
+  ],
+};
+(function ensureTemplateIds(){
+  Object.keys(TEMPLATE_BANK).forEach(sectionId=>{
+    (TEMPLATE_BANK[sectionId]||[]).forEach(g=>{
+      g.items.forEach((it,idx)=>{
+        if(!it.id) it.id = sectionId + '__' + g.cat.replace(/\s+/g,'_') + '__' + idx;
+      });
+    });
+  });
+})();
+function getAllTemplateItems(sectionId){
+  const edits = customTemplateEdits[sectionId] || {};
+  const deletes = customTemplateDeletes[sectionId] || [];
+  const items = [];
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:g.cat}, it, edits[it.id]||{});
+    items.push(eff);
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    if(deletes.indexOf(it.id)!==-1) return;
+    const eff = Object.assign({cat:'General'}, it, edits[it.id]||{}, {custom:true});
+    items.push(eff);
+  });
+  return items;
+}
+function getCategoryList(sectionId){
+  const set = new Set();
+  getAllTemplateItems(sectionId).forEach(it=> set.add(it.cat||'General'));
+  (customCategories[sectionId]||[]).forEach(c=> set.add(c));
+  if(!set.size) set.add('General');
+  return Array.from(set);
+}
+function getTemplateGroups(sectionId){
+  const items = getAllTemplateItems(sectionId);
+  return getCategoryList(sectionId).map(cat=> ({
+    cat,
+    items: items.filter(it=> (it.cat||'General')===cat),
+  }));
+}
+function renameCategory(sectionId, oldName, newName){
+  newName = (newName||'').trim();
+  if(!newName || newName===oldName) return false;
+  if(getCategoryList(sectionId).indexOf(newName)!==-1){ toast('That category already exists'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===oldName){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:newName});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===oldName) it.cat = newName;
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).map(c=> c===oldName?newName:c);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function deleteCategory(sectionId, name){
+  if(name==='General'){ toast('General is the default category and can\'t be deleted'); return false; }
+  if(!customTemplateEdits[sectionId]) customTemplateEdits[sectionId] = {};
+  (TEMPLATE_BANK[sectionId]||[]).forEach(g=> g.items.forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || g.cat;
+    if(effCat===name){
+      customTemplateEdits[sectionId][it.id] = Object.assign({}, customTemplateEdits[sectionId][it.id], {cat:'General'});
+    }
+  }));
+  (customTemplateAdds[sectionId]||[]).forEach(it=>{
+    const effCat = (customTemplateEdits[sectionId][it.id] && customTemplateEdits[sectionId][it.id].cat) || it.cat || 'General';
+    if(effCat===name) it.cat = 'General';
+  });
+  customCategories[sectionId] = (customCategories[sectionId]||[]).filter(c=> c!==name);
+  persistCustomTemplateEdits(); persistCustomTemplateAdds(); persistCustomCategories();
+  return true;
+}
+function addCategory(sectionId, name){
+  name = (name||'').trim();
+  if(!name){ toast('Give the category a name first'); return false; }
+  if(getCategoryList(sectionId).indexOf(name)!==-1){ toast('That category already exists'); return false; }
+  if(!customCategories[sectionId]) customCategories[sectionId] = [];
+  customCategories[sectionId].push(name);
+  persistCustomCategories();
+  return true;
+}
+
+// The 4 reusable "same every time" beats are batch-recorded once per offer and never touched
+// by Generate Script Draft - seeded here with strong defaults so they're usable immediately.
+const DEFAULT_SAME_BEATS = {
+  reason: `You've built something that stands out in your market, and that is exactly the kind of leader we love working with - not just another logo for a deck.`,
+  whoiam: `My name is Dan, and my team and I build the outreach that signs 7 and 8-figure founders - the kind of outreach nobody else is willing to make.`,
+  solution: `The way I'll help you close more whale clients is by building the outreach that earns attention from senior buyers before anyone else even gets seen - here's everything that goes into it...`,
+  proof: `Here's an 8-figure founder calling this the best outreach he has ever seen - one client closed $71K from just 3 hyper-targeted sends.`,
+  cta: `Send me your calendar, let's do this! Or - I've blocked the time, I'll book myself in, just say the word.`,
+};
+
+let activeStep = STEPS[0].id;
+let plan = defaultPlan();
+
+function defaultPlan(){
+  return {
+    prospect:{name:'', niche:'', channel:'', landingPage:'', content:'', problem:''},
+    script: Object.assign({hook:'', problem:''}, DEFAULT_SAME_BEATS),
+    scriptMeta:{hook:null, problem:null},
+    production:{checklist:{}},
+    firstMessage:'', followup:'', followupSubject:'',
+  };
+}
+function loadPlan(){
+  try{
+    const p = JSON.parse(localStorage.getItem('vslloom_plan'));
+    if(p){
+      // p may be from the old schema (plan.send = {channel,message}, plan.followup = {escalation,emails:[]})
+      // before the Messaging step redesign - coerce those shapes into the new flat string fields.
+      const oldFollowupEmail = (p.followup && Array.isArray(p.followup.emails)) ? p.followup.emails[0] : null;
+      plan = Object.assign(defaultPlan(), p, {
+        prospect: Object.assign(defaultPlan().prospect, p.prospect||{}),
+        script: Object.assign(defaultPlan().script, p.script||{}),
+        scriptMeta: Object.assign(defaultPlan().scriptMeta, p.scriptMeta||{}),
+        production: Object.assign(defaultPlan().production, p.production||{}, {checklist: Object.assign({}, p.production && p.production.checklist)}),
+        firstMessage: typeof p.firstMessage === 'string' ? p.firstMessage : ((p.send && p.send.message) || ''),
+        followup: typeof p.followup === 'string' ? p.followup : ((oldFollowupEmail && oldFollowupEmail.body) || ''),
+        followupSubject: typeof p.followupSubject === 'string' ? p.followupSubject : ((oldFollowupEmail && oldFollowupEmail.subject) || ''),
+      });
+    }
+  }catch(e){}
+}
+function persistPlan(){ localStorage.setItem('vslloom_plan', JSON.stringify(plan)); }
+loadPlan();
+
+/* ============================================================
+ TEMPLATE BANK STATE
+ ============================================================ */
+function loadCustomTemplateEdits(){
+  try{
+    const c = JSON.parse(localStorage.getItem('vslloom_template_edits'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateEdits(){ localStorage.setItem('vslloom_template_edits', JSON.stringify(customTemplateEdits)); }
+function loadCustomTemplateAdds(){
+  try{
+    const c = JSON.parse(localStorage.getItem('vslloom_template_adds'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateAdds(){ localStorage.setItem('vslloom_template_adds', JSON.stringify(customTemplateAdds)); }
+function loadCustomTemplateDeletes(){
+  try{
+    const c = JSON.parse(localStorage.getItem('vslloom_template_deletes'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomTemplateDeletes(){ localStorage.setItem('vslloom_template_deletes', JSON.stringify(customTemplateDeletes)); }
+function loadCustomCategories(){
+  try{
+    const c = JSON.parse(localStorage.getItem('vslloom_template_cats'));
+    if(c && typeof c==='object') return c;
+  }catch(e){}
+  return {};
+}
+function persistCustomCategories(){ localStorage.setItem('vslloom_template_cats', JSON.stringify(customCategories)); }
+
+let customTemplateEdits = loadCustomTemplateEdits();
+let customTemplateAdds = loadCustomTemplateAdds();
+let customTemplateDeletes = loadCustomTemplateDeletes();
+let customCategories = loadCustomCategories();
+let templateModalSection = null;
+let templateCatManageOpen = false;
+let templateCatEditing = null;
+let templateEditingId = null;
+let templateModalCat = null;
+let templateModalSearch = '';
+let modalFullscreen = false;
+
+/* ============================================================
+ AI API KEY - stored separately from `plan` so it is never
+ included in the Copy Plan export or cleared by Clear Plan.
+ ============================================================ */
+function getApiKey(){ return localStorage.getItem('vslloom_api_key') || ''; }
+function setApiKey(key){
+  if(key) localStorage.setItem('vslloom_api_key', key);
+  else localStorage.removeItem('vslloom_api_key');
+}
+
+/* ============================================================
+ HELPERS
+ ============================================================ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s){ return esc(s).replace(/"/g,'&quot;'); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 1600);
+}
+let _confirmResolve = null;
+function showConfirm({title='Are you sure?', message='', confirmLabel='Confirm', cancelLabel='Cancel'} = {}){
+  return new Promise((resolve)=>{
+    _confirmResolve = resolve;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmOkBtn').textContent = confirmLabel;
+    document.getElementById('confirmCancelBtn').textContent = cancelLabel;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmOkBtn').focus();
+  });
+}
+function closeConfirm(result){
+  const overlay = document.getElementById('confirmOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
+}
+function copyText(s){
+  navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+}
+function fillTokens(str){
+  const name = plan.prospect.name.trim();
+  const niche = plan.prospect.niche.trim();
+  return (str||'')
+    .replace(/\{name\}/gi, name || '{name}')
+    .replace(/\{niche\}/gi, niche || '{niche}');
+}
+function wordCount(s){ return (s||'').trim().split(/\s+/).filter(Boolean).length; }
+
+/* ============================================================
+ SCRIPT GENERATION - AI drafts the 2 bespoke beats (Hook,
+ Problem You See) from the whale's profile + pasted content.
+ The 5 "same every time" beats are pre-seeded and never touched.
+ ============================================================ */
+const CONTENT_MAX_CHARS = 8000;
+const AI_MODEL = 'claude-haiku-4-5-20251001';
+const BESPOKE_IDS = ['hook','problem'];
+
+function buildAIPrompt({name, niche, company, problem, content, landingPage}){
+  return `You are ghostwriting cold-outreach VSL (video sales letter) script beats for someone who closes 7-8 figure "whale" clients for B2B deals. The doctrine: the Attention Law (nothing else matters until you've earned the whale's attention), the Individual Law (you are researching and speaking to a human, not a job title), and the Volume-Inverse Law (fewer, sharper, hyper-specific sends beat generic mass outreach).
+
+Voice reference (match this register - direct, confident, a little cheeky, never corporate):
+- Hook example: "{name}, I flew to find you. Nobody sends senior buyers this. Come, come now - I built something just for you."
+- Problem example: "You are stuck in the volume trap - dozens of smaller clients instead of the handful of whales that would actually change your year."
+
+Whale profile:
+- Name: ${name || '(unknown - use a generic but warm address)'}
+- Industry/Market: ${niche || '(unknown)'}
+- Company/Deal size: ${company || '(unknown)'}
+- Landing page (reference only, you cannot browse it): ${landingPage || '(none provided)'}
+- Explicit problem the sender already sees (use this verbatim as the anchor for the Problem beat if provided): ${problem || '(none provided - infer from pasted content below if possible)'}
+
+Pasted research content (About page, bio, recent posts, press, interview excerpts - may be empty):
+"""
+${content || '(none provided)'}
+"""
+
+Write exactly 2 script beats:
+1. "hook" - first 5 seconds, says their name, does something unexpected tied to them as a person (only if the pasted content actually supports a personal detail - otherwise keep it general and confident, do not invent facts).
+2. "problem" - the specific, true gap in their growth model, outbound, or market position. If an explicit problem was given above, build on that. Otherwise infer one honestly from the pasted content. Never fabricate specifics (numbers, names, events) that are not present in the input.
+
+For each beat also return a one-sentence "insight": the specific fact or phrase from the pasted content or inputs that beat draws on, in your own words. If a beat used no real source data (pure fallback/generic), set insight to null.
+
+Respond with ONLY raw JSON, no markdown code fences, no extra prose, matching exactly this shape:
+{"hook":"...","problem":"...","insights":{"hook":"..."|null,"problem":"..."|null}}`;
+}
+
+async function callClaudeForScript(promptText){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'x-api-key': getApiKey(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      max_tokens: 1024,
+      messages: [{role:'user', content: promptText}],
+    }),
+  });
+  if(!res.ok){
+    if(res.status === 401) throw new Error('API key rejected - check it above and save again.');
+    throw new Error(`AI request failed (${res.status}).`);
+  }
+  const data = await res.json();
+  let text = (data.content && data.content[0] && data.content[0].text || '').trim();
+  text = text.replace(/^```(?:json)?/i, '').replace(/```$/,'').trim();
+  let parsed;
+  try{
+    parsed = JSON.parse(text);
+  }catch(e){
+    throw new Error('AI returned something we couldn’t read - try generating again.');
+  }
+  return parsed;
+}
+
+async function generateScriptDraft(){
+  if(!plan.prospect.name.trim()){
+    toast('Add a Whale Name in Research Fit first');
+    return;
+  }
+  if(!getApiKey()){
+    toast('Add your API key in Research Fit first');
+    setActiveStep('research');
+    setTimeout(()=>{ const el = document.getElementById('rf-apikey'); if(el) el.focus(); }, 50);
+    return;
+  }
+  const hasContent = BESPOKE_IDS.some(id=> (plan.script[id]||'').trim());
+  if(hasContent){
+    const ok = await showConfirm({
+      title:'Overwrite the script?',
+      message:'This replaces the Hook and Problem You See with a fresh AI draft. Anything you’ve written in those beats will be lost.',
+      confirmLabel:'Generate Draft',
+    });
+    if(!ok) return;
+  }
+
+  const btn = document.getElementById('generateScriptBtn');
+  const originalLabel = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Generating...'; }
+
+  try{
+    const prompt = buildAIPrompt({
+      name: plan.prospect.name.trim(),
+      niche: plan.prospect.niche.trim(),
+      company: plan.prospect.channel.trim(),
+      problem: plan.prospect.problem.trim(),
+      content: plan.prospect.content.trim().slice(0, CONTENT_MAX_CHARS),
+      landingPage: plan.prospect.landingPage.trim(),
+    });
+    const result = await callClaudeForScript(prompt);
+    BESPOKE_IDS.forEach(id=>{
+      if(typeof result[id] === 'string' && result[id].trim()) plan.script[id] = result[id].trim();
+      const insight = result.insights && result.insights[id];
+      plan.scriptMeta[id] = insight ? {insight} : null;
+    });
+    persistPlan();
+    toast('Script draft generated');
+    renderScriptStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }catch(e){
+    toast(e.message || 'AI request failed');
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel; }
+  }
+}
+
+/* ============================================================
+ SIDEBAR: nav + progress
+ ============================================================ */
+function stepStatus(id){
+  if(id==='research'){
+    const p = plan.prospect;
+    if(p.name.trim() && p.problem.trim()) return 'done';
+    return (p.name.trim() || p.niche.trim() || p.problem.trim()) ? 'progress' : 'pending';
+  }
+  if(id==='script'){
+    const filled = SCRIPT_SECTIONS.filter(s=> (plan.script[s.id]||'').trim()).length;
+    if(filled===0) return 'pending';
+    return filled>=SCRIPT_SECTIONS.length ? 'done' : 'progress';
+  }
+  if(id==='record'){
+    const n = Object.values(plan.production.checklist).filter(Boolean).length;
+    if(n===0) return 'pending';
+    return n>=PRODUCTION_CHECKLIST.length ? 'done' : 'progress';
+  }
+  if(id==='messaging'){
+    const anyFilled = plan.firstMessage.trim() || plan.followup.trim();
+    if(plan.firstMessage.trim() && plan.followup.trim()) return 'done';
+    return anyFilled ? 'progress' : 'pending';
+  }
+  return 'pending';
+}
+function doneStepCount(){ return STEPS.filter(s=>stepStatus(s.id)==='done').length; }
+
+function renderNav(){
+  const html = `<div class="nav-group">
+    <div class="nav-group-label">Builder</div>
+    ${STEPS.map(s=>{
+      const status = stepStatus(s.id);
+      const mark = status==='done' ? '✓' : '';
+      return `<button class="step-item ${status} ${s.id===activeStep?'active':''}" data-step="${s.id}">
+        <span class="step-num">${mark || s.num}</span>
+        <span class="step-label">${esc(s.label)}</span>
+      </button>`;
+    }).join('')}
+  </div>`;
+  document.getElementById('navGroups').innerHTML = html;
+  document.querySelectorAll('.step-item').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.step)));
+}
+function renderProgress(){
+  const n = doneStepCount();
+  document.getElementById('progressLabel').textContent = n + '/' + STEPS.length;
+  document.getElementById('progressFill').style.width = (n/STEPS.length*100) + '%';
+}
+function setActiveStep(id){
+  activeStep = id;
+  render();
+  const ph = document.querySelector('.page-header');
+  if(ph) ph.classList.add('step-enter');
+  document.getElementById('content').scrollTop = 0;
+  if(window.innerWidth <= 980){ document.getElementById('rail').classList.remove('open'); }
+}
+
+/* ============================================================
+ SHARED PAGE HEADER + STEP NAV
+ ============================================================ */
+function pageHeaderHtml(eyebrow, title, sub){
+  return `<div class="page-header">
+    <div class="ph-eyebrow">${esc(eyebrow)}</div>
+    <div class="ph-top"><div><h1>${esc(title)}</h1><p class="ph-sub">${esc(sub)}</p></div></div>
+  </div>`;
+}
+function stepNavHtml(){
+  const idx = STEPS.findIndex(s=>s.id===activeStep);
+  const prev = STEPS[idx-1], next = STEPS[idx+1];
+  return `<div class="step-nav">
+    <div>${prev ? `<button class="btn" data-nav="${prev.id}">&larr; ${esc(prev.label)}</button>` : ''}</div>
+    <div>${next ? `<button class="btn primary" data-nav="${next.id}">${esc(next.label)} &rarr;</button>` : ''}</div>
+  </div>`;
+}
+function wireStepNav(box){
+  box.querySelectorAll('[data-nav]').forEach(b=> b.addEventListener('click', ()=> setActiveStep(b.dataset.nav)));
+}
+
+/* ============================================================
+ STEP 1: RESEARCH FIT
+ ============================================================ */
+function renderResearchStep(){
+  let html = pageHeaderHtml('Step 1 of 4', 'Research Fit', '');
+
+  const key = getApiKey();
+  html += `<div class="callout ai-setup">
+    <div><b>AI Setup.</b> Paste your Anthropic API key to enable Generate Script Draft in Step 2. Stored only in this browser - never included in Copy Plan.</div>
+    <div class="ai-setup-row">
+      <input type="password" id="rf-apikey" placeholder="sk-ant-..." value="${escAttr(key)}" autocomplete="off">
+      <button type="button" class="btn primary small" id="rf-apikey-save">Save Key</button>
+      <span class="ai-setup-status ${key ? 'set' : 'unset'}" id="rf-apikey-status">${key ? 'Key saved on this device' : 'No key set - required to generate scripts'}</span>
+    </div>
+  </div>`;
+
+  html += `<div class="field-grid">
+    <div class="field">
+      <label for="rf-name">Whale Name</label>
+      <input type="text" id="rf-name" placeholder="e.g. Alex" value="${escAttr(plan.prospect.name)}">
+    </div>
+    <div class="field">
+      <label for="rf-niche">Industry / Market</label>
+      <input type="text" id="rf-niche" placeholder="e.g. B2B sales recruiting" value="${escAttr(plan.prospect.niche)}">
+    </div>
+    <div class="field full">
+      <label for="rf-channel">Company / Deal Size (optional)</label>
+      <input type="text" id="rf-channel" placeholder="e.g. Acme Recruiting - est. $30M ARR" value="${escAttr(plan.prospect.channel)}">
+    </div>
+    <div class="field full">
+      <label for="rf-landing">Landing Page (reference only - not auto-fetched)</label>
+      <input type="text" id="rf-landing" placeholder="e.g. https://theircompany.com" value="${escAttr(plan.prospect.landingPage)}">
+    </div>
+  </div>`;
+
+  const contentLen = plan.prospect.content.length;
+  html += `<div class="field-group">
+    <label for="rf-content">Paste Anything About Them (About page, bio, recent post, press, interview - feeds Generate Script Draft)</label>
+    <textarea id="rf-content" class="content-textarea" placeholder="Paste their About page copy, LinkedIn bio, a recent post, an interview excerpt, press coverage - anything that shows who they are and where the business is headed.">${esc(plan.prospect.content)}</textarea>
+    <span class="msg-count ${contentLen>CONTENT_MAX_CHARS?'over':''}" id="rf-content-count">${contentLen} character${contentLen===1?'':'s'}${contentLen>CONTENT_MAX_CHARS?` - only the first ${CONTENT_MAX_CHARS} are sent`:''}</span>
+  </div>`;
+
+  html += `<div class="field-group">
+    <label for="rf-problem">Problem You See (optional - if set, this anchors the Problem You See beat instead of the AI inferring one)</label>
+    <textarea id="rf-problem" placeholder="e.g. They are stuck in the volume model - dozens of small clients instead of the handful of whales that would change their year.">${esc(plan.prospect.problem)}</textarea>
+  </div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.getElementById('rf-apikey-save').addEventListener('click', ()=>{
+    const val = document.getElementById('rf-apikey').value.trim();
+    setApiKey(val);
+    const statusEl = document.getElementById('rf-apikey-status');
+    statusEl.textContent = val ? 'Key saved on this device' : 'No key set - required to generate scripts';
+    statusEl.className = 'ai-setup-status ' + (val ? 'set' : 'unset');
+    toast(val ? 'API key saved' : 'API key cleared');
+  });
+
+  ['name','niche','channel','landingPage'].forEach(key=>{
+    const elId = key==='landingPage' ? 'rf-landing' : 'rf-'+key;
+    const el = document.getElementById(elId);
+    el.addEventListener('input', ()=>{
+      plan.prospect[key] = el.value;
+      persistPlan();
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+  });
+  const contentEl = document.getElementById('rf-content');
+  contentEl.addEventListener('input', ()=>{
+    plan.prospect.content = contentEl.value;
+    persistPlan();
+    const len = contentEl.value.length;
+    const countEl = document.getElementById('rf-content-count');
+    countEl.textContent = len + ' character' + (len===1?'':'s') + (len>CONTENT_MAX_CHARS ? ` - only the first ${CONTENT_MAX_CHARS} are sent` : '');
+    countEl.className = 'msg-count' + (len>CONTENT_MAX_CHARS ? ' over' : '');
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+  const probEl = document.getElementById('rf-problem');
+  probEl.addEventListener('input', ()=>{
+    plan.prospect.problem = probEl.value;
+    persistPlan();
+    renderNav(); renderProgress(); renderPlanPanel();
+  });
+}
+
+/* ============================================================
+ STEP 2: SCRIPT BUILDER
+ ============================================================ */
+function scriptFlowHtml(){
+  const parts = SCRIPT_SECTIONS.map(s => `<div class="msg-flow-step ${s.tag==='same'?'same':''}">
+      <div class="msg-flow-node">${s.num}</div>
+      <div class="msg-flow-label-wrap">
+        <span class="msg-flow-tag">${s.tag==='bespoke'?'Bespoke':'Same Every Time'}</span>
+        <span class="msg-flow-label">${esc(s.label)}</span>
+      </div>
+    </div>`);
+  return `<div class="msg-flow">
+    <p class="msg-flow-eyebrow">The Script, Beat By Beat</p>
+    <h3 class="msg-flow-title">Seven beats, same order every time</h3>
+    <div class="msg-flow-track">
+      <div class="msg-flow-line"></div>
+      ${parts.join('')}
+    </div>
+  </div>`;
+}
+function scriptCardHtml(s){
+  const val = plan.script[s.id] || '';
+  const isBespoke = s.tag === 'bespoke';
+  let html = `<div class="msg-card ${isBespoke?'':'same'}">
+    <div class="msg-card-top">
+      <div class="msg-num">${s.num}</div>
+      <div class="msg-heading">
+        <div class="msg-title-row">
+          <h3>${esc(s.label)}</h3>
+          <span class="msg-tag ${isBespoke?'':'same'}">${isBespoke?'Bespoke':'Same Every Time'}</span>
+        </div>
+        <p class="msg-desc">${esc(s.desc)}</p>
+      </div>
+    </div>
+    ${(() => {
+      const meta = plan.scriptMeta && plan.scriptMeta[s.id];
+      if(!meta) return '';
+      return `<div class="script-source-tag" id="scriptSourceTag-${escAttr(s.id)}">Generated from research - “${esc(meta.insight)}”</div>`;
+    })()}
+    <textarea class="msg-textarea" id="script-${escAttr(s.id)}" data-script="${escAttr(s.id)}" placeholder="${escAttr(s.placeholder)}">${esc(val)}</textarea>
+    <div class="msg-foot">
+      <span class="msg-count" id="scriptCount-${escAttr(s.id)}">${val.length} character${val.length===1?'':'s'}</span>
+      <button type="button" class="btn primary small" data-script-save="${escAttr(s.id)}">Save Beat</button>
+    </div>`;
+  if(isBespoke){
+    const live = fillTokens(val || s.placeholder);
+    html += `<div class="token-preview">
+      <span class="tp-label">Preview with {name} / {niche} filled in</span>
+      <span class="tp-live" id="scriptPreview-${escAttr(s.id)}">${esc(live)}</span>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+function renderScriptStep(){
+  let html = pageHeaderHtml('Step 2 of 4', 'Script Builder', '');
+
+  html += `<div class="callout generate-bar">
+    <div>
+      <b>Generate Script Draft.</b> AI reads what you pasted in Research Fit and drafts the Hook and Problem You See - built on the Attention, Individual, and Volume-Inverse laws. The 5 reusable beats below are pre-seeded once and untouched by generation. Edit anything after.
+    </div>
+    <button type="button" class="btn primary" id="generateScriptBtn">Generate Script Draft</button>
+  </div>`;
+
+  html += `<div class="legend-row">
+    <span class="legend-item"><span class="legend-dot bespoke"></span>Bespoke - rewrite / reshoot per whale</span>
+    <span class="legend-item"><span class="legend-dot same"></span>Same every time - batch-record once</span>
+  </div>`;
+
+  html += scriptFlowHtml();
+
+  html += `<div class="msg-sections">` + SCRIPT_SECTIONS.map(scriptCardHtml).join('') + `</div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.getElementById('generateScriptBtn').addEventListener('click', generateScriptDraft);
+
+  SCRIPT_SECTIONS.forEach(s=>{
+    const el = document.getElementById('script-'+s.id);
+    el.addEventListener('input', ()=>{
+      plan.script[s.id] = el.value;
+      if(plan.scriptMeta && plan.scriptMeta[s.id]){
+        plan.scriptMeta[s.id] = null;
+        const tag = document.getElementById('scriptSourceTag-'+s.id);
+        if(tag) tag.remove();
+      }
+      persistPlan();
+      document.getElementById('scriptCount-'+s.id).textContent = el.value.length + ' character' + (el.value.length===1?'':'s');
+      if(s.tag==='bespoke'){
+        const prev = document.getElementById('scriptPreview-'+s.id);
+        if(prev) prev.textContent = fillTokens(el.value || s.placeholder);
+      }
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+  });
+  document.querySelectorAll('[data-script-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.scriptSave;
+    plan.script[id] = document.getElementById('script-'+id).value;
+    persistPlan();
+    toast('Beat saved');
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 3: RECORD LOOM
+ ============================================================ */
+function renderRecordStep(){
+  let html = pageHeaderHtml('Step 3 of 4', 'Record Loom', '');
+
+  html += `<div class="card">
+    <h3>Production Checklist</h3>
+    ${PRODUCTION_CHECKLIST.map(item=>{
+      const checked = !!plan.production.checklist[item.key];
+      return `<div class="check-item ${checked?'done':''}">
+        <input type="checkbox" id="rec-${escAttr(item.key)}" data-check="${escAttr(item.key)}" ${checked?'checked':''}>
+        <label for="rec-${escAttr(item.key)}"><b>${esc(item.h)}</b><span>${esc(item.span)}</span></label>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  html += `<div class="group-title">Tools Used</div>`;
+  html += `<div class="tool-chips">` + TOOLS.map(t=>`<span class="tool-chip">${esc(t)}</span>`).join('') + `</div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.querySelectorAll('[data-check]').forEach(cb=> cb.addEventListener('change', ()=>{
+    plan.production.checklist[cb.dataset.check] = cb.checked;
+    persistPlan();
+    renderRecordStep();
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ STEP 4: MESSAGING
+ ============================================================ */
+function msgCardHtml(s){
+  const val = plan[s.id] || '';
+  const subjectKey = s.id + 'Subject';
+  const tplCount = getTemplateGroups(s.id).reduce((n,g)=> n+g.items.length, 0);
+  const wc = wordCount(val);
+  const over = s.id==='firstMessage' && wc>80;
+  const countText = s.id==='firstMessage'
+    ? `${wc} word${wc===1?'':'s'}${over?' - over 80':''}`
+    : `${val.length} character${val.length===1?'':'s'}`;
+
+  return `<div class="msg-card">
+    <div class="msg-card-top">
+      <div class="msg-num">${esc(s.num)}</div>
+      <div class="msg-heading">
+        <div class="msg-title-row">
+          <h3>${esc(s.label)}</h3>
+        </div>
+        <p class="msg-desc">${esc(s.desc)}</p>
+      </div>
+    </div>
+    <button type="button" class="tpl-trigger" data-tpl-open="${escAttr(s.id)}">
+      <span class="tpl-trigger-icon">&#9776;</span>
+      <span class="tpl-trigger-text">
+        <span class="tpl-trigger-title">Browse Template Bank</span>
+        <span class="tpl-trigger-sub">${tplCount} template${tplCount===1?'':'s'} available - pick one to start from</span>
+      </span>
+      <span class="tpl-trigger-arrow">&rarr;</span>
+    </button>
+    ${s.hasSubject ? `<input type="text" class="msg-subject" id="msgSubject-${escAttr(s.id)}" data-msg-subject="${escAttr(s.id)}" placeholder="${escAttr(s.subjectPlaceholder||'Subject line...')}" value="${escAttr(plan[subjectKey]||'')}">` : ''}
+    <textarea class="msg-textarea" id="msg-${escAttr(s.id)}" data-msg="${escAttr(s.id)}" placeholder="${escAttr(s.placeholder)}">${esc(val)}</textarea>
+    <div class="msg-foot">
+      <span class="msg-count ${over?'over':''}" id="msgCount-${escAttr(s.id)}">${countText}</span>
+      <button type="button" class="btn primary small" data-msg-save="${escAttr(s.id)}">Save Message</button>
+    </div>
+  </div>`;
+}
+function renderMessagingStep(){
+  let html = pageHeaderHtml('Step 4 of 4', 'Messaging', '');
+
+  html += `<div class="msg-sections">` + MESSAGE_SECTIONS.map(msgCardHtml).join('') + `</div>`;
+
+  html += stepNavHtml();
+  document.getElementById('content').innerHTML = html;
+  wireStepNav(document);
+
+  document.querySelectorAll('[data-tpl-open]').forEach(b=> b.addEventListener('click', ()=> openTemplateModal(b.dataset.tplOpen)));
+
+  MESSAGE_SECTIONS.forEach(s=>{
+    const el = document.getElementById('msg-'+s.id);
+    el.addEventListener('input', ()=>{
+      plan[s.id] = el.value;
+      persistPlan();
+      const wc2 = wordCount(el.value);
+      const over2 = s.id==='firstMessage' && wc2>80;
+      const cEl = document.getElementById('msgCount-'+s.id);
+      cEl.textContent = s.id==='firstMessage'
+        ? `${wc2} word${wc2===1?'':'s'}${over2?' - over 80':''}`
+        : `${el.value.length} character${el.value.length===1?'':'s'}`;
+      cEl.className = 'msg-count' + (over2 ? ' over' : '');
+      renderNav(); renderProgress(); renderPlanPanel();
+    });
+    if(s.hasSubject){
+      const subjEl = document.getElementById('msgSubject-'+s.id);
+      subjEl.addEventListener('input', ()=>{
+        plan[s.id+'Subject'] = subjEl.value;
+        persistPlan();
+      });
+    }
+  });
+  document.querySelectorAll('[data-msg-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.msgSave;
+    const section = MESSAGE_SECTIONS.find(s=> s.id===id);
+    if(section.hasSubject) plan[id+'Subject'] = document.getElementById('msgSubject-'+id).value;
+    plan[id] = document.getElementById('msg-'+id).value;
+    persistPlan();
+    toast('Message saved');
+    renderNav(); renderProgress(); renderPlanPanel();
+  }));
+}
+
+/* ============================================================
+ TEMPLATE BANK MODAL
+ ============================================================ */
+function fullscreenBtnHtml(){
+  return `<button type="button" class="modal-fullscreen-btn" id="modalFullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 3H5a2 2 0 0 0-2 2v4"></path>
+      <path d="M15 3h4a2 2 0 0 1 2 2v4"></path>
+      <path d="M9 21H5a2 2 0 0 1-2-2v-4"></path>
+      <path d="M15 21h4a2 2 0 0 0 2-2v-4"></path>
+    </svg>
+  </button>`;
+}
+function wireFullscreenBtn(){
+  const btn = document.getElementById('modalFullscreenBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    modalFullscreen = !modalFullscreen;
+    document.getElementById('modalBox').classList.toggle('fullscreen', modalFullscreen);
+    document.getElementById('modalOverlay').classList.toggle('fullscreen', modalFullscreen);
+  });
+}
+function closeTemplateModal(){
+  templateModalSection = null;
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  modalFullscreen = false;
+  document.getElementById('modalOverlay').classList.remove('open', 'fullscreen');
+  document.getElementById('modalBox').classList.remove('fullscreen');
+}
+function openTemplateModal(sectionId){
+  templateModalSection = sectionId;
+  templateModalCat = null;
+  templateModalSearch = '';
+  templateEditingId = null;
+  templateCatManageOpen = false;
+  templateCatEditing = null;
+  modalFullscreen = false;
+  renderTemplateModal();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function templateMatches(item, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  return (item.title||'').toLowerCase().includes(q) || (item.subject||'').toLowerCase().includes(q) || (item.text||'').toLowerCase().includes(q);
+}
+function findTemplateById(groups, id){
+  for(const g of groups){
+    const item = g.items.find(it=> it.id===id);
+    if(item) return item;
+  }
+  return null;
+}
+function templateEditFormHtml(section, it, catList){
+  const catOptions = catList.map(c=> `<option value="${escAttr(c)}" ${((it.cat||'General')===c)?'selected':''}>${esc(c)}</option>`).join('');
+  return `<div class="tpl-card tpl-card-editing">
+    <input type="text" class="tpl-edit-title" id="tplEditTitle" placeholder="Template name..." value="${escAttr(it.title||'')}">
+    <select class="tpl-edit-cat" id="tplEditCat">${catOptions}</select>
+    <input type="text" class="tpl-edit-subject" id="tplEditSubject" placeholder="Subject line..." value="${escAttr(it.subject||'')}">
+    <textarea class="tpl-edit-text" id="tplEditText" placeholder="Template body...">${esc(it.text||'')}</textarea>
+    <div class="tpl-edit-actions">
+      ${it.id!=='NEW' ? `<button type="button" class="tpl-edit-delete" data-tpl-delete="${escAttr(it.id)}" title="Delete this template">Delete</button>` : `<span></span>`}
+      <div class="tpl-edit-actions-right">
+        <button type="button" class="btn ghost small" data-tpl-edit-cancel="${escAttr(it.id)}">Cancel</button>
+        <button type="button" class="btn primary small" data-tpl-edit-save="${escAttr(it.id)}">Save Template</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderTemplateModal(){
+  const section = MESSAGE_SECTIONS.find(s=> s.id===templateModalSection);
+  if(!section) return;
+  const groups = getTemplateGroups(section.id);
+  const catList = getCategoryList(section.id);
+  const q = templateModalSearch.trim();
+  const activeCat = templateModalCat && groups.some(g=> g.cat===templateModalCat) ? templateModalCat : null;
+
+  const visibleGroups = groups
+    .filter(g=> !activeCat || g.cat===activeCat)
+    .map(g=> ({cat:g.cat, items: g.items.filter(it=> templateMatches(it, q))}))
+    .filter(g=> g.items.length);
+  const totalCount = groups.reduce((n,g)=> n+g.items.length, 0);
+
+  let html = `<div class="tpl-modal-head">
+    <div>
+      <div class="modal-eyebrow">Template Bank</div>
+      <h2>${esc(section.label)}</h2>
+      <p class="tpl-modal-sub">${esc(section.desc)}</p>
+    </div>
+    <div class="tpl-modal-head-actions">
+      ${fullscreenBtnHtml()}
+      <button class="btn primary small" id="tplNewBtn">+ New Template</button>
+      <button class="btn ghost small" id="modalCloseBtn">Close</button>
+    </div>
+  </div>`;
+
+  html += `<div class="tpl-modal-controls">
+    <input type="text" class="tpl-search" id="tplSearch" placeholder="Search templates..." value="${escAttr(templateModalSearch)}">
+    <div class="tpl-cat-chips">
+      <button class="chip small ${!activeCat?'active':''}" data-tpl-cat="">All <span class="tpl-chip-count">${totalCount}</span></button>
+      ${groups.map(g=> `<button class="chip small ${activeCat===g.cat?'active':''}" data-tpl-cat="${escAttr(g.cat)}">${esc(g.cat)} <span class="tpl-chip-count">${g.items.length}</span></button>`).join('')}
+      <button class="chip small tpl-cat-manage-toggle ${templateCatManageOpen?'active':''}" id="tplCatManageBtn">&#9881; Manage Categories</button>
+    </div>
+    ${templateCatManageOpen ? `<div class="tpl-cat-manage">
+      ${catList.map(c=>{
+        if(c===templateCatEditing){
+          return `<div class="tpl-cat-manage-row tpl-cat-manage-row-editing">
+            <input type="text" class="tpl-cat-rename-input" id="tplCatRenameInput" value="${escAttr(c)}">
+            <button type="button" class="btn ghost small" data-tpl-cat-rename-cancel="1">Cancel</button>
+            <button type="button" class="btn primary small" data-tpl-cat-rename-save="${escAttr(c)}">Save</button>
+          </div>`;
+        }
+        return `<div class="tpl-cat-manage-row">
+          <span class="tpl-cat-manage-name">${esc(c)}</span>
+          <button type="button" class="tpl-card-edit" data-tpl-cat-rename="${escAttr(c)}" title="Rename category">&#9998;</button>
+          ${c!=='General' ? `<button type="button" class="tpl-card-delete" data-tpl-cat-delete="${escAttr(c)}" title="Delete category">&times;</button>` : ''}
+        </div>`;
+      }).join('')}
+      <div class="tpl-cat-manage-add">
+        <input type="text" class="tpl-cat-new-input" id="tplCatNewInput" placeholder="New category name...">
+        <button type="button" class="btn primary small" id="tplCatAddBtn">+ Add Category</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+
+  html += `<div class="tpl-modal-body">`;
+  if(templateEditingId === 'NEW'){
+    html += `<div class="tpl-group">
+      <div class="tpl-group-label">New Template</div>
+      <div class="tpl-grid">${templateEditFormHtml(section, {id:'NEW', cat:catList[0]}, catList)}</div>
+    </div>`;
+  }
+  if(!totalCount){
+    html += `<div class="tpl-empty">
+      <div class="tpl-empty-icon">&#9998;</div>
+      <h3>No templates yet</h3>
+      <p>Add some to the <b>${esc(section.label)}</b> bank and they'll show up here, ready to pick and drop straight into your plan.</p>
+    </div>`;
+  } else if(!visibleGroups.length){
+    html += `<div class="tpl-empty">
+      <div class="tpl-empty-icon">&#128269;</div>
+      <h3>No matches</h3>
+      <p>Nothing found for "${esc(q)}" - try a different search term.</p>
+    </div>`;
+  } else {
+    visibleGroups.forEach(g=>{
+      html += `<div class="tpl-group">
+        <div class="tpl-group-label">${esc(g.cat)}</div>
+        <div class="tpl-grid">${g.items.map(it=>{
+          if(it.id === templateEditingId){
+            return templateEditFormHtml(section, it, catList);
+          }
+          return `<div class="tpl-card">
+            <div class="tpl-card-top-row">
+              ${it.title ? `<div class="tpl-card-title">${esc(it.title)}</div>` : `<div></div>`}
+              <div class="tpl-card-top-actions">
+                <button type="button" class="tpl-card-edit" data-tpl-edit="${escAttr(it.id)}" title="Edit this template">&#9998;</button>
+                <button type="button" class="tpl-card-add" data-tpl-use="${escAttr(it.id)}" title="Add to ${esc(section.label)}">+</button>
+              </div>
+            </div>
+            ${it.subject ? `<div class="tpl-card-subject">${esc(it.subject)}</div>` : ''}
+            <div class="tpl-card-text">${esc(it.text)}</div>
+            <button class="btn primary small full" data-tpl-use="${escAttr(it.id)}">Use this template</button>
+          </div>`;
+        }).join('')}
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  const box = document.getElementById('modalBox');
+  box.className = 'modal-box tpl-modal-box' + (modalFullscreen ? ' fullscreen' : '');
+  box.innerHTML = html;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeTemplateModal);
+  wireFullscreenBtn();
+  document.getElementById('tplNewBtn').addEventListener('click', ()=>{
+    templateEditingId = 'NEW';
+    renderTemplateModal();
+  });
+  document.getElementById('tplSearch').addEventListener('input', (e)=>{
+    templateModalSearch = e.target.value;
+    renderTemplateModal();
+    document.getElementById('tplSearch').focus();
+    const v = document.getElementById('tplSearch').value;
+    document.getElementById('tplSearch').setSelectionRange(v.length, v.length);
+  });
+  box.querySelectorAll('[data-tpl-cat]').forEach(b=> b.addEventListener('click', ()=>{
+    templateModalCat = b.dataset.tplCat || null;
+    renderTemplateModal();
+  }));
+  const catManageBtn = document.getElementById('tplCatManageBtn');
+  if(catManageBtn) catManageBtn.addEventListener('click', ()=>{
+    templateCatManageOpen = !templateCatManageOpen;
+    templateCatEditing = null;
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-cat-rename]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = b.dataset.tplCatRename;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-rename-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const oldName = b.dataset.tplCatRenameSave;
+    const newName = document.getElementById('tplCatRenameInput').value;
+    if(renameCategory(section.id, oldName, newName)){
+      if(templateModalCat === oldName) templateModalCat = newName.trim();
+      toast('Category renamed');
+    }
+    templateCatEditing = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-cat-delete]').forEach(b=> b.addEventListener('click', async ()=>{
+    const name = b.dataset.tplCatDelete;
+    const ok = await showConfirm({
+      title:'Delete this category?',
+      message:`Delete "${name}"? Any templates in it will move to General.`,
+      confirmLabel:'Delete Category',
+    });
+    if(!ok) return;
+    if(deleteCategory(section.id, name)){
+      if(templateModalCat === name) templateModalCat = null;
+      toast('Category deleted');
+    }
+    renderTemplateModal();
+  }));
+  const catAddBtn = document.getElementById('tplCatAddBtn');
+  if(catAddBtn) catAddBtn.addEventListener('click', ()=>{
+    const input = document.getElementById('tplCatNewInput');
+    if(addCategory(section.id, input.value)) toast('Category added');
+    renderTemplateModal();
+  });
+  box.querySelectorAll('[data-tpl-edit]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = b.dataset.tplEdit;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-cancel]').forEach(b=> b.addEventListener('click', ()=>{
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-delete]').forEach(b=> b.addEventListener('click', async ()=>{
+    const id = b.dataset.tplDelete;
+    const existing = findTemplateById(groups, id);
+    const ok = await showConfirm({
+      title:'Delete this template?',
+      message:`Delete "${existing ? existing.title : 'this template'}"? This can't be undone.`,
+      confirmLabel:'Delete',
+    });
+    if(!ok) return;
+    customTemplateAdds[section.id] = (customTemplateAdds[section.id]||[]).filter(it=> it.id!==id);
+    if(!customTemplateDeletes[section.id]) customTemplateDeletes[section.id] = [];
+    if(customTemplateDeletes[section.id].indexOf(id)===-1) customTemplateDeletes[section.id].push(id);
+    if(customTemplateEdits[section.id]) delete customTemplateEdits[section.id][id];
+    persistCustomTemplateAdds();
+    persistCustomTemplateEdits();
+    persistCustomTemplateDeletes();
+    templateEditingId = null;
+    toast('Template deleted');
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-edit-save]').forEach(b=> b.addEventListener('click', ()=>{
+    const id = b.dataset.tplEditSave;
+    const title = document.getElementById('tplEditTitle').value;
+    const subject = document.getElementById('tplEditSubject').value;
+    const text = document.getElementById('tplEditText').value;
+    const cat = document.getElementById('tplEditCat').value;
+    if(id === 'NEW'){
+      if(!title.trim() && !text.trim()){ toast('Add a name or body first'); return; }
+      if(!customTemplateAdds[section.id]) customTemplateAdds[section.id] = [];
+      const newId = section.id + '__custom__' + Date.now();
+      customTemplateAdds[section.id].push({id:newId, title, subject, text, cat});
+      persistCustomTemplateAdds();
+      toast('Template added');
+    } else {
+      if(!customTemplateEdits[section.id]) customTemplateEdits[section.id] = {};
+      customTemplateEdits[section.id][id] = {title, subject, text, cat};
+      persistCustomTemplateEdits();
+      toast('Template updated');
+    }
+    templateEditingId = null;
+    renderTemplateModal();
+  }));
+  box.querySelectorAll('[data-tpl-use]').forEach(b=> b.addEventListener('click', ()=>{
+    const item = findTemplateById(groups, b.dataset.tplUse);
+    if(!item) return;
+    plan[section.id] = item.text;
+    if(section.hasSubject && item.subject) plan[section.id + 'Subject'] = item.subject;
+    persistPlan();
+    closeTemplateModal();
+    toast('Template applied');
+    render();
+  }));
+}
+
+/* ============================================================
+ RAIL: PLAN PANEL
+ ============================================================ */
+function planSectionHtml(label, value, emptyText, jumpTo){
+  return `<div class="plan-section">
+    <div class="ps-label"><span>${esc(label)}</span><a data-jump="${escAttr(jumpTo)}">${value?'Change':'Set'} &rarr;</a></div>
+    <div class="ps-value">${value ? value : `<span class="ps-empty">${esc(emptyText||'Not set yet')}</span>`}</div>
+  </div>`;
+}
+function renderPlanPanel(){
+  let html = '';
+
+  let prospectVal = null;
+  if(plan.prospect.name.trim()){
+    prospectVal = esc(plan.prospect.name.trim());
+    if(plan.prospect.niche.trim()) prospectVal += `<div class="ps-sub">${esc(plan.prospect.niche.trim())}</div>`;
+  }
+  html += planSectionHtml('Whale', prospectVal, 'Not set yet', 'research');
+
+  const scriptFilled = SCRIPT_SECTIONS.filter(s=> (plan.script[s.id]||'').trim()).length;
+  html += planSectionHtml('Script', `${scriptFilled}/${SCRIPT_SECTIONS.length} beats written`, null, 'script');
+
+  const checkDone = Object.values(plan.production.checklist).filter(Boolean).length;
+  html += planSectionHtml('Production Checklist', `${checkDone}/${PRODUCTION_CHECKLIST.length} checked`, null, 'record');
+
+  let firstMsgVal = null;
+  if(plan.firstMessage.trim()) firstMsgVal = esc(plan.firstMessage.trim().slice(0,80)) + (plan.firstMessage.trim().length>80 ? '…' : '');
+  html += planSectionHtml('First Message', firstMsgVal, 'Not written yet', 'messaging');
+
+  let followupVal = null;
+  if(plan.followup.trim()) followupVal = esc(plan.followup.trim().slice(0,80)) + (plan.followup.trim().length>80 ? '…' : '');
+  html += planSectionHtml('Follow-Up', followupVal, 'Not written yet', 'messaging');
+
+  document.getElementById('ppBody').innerHTML = html;
+  document.querySelectorAll('[data-jump]').forEach(a=> a.addEventListener('click', ()=> setActiveStep(a.dataset.jump)));
+}
+
+/* ============================================================
+ COPY PLAN AS TEXT
+ ============================================================ */
+function planText(){
+  const lines = [];
+  lines.push('VSL LOOM PLAN');
+  lines.push('');
+  lines.push('WHALE');
+  lines.push('  Name: ' + (plan.prospect.name.trim() || '(not set)'));
+  lines.push('  Industry/Market: ' + (plan.prospect.niche.trim() || '(not set)'));
+  lines.push('  Company/Deal Size: ' + (plan.prospect.channel.trim() || '(not set)'));
+  lines.push('  Landing Page: ' + (plan.prospect.landingPage.trim() || '(not set)'));
+  lines.push('  Problem Observed: ' + (plan.prospect.problem.trim() || '(not set)'));
+  lines.push('  Research Content Pasted: ' + (plan.prospect.content.trim() ? `yes (${plan.prospect.content.trim().length} characters)` : 'no'));
+  lines.push('');
+  lines.push('SCRIPT (beats in order - [BESPOKE] rewrite per whale, [SAME] reuse as-is)');
+  SCRIPT_SECTIONS.forEach(s=>{
+    lines.push('');
+    const meta = plan.scriptMeta && plan.scriptMeta[s.id];
+    const sourceTag = meta ? ` [FROM RESEARCH: "${meta.insight}"]` : '';
+    lines.push(`  ${s.num}. ${s.label} [${s.tag==='bespoke'?'BESPOKE':'SAME EVERY TIME'}]${sourceTag}`);
+    const raw = (plan.script[s.id]||'').trim();
+    lines.push('     ' + (raw ? fillTokens(raw) : '(not written yet)'));
+  });
+  lines.push('');
+  lines.push('PRODUCTION CHECKLIST');
+  PRODUCTION_CHECKLIST.forEach(item=>{
+    const checked = !!plan.production.checklist[item.key];
+    lines.push(`  [${checked?'x':' '}] ${item.h}`);
+  });
+  lines.push('');
+  lines.push('MESSAGING');
+  lines.push('  First Message: ' + (plan.firstMessage.trim() || '(not written)'));
+  lines.push('  Follow-Up Subject: ' + (plan.followupSubject.trim() || '(none)'));
+  lines.push('  Follow-Up: ' + (plan.followup.trim() || '(not written)'));
+  return lines.join('\n');
+}
+
+/* ============================================================
+ RENDER ALL
+ ============================================================ */
+function renderStepContent(){
+  if(activeStep==='research')  return renderResearchStep();
+  if(activeStep==='script')    return renderScriptStep();
+  if(activeStep==='record')    return renderRecordStep();
+  if(activeStep==='messaging') return renderMessagingStep();
+}
+function renderMobileTopbar(){
+  const idx = STEPS.findIndex(s=> s.id===activeStep);
+  const step = STEPS[idx];
+  if(!step) return;
+  document.getElementById('mobileStepEyebrow').textContent = `Step ${idx+1} of ${STEPS.length}`;
+  document.getElementById('mobileStepName').textContent = step.label;
+}
+function render(){
+  renderNav();
+  renderProgress();
+  renderStepContent();
+  renderPlanPanel();
+  renderMobileTopbar();
+}
+
+render();
+
+document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
+document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeTemplateModal(); });
+document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
+document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
+  if(e.key==='Escape' && document.getElementById('modalOverlay').classList.contains('open')) closeTemplateModal();
+});
+document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
+document.getElementById('clearPlanBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirm({
+    title:'Clear the whole Loom Plan?',
+    message:'This cannot be undone.',
+    confirmLabel:'Clear Plan',
+  });
+  if(ok){
+    plan = defaultPlan();
+    persistPlan();
+    render();
+  }
+});
+</script>
