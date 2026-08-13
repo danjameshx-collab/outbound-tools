@@ -76,15 +76,34 @@ svg{display:block;}
   grid-template-areas: "rail main";
   flex:1 1 auto; min-height:0;
   overflow:hidden;
+  transition: grid-template-columns .28s var(--ease, ease);
 }
+#app.rail-collapsed{ grid-template-columns: 0px 1fr; }
+#app.rail-collapsed nav#rail{ opacity:0; pointer-events:none; }
 @media (max-width: 980px){
   #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  #app.rail-collapsed{ grid-template-columns: 1fr; }
   nav#rail{
     position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
     transform:translateX(-100%); transition:transform .2s ease;
   }
   nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+  #app.rail-collapsed nav#rail{ opacity:1; pointer-events:auto; }
 }
+
+/* ---------- sidebar toggle (burger) ---------- */
+.rail-toggle-btn{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:34px; height:34px; border-radius:8px; border:1px solid var(--line-strong);
+  background:var(--paper); cursor:pointer; padding:0; margin-right:12px;
+  transition:border-color .15s ease, background-color .15s ease;
+}
+.rail-toggle-btn:hover{border-color:var(--bespoke); background:#F7F8F7;}
+.rail-toggle-btn svg{width:18px; height:18px; color:var(--ink); display:block;}
+.rail-toggle-btn .burger-line{transition:transform .25s var(--ease, ease), opacity .2s ease; transform-origin:center;}
+.rail-toggle-btn.is-collapsed .burger-line1{transform:translateY(6px) rotate(45deg);}
+.rail-toggle-btn.is-collapsed .burger-line2{opacity:0;}
+.rail-toggle-btn.is-collapsed .burger-line3{transform:translateY(-6px) rotate(-45deg);}
 
 /* ---------- sidebar ---------- */
 nav#rail{
@@ -226,6 +245,41 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .callout.bespoke{border-color:var(--bespoke); border-left-color:var(--bespoke); background:var(--bespoke-bg);}
 .callout.generate-bar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
 .callout.generate-bar .btn{flex:0 0 auto; white-space:nowrap;}
+
+/* ---------- generate bar (hero action strip) ---------- */
+.generate-bar{
+  position:relative; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  border:1px solid var(--bespoke); border-radius:16px; padding:20px 24px; margin-bottom:22px;
+  background:linear-gradient(135deg, var(--bespoke-bg) 0%, var(--mimeo-ink) 100%);
+  box-shadow:0 1px 0 rgba(20,24,27,.03), 0 16px 32px -20px rgba(30,107,69,.45);
+  overflow:hidden;
+}
+.generate-bar::before{
+  content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background:radial-gradient(420px 140px at 6% -20%, rgba(255,255,255,.55), transparent 60%);
+}
+.generate-bar-icon{
+  position:relative; flex:0 0 auto; width:46px; height:46px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(155deg, var(--bespoke), var(--bespoke-dark)); color:#fff;
+  box-shadow:0 6px 16px -6px rgba(30,107,69,.6);
+}
+.generate-bar-icon svg{width:24px; height:24px;}
+.generate-bar-copy{position:relative; flex:1 1 320px; min-width:220px;}
+.generate-bar-title{
+  font-family:var(--font-display); font-weight:800; font-size:16.5px; color:var(--bespoke-dark);
+  letter-spacing:-.01em; margin-bottom:3px;
+}
+.generate-bar-desc{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55; max-width:56ch;}
+.generate-bar-btn{
+  position:relative; flex:0 0 auto; white-space:nowrap; display:inline-flex; align-items:center; gap:8px;
+  font-size:13.5px; padding:13px 22px;
+}
+.generate-bar-btn svg{width:15px; height:15px; flex:0 0 auto;}
+@media (max-width:640px){
+  .generate-bar{padding:18px;}
+  .generate-bar-btn{width:100%; justify-content:center;}
+}
 
 /* ---------- field grid / groups ---------- */
 .field-grid{display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:22px;}
@@ -377,13 +431,14 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   display:block; font-family:var(--font-display); font-weight:700; font-size:10.5px;
   text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:5px;
 }
-.add-finding-form input[type=text], .add-finding-form textarea, .add-finding-form select{
+.add-finding-form input[type=text], .add-finding-form textarea{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:6px;
   background:var(--paper-raised); color:var(--ink); font-family:var(--font-body);
   font-size:13px; padding:8px 10px;
 }
 .add-finding-form textarea{min-height:80px; resize:vertical;}
-.add-finding-form input[type=text]:focus, .add-finding-form textarea:focus, .add-finding-form select:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.add-finding-form input[type=text]:focus, .add-finding-form textarea:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.add-finding-form .lc-select-trigger{border-radius:6px; padding:8px 10px; background:var(--paper-raised);}
 .rowbtns{display:flex; gap:8px; margin-top:14px;}
 .btn.danger{color:var(--warn); border-color:var(--warn);}
 .btn.danger:hover{background:var(--warn); color:#fff; transform:translateY(-1px);}
@@ -614,6 +669,7 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   font-size:10px; color:#fff; background:linear-gradient(120deg, var(--bespoke), var(--bespoke-dark)); border-radius:999px; padding:3px 9px; white-space:nowrap;
 }
 .msg-desc{margin:5px 0 0; font-size:12.5px; color:var(--ink-soft); line-height:1.55; max-width:76ch;}
+.msg-desc.script-card-desc{max-width:none; font-size:16px;}
 .msg-textarea{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
   background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:13.5px;
@@ -712,6 +768,111 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
   .modal-box{max-width:none; max-height:none; height:100%; border-radius:0;}
 }
 
+/* ---------- shot type preview modal ---------- */
+.shot-preview-overlay{
+  display:none; position:fixed; inset:0; background:rgba(15,18,20,.6); backdrop-filter:blur(2px); z-index:600;
+  align-items:center; justify-content:center; padding:32px;
+}
+.shot-preview-overlay.open{display:flex; animation:modalOverlayIn .18s var(--ease);}
+.shot-preview-overlay.open .shot-preview-box{animation:modalBoxIn .24s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .shot-preview-overlay.open, .shot-preview-overlay.open .shot-preview-box{animation:none;}
+}
+.shot-preview-box{
+  position:relative; width:100%; max-width:560px; max-height:88vh;
+  background:var(--paper-raised); border-radius:16px; overflow:hidden;
+  display:flex; flex-direction:column;
+  box-shadow:0 30px 70px -22px rgba(0,0,0,.5);
+}
+.shot-preview-close{
+  position:absolute; top:12px; right:12px; z-index:2; width:30px; height:30px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.5); background:rgba(20,24,27,.45); backdrop-filter:blur(4px);
+  color:#fff; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, transform .12s ease;
+}
+.shot-preview-close:hover{background:rgba(20,24,27,.8); transform:scale(1.06);}
+.shot-preview-close svg{width:14px; height:14px;}
+.shot-preview-media{
+  position:relative; width:100%; aspect-ratio:16/9; background:var(--ink); flex:0 0 auto; overflow:hidden;
+}
+.shot-preview-media img{width:100%; height:100%; object-fit:cover; display:block;}
+.shot-preview-info{padding:20px 24px 24px; flex:1 1 auto; min-height:0; overflow-y:auto;}
+.shot-preview-eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--bespoke);
+}
+.shot-preview-title{
+  font-family:var(--font-display); font-weight:800; font-size:22px; margin:4px 0 10px; color:var(--ink);
+}
+.shot-preview-desc{margin:0; font-size:14px; line-height:1.6; color:var(--ink-soft);}
+@media (max-width:560px){
+  .shot-preview-overlay{padding:0;}
+  .shot-preview-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+}
+
+/* ---------- all shot types modal ---------- */
+.all-shots-overlay{
+  display:none; position:fixed; inset:0; background:rgba(15,18,20,.6); backdrop-filter:blur(2px); z-index:500;
+  align-items:center; justify-content:center; padding:32px;
+}
+.all-shots-overlay.open{display:flex; animation:modalOverlayIn .18s var(--ease);}
+.all-shots-overlay.open .all-shots-box{animation:modalBoxIn .22s var(--ease);}
+@media (prefers-reduced-motion: reduce){
+  .all-shots-overlay.open, .all-shots-overlay.open .all-shots-box{animation:none;}
+}
+.all-shots-box{
+  width:100%; max-width:1180px; max-height:88vh;
+  background:var(--paper-raised); border-radius:16px; overflow:hidden;
+  display:flex; flex-direction:column;
+  box-shadow:0 30px 70px -22px rgba(0,0,0,.5);
+  transition:max-width .18s var(--ease), max-height .18s var(--ease), border-radius .18s var(--ease);
+}
+.all-shots-box.fullscreen{
+  width:100vw; height:100vh; max-width:100vw; max-height:100vh; border-radius:0;
+}
+.all-shots-overlay.fullscreen{padding:0;}
+.all-shots-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:20px 24px 14px; border-bottom:1px solid var(--line); flex:0 0 auto;
+}
+.all-shots-head-right{display:flex; align-items:center; gap:10px; flex:0 0 auto;}
+.all-shots-eyebrow{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  font-size:10.5px; color:var(--bespoke);
+}
+.all-shots-head h2{font-family:var(--font-display); font-weight:800; font-size:20px; margin:2px 0 0; color:var(--ink);}
+.all-shots-close{
+  flex:0 0 auto; width:30px; height:30px; border-radius:50%; border:1px solid var(--line-strong);
+  background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.all-shots-close:hover{background:var(--ink); color:#fff; border-color:var(--ink);}
+.all-shots-close svg{width:14px; height:14px;}
+.all-shots-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; padding:6px 24px 24px;}
+.all-shots-group-label{
+  margin:18px 0 10px; padding-top:8px; border-top:1px solid var(--line);
+  font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+  letter-spacing:.08em; font-size:11px; color:var(--bespoke);
+}
+.all-shots-scroll > .all-shots-group-label:first-child{margin-top:0; padding-top:0; border-top:none;}
+.all-shots-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:18px;}
+.all-shots-card{
+  display:flex; flex-direction:column; text-align:left; border:1px solid var(--line); border-radius:11px;
+  background:var(--paper); overflow:hidden; cursor:pointer; padding:0;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.all-shots-card:hover{border-color:var(--mimeo); box-shadow:var(--shadow); transform:translateY(-2px);}
+.all-shots-card-media{width:100%; aspect-ratio:4/3; background:var(--ink); overflow:hidden;}
+.all-shots-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
+.all-shots-card-body{padding:10px 12px 12px;}
+.all-shots-card-title{font-family:var(--font-display); font-weight:800; font-size:13px; color:var(--ink); margin:0 0 4px;}
+.all-shots-card-desc{margin:0; font-size:11.5px; line-height:1.5; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+@media (max-width:720px){
+  .all-shots-overlay{padding:0;}
+  .all-shots-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+}
+
 /* ---------- messaging: template bank trigger + modal ---------- */
 .tpl-trigger{
   width:100%; display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer;
@@ -792,13 +953,16 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .tpl-card-subject{font-family:var(--font-display); font-weight:700; font-size:12px; color:var(--bespoke);}
 
 .tpl-card-editing{gap:9px;}
-.tpl-edit-title, .tpl-edit-subject, .tpl-edit-cat{
+.tpl-edit-title, .tpl-edit-subject{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
   background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px; padding:8px 10px;
 }
 .tpl-edit-title{font-family:var(--font-display); font-weight:700;}
-.tpl-edit-cat{font-family:var(--font-display); font-weight:700; color:var(--bespoke); cursor:pointer;}
-.tpl-edit-title:focus, .tpl-edit-subject:focus, .tpl-edit-text:focus, .tpl-edit-cat:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-edit-title:focus, .tpl-edit-subject:focus, .tpl-edit-text:focus{outline:2px solid var(--mimeo); outline-offset:1px;}
+.tpl-edit-cat .lc-select-trigger{
+  border-radius:7px; padding:8px 10px; background:var(--paper);
+  font-family:var(--font-display); font-weight:700; color:var(--bespoke);
+}
 .tpl-edit-text{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px;
   background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:12.5px;
@@ -844,9 +1008,9 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 
 /* ---------- shot list table ---------- */
 .shot-table-wrap{overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow); background:var(--paper-raised);}
-table.shot-table{width:100%; min-width:1080px; border-collapse:collapse; font-size:12.5px;}
+table.shot-table{width:100%; min-width:1220px; border-collapse:collapse; font-size:15px; table-layout:fixed;}
 table.shot-table th{
-  text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:10px; color:var(--bespoke);
+  text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:12px; color:var(--bespoke);
   background:var(--bespoke-bg); padding:12px 12px; border-bottom:1.5px solid var(--line-strong); white-space:nowrap;
 }
 table.shot-table th:first-child{border-top-left-radius:13px;}
@@ -856,36 +1020,110 @@ table.shot-table tr:last-child td{border-bottom:none;}
 table.shot-table tbody tr{transition:background-color .12s ease;}
 table.shot-table tbody tr:nth-child(even){background:rgba(30,107,69,.02);}
 table.shot-table tbody tr:hover{background:var(--mimeo-ink);}
-table.shot-table input[type=text], table.shot-table select, table.shot-table textarea{
+table.shot-table input[type=text], table.shot-table textarea{
   width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:7px; background:var(--paper);
-  font-family:var(--font-body); font-size:12.5px; padding:7px 9px; color:var(--ink); resize:vertical; line-height:1.4;
+  font-family:var(--font-body); font-size:15px; padding:7px 9px; color:var(--ink); resize:vertical; line-height:1.4;
   transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
-table.shot-table textarea{min-height:42px;}
-table.shot-table input[type=text]:hover, table.shot-table select:hover, table.shot-table textarea:hover{border-color:var(--line-strong);}
-table.shot-table input[type=text]:focus, table.shot-table select:focus, table.shot-table textarea:focus{
+table.shot-table textarea{min-height:42px; resize:none; overflow:hidden;}
+table.shot-table input[type=text]:hover, table.shot-table textarea:hover{border-color:var(--line-strong);}
+table.shot-table input[type=text]:focus, table.shot-table textarea:focus{
   outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);
 }
 table.shot-table .col-num{width:36px; text-align:center; padding-top:12px;}
-table.shot-table .col-scene{width:130px;}
-table.shot-table .col-shottype{width:220px;}
-table.shot-table .col-content{width:120px;}
-table.shot-table .col-location{width:140px;}
+table.shot-table .col-scene{width:200px;}
 table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
 .shot-num-badge{
   display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%;
   background:var(--bespoke-bg); color:var(--bespoke); font-family:var(--font-body); font-weight:700; font-size:11px;
 }
-.shot-type-select{
-  appearance:none; -webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23757E78' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 9px center; padding-right:24px !important;
-  cursor:pointer;
-}
-.shot-type-select option:disabled{color:var(--ink-faint);}
 .shot-del-btn{width:24px; height:24px; border-radius:50%; border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-faint); cursor:pointer; font-size:14px; line-height:1; padding:0; transition:background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;}
 .shot-del-btn:hover{background:var(--warn); border-color:var(--warn); color:#fff; transform:scale(1.08);}
 .shot-table-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
+.shot-table-actions-left{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+
+/* ---------- custom select (styled dropdown) ---------- */
+.lc-select{position:relative; width:100%;}
+.lc-select-trigger{
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:6px;
+  box-sizing:border-box; border:1px solid var(--line); border-radius:7px; background:var(--paper);
+  font-family:var(--font-body); font-size:15px; padding:7px 9px; color:var(--ink); line-height:1.4;
+  cursor:pointer; text-align:left; transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.lc-select-trigger .lc-select-value{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1 1 auto;}
+.lc-select-trigger.is-placeholder .lc-select-value{color:var(--ink-faint);}
+.lc-select-trigger .lc-select-chevron{flex:0 0 auto; width:10px; height:6px; color:var(--ink-faint); transition:transform .15s var(--ease);}
+.lc-select-trigger:hover{border-color:var(--line-strong);}
+.lc-select-trigger:focus-visible{outline:none; border-color:var(--mimeo); box-shadow:0 0 0 3px rgba(47,143,91,.15);}
+.lc-select-trigger.open{border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);}
+.lc-select-trigger.open .lc-select-chevron{transform:rotate(180deg); color:var(--bespoke);}
+.lc-select-trigger.has-preview{padding-right:32px;}
+.lc-select-preview-btn{
+  position:absolute; top:50%; right:5px; transform:translateY(-50%); z-index:1;
+  width:22px; height:22px; border-radius:5px; border:none; background:transparent;
+  color:var(--ink-faint); cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;
+  transition:background-color .12s ease, color .12s ease, transform .12s ease;
+}
+.lc-select-preview-btn svg{width:13px; height:13px;}
+.lc-select-preview-btn:hover{background:var(--bespoke); color:#fff; transform:translateY(-50%) scale(1.08);}
+
+.lc-select-panel{
+  position:fixed; z-index:400; min-width:200px; max-width:320px;
+  background:var(--paper-raised); border:1px solid var(--line-strong); border-radius:11px;
+  box-shadow:var(--shadow-lg); overflow:hidden; display:flex; flex-direction:column;
+  animation:lcPanelIn .13s var(--ease);
+}
+@keyframes lcPanelIn{ from{opacity:0; transform:scale(.97) translateY(-4px);} to{opacity:1; transform:scale(1) translateY(0);} }
+.lc-select-search-wrap{padding:8px 8px 6px; border-bottom:1px solid var(--line); flex:0 0 auto;}
+.lc-select-search{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:6px; background:var(--paper);
+  font-family:var(--font-body); font-size:14px; padding:6px 8px; color:var(--ink);
+}
+.lc-select-search:focus{outline:none; border-color:var(--mimeo); box-shadow:0 0 0 3px rgba(47,143,91,.15);}
+.lc-opt-list{list-style:none; margin:0; padding:0 0 6px; max-height:288px; overflow-y:auto; flex:1 1 auto;}
+.lc-opt-group-label{
+  position:sticky; top:0; z-index:1; margin-top:10px;
+  padding:8px 14px 6px; background:var(--paper-raised);
+  font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+  letter-spacing:.08em; font-size:10px; color:var(--bespoke);
+  box-shadow:0 1px 0 0 var(--line);
+}
+.lc-opt-list > .lc-opt-group-label:first-child{margin-top:6px;}
+.lc-opt{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  margin:1px 6px; padding:7px 8px; border-radius:6px; font-size:15px; color:var(--ink); cursor:pointer;
+  transition:background-color .1s ease;
+}
+.lc-opt-group-label + .lc-opt{margin-top:3px;}
+.lc-opt.is-active, .lc-opt:hover{background:var(--mimeo-ink);}
+.lc-opt.is-selected{color:var(--bespoke); font-weight:600;}
+.lc-opt svg{flex:0 0 auto; width:13px; height:13px; color:var(--bespoke);}
+.lc-opt.is-hidden, .lc-opt-group-label.is-hidden{display:none;}
+.lc-opt-empty{padding:10px 8px; color:var(--ink-faint); font-size:12.5px; font-style:italic;}
+.lc-opt-deletable{padding-right:4px;}
+.lc-opt-right{display:flex; align-items:center; gap:4px; flex:0 0 auto;}
+.lc-opt-delete{
+  flex:0 0 auto; width:22px; height:22px; border-radius:5px; border:none; background:transparent;
+  color:var(--ink-faint); cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .1s ease, background-color .12s ease, color .12s ease;
+}
+.lc-opt-deletable:hover .lc-opt-delete, .lc-opt-deletable.is-active .lc-opt-delete{opacity:1;}
+.lc-opt-delete:hover{background:var(--warn); color:#fff;}
+.lc-opt-delete svg{width:13px; height:13px; color:inherit;}
+.lc-opt-preview-btn{
+  flex:0 0 auto; width:22px; height:22px; border-radius:5px; border:none; background:transparent;
+  color:var(--ink-faint); cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;
+  opacity:.5; transition:opacity .12s ease, background-color .12s ease, color .12s ease, transform .12s ease;
+}
+.lc-opt:hover .lc-opt-preview-btn, .lc-opt.is-active .lc-opt-preview-btn{opacity:1;}
+.lc-opt-preview-btn:hover{background:var(--bespoke); color:#fff; transform:scale(1.08);}
+.lc-opt-preview-btn svg{width:14px; height:14px; color:inherit;}
+.lc-select-add-btn{
+  flex:0 0 auto; width:100%; border:none; border-top:1px solid var(--line); background:var(--bespoke-bg);
+  color:var(--bespoke); font-family:var(--font-body); font-weight:700; font-size:12.5px; text-align:left;
+  padding:10px 12px; cursor:pointer; transition:background-color .12s ease;
+}
+.lc-select-add-btn:hover{background:#DCF0E5;}
 
 .glossary{border:1px solid var(--line); border-radius:10px; background:var(--paper-raised); margin-bottom:24px; overflow:hidden;}
 .glossary summary{cursor:pointer; padding:12px 16px; font-family:var(--font-display); font-weight:700; font-size:12.5px; color:var(--ink); list-style:none; display:flex; align-items:center; gap:8px;}
@@ -1016,6 +1254,39 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
 .btn.primary.danger{background:var(--warn); border-color:var(--warn);}
 .btn.primary.danger:hover{background:var(--warn); filter:brightness(1.08); transform:translateY(-1px);}
 
+/* ---------- prompt dialog (styled text-input modal, replaces window.prompt) ---------- */
+.prompt-box{max-width:400px;}
+.prompt-icon{background:var(--bespoke-bg); color:var(--bespoke);}
+.prompt-icon svg{width:16px; height:16px;}
+.prompt-field-label{
+  display:block; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.05em; font-size:10.5px; color:var(--ink-faint); margin:0 0 7px;
+}
+.prompt-input{
+  width:100%; box-sizing:border-box; border:1.5px solid var(--line-strong); border-radius:9px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:14px;
+  padding:10px 12px; transition:border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.prompt-input:focus{outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);}
+.prompt-input.has-error{border-color:var(--warn); box-shadow:0 0 0 3px rgba(180,105,26,.13);}
+.prompt-error{
+  min-height:16px; font-size:12px; color:var(--warn); margin:6px 2px 0; line-height:1.4;
+  display:flex; align-items:center; gap:5px; opacity:0; transform:translateY(-2px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+.prompt-error.show{opacity:1; transform:translateY(0);}
+.prompt-existing{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--line);}
+.prompt-existing-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--ink-faint); margin:0 0 8px;
+}
+.prompt-existing-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.prompt-chip{
+  font-size:11.5px; color:var(--ink-soft); background:var(--paper); border:1px solid var(--line);
+  border-radius:999px; padding:4px 10px; line-height:1.3;
+}
+.prompt-actions{margin-top:20px;}
+
 .btn{
   font-family:var(--font-body); font-weight:700; letter-spacing:.01em;
   font-size:12.5px; padding:9px 16px; border-radius:999px; cursor:pointer; border:1px solid var(--line);
@@ -1066,6 +1337,13 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
 
 <div class="site-topbar-accent"></div>
 <div class="site-topbar">
+  <button class="rail-toggle-btn" id="railToggleBtn" title="Toggle sidebar" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line class="burger-line burger-line1" x1="3" y1="6" x2="21" y2="6"></line>
+      <line class="burger-line burger-line2" x1="3" y1="12" x2="21" y2="12"></line>
+      <line class="burger-line burger-line3" x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
   <a class="back-link" href="index.html">&larr; Outreach Tools</a>
   <h1>Super Loom</h1>
   <div class="who">
@@ -1126,6 +1404,65 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
       <button type="button" class="btn" id="confirmCancelBtn">Cancel</button>
       <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
     </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="promptOverlay" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+  <form class="confirm-box prompt-box" id="promptForm" novalidate>
+    <div class="confirm-icon prompt-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    </div>
+    <h3 class="confirm-title" id="promptTitle">Add New Location</h3>
+    <p class="confirm-message" id="promptMessage">Where does this shot take place?</p>
+    <label class="prompt-field-label" for="promptInput" id="promptFieldLabel">Location Name</label>
+    <input type="text" class="prompt-input" id="promptInput" placeholder="e.g. Kitchen, Backyard, Studio A" autocomplete="off" maxlength="60">
+    <div class="prompt-error" id="promptError"><span></span></div>
+    <div class="prompt-existing" id="promptExisting" hidden>
+      <div class="prompt-existing-label">Already Saved</div>
+      <div class="prompt-existing-chips" id="promptExistingChips"></div>
+    </div>
+    <div class="confirm-actions prompt-actions">
+      <button type="button" class="btn" id="promptCancelBtn">Cancel</button>
+      <button type="submit" class="btn bespoke" id="promptOkBtn">Add Location</button>
+    </div>
+  </form>
+</div>
+
+<div class="shot-preview-overlay" id="shotPreviewOverlay" role="dialog" aria-modal="true" aria-labelledby="shotPreviewTitle">
+  <div class="shot-preview-box">
+    <button type="button" class="shot-preview-close" id="shotPreviewCloseBtn" title="Close" aria-label="Close">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <div class="shot-preview-media">
+      <img id="shotPreviewImg" src="" alt="">
+    </div>
+    <div class="shot-preview-info">
+      <div class="shot-preview-eyebrow" id="shotPreviewEyebrow">Shot Type</div>
+      <h3 class="shot-preview-title" id="shotPreviewTitle"></h3>
+      <p class="shot-preview-desc" id="shotPreviewDesc"></p>
+    </div>
+  </div>
+</div>
+
+<div class="all-shots-overlay" id="allShotsOverlay" role="dialog" aria-modal="true" aria-labelledby="allShotsTitle">
+  <div class="all-shots-box" id="allShotsBox">
+    <div class="all-shots-head">
+      <div><div class="all-shots-eyebrow">Reference Library</div><h2 id="allShotsTitle">All Shot Types</h2></div>
+      <div class="all-shots-head-right">
+        <button type="button" class="modal-fullscreen-btn" id="allShotsFullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 3H5a2 2 0 0 0-2 2v4"></path>
+            <path d="M15 3h4a2 2 0 0 1 2 2v4"></path>
+            <path d="M9 21H5a2 2 0 0 1-2-2v-4"></path>
+            <path d="M15 21h4a2 2 0 0 0 2-2v-4"></path>
+          </svg>
+        </button>
+        <button type="button" class="all-shots-close" id="allShotsCloseBtn" title="Close" aria-label="Close">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="all-shots-scroll" id="allShotsScroll"></div>
   </div>
 </div>
 
@@ -1234,14 +1571,196 @@ const SCRIPT_SECTIONS = [
 const ARC_POSITIONS = {hook:100, intro:30, funScene:40, whoIAm:20, problem:50, value:60, proof:60, ending:65, cta:70, endingHook:90};
 const ARC_TAGS = {hook:'Peak 1', whoIAm:'The Valley', endingHook:'Peak 2 · Peak-End'};
 
+const SCENE_GROUPS = [
+  {group:'Section 1', items:['The Incredible Hook','The Introduction','Fun Second Scene & The Wager']},
+  {group:'Section 2', items:['Who I Am','The Problem','How You\'ll Solve It','Social Proof']},
+  {group:'Section 3', items:['The Ending & Dream State','The Bold CTA','Ending Hook']},
+];
+
 const SHOT_CONTENT_TYPES = ['A-Roll','Animation','Net Footage'];
 const SHOT_TYPE_GROUPS = [
-  {group:'Unique', items:['Hero Unique','High Negative Space Unique','Low Shutter Unique','Mirror Unique','Object POV Unique','POV Unique','Reverse POV Unique','Shadows Unique','Slow Motion Unique']},
-  {group:'Angled', items:['Ground Angled','High Angled','Low Angled','Straight Up Angled','To The Side Angled','Top Down Angled']},
-  {group:'Close', items:['Close Up','Extreme Close Up','Focus On The Foreground']},
-  {group:'Medium', items:['Behind Medium','Environment Medium','Foreground Medium','Head On Medium','Reveal Medium','Section Medium']},
-  {group:'Wide', items:['AWTA Wide','Behind Wide','Classic Wide','Extreme Wide','Foreground Wide','Head On Wide','Low Wide']},
+  {group:'Angle', items:['Ground','High','Low','Straight Up','To The Side','Top Down']},
+  {group:'Composition', items:['Environment','High Negative Space','Section']},
+  {group:'Effect', items:['Low Shutter','Slow Motion']},
+  {group:'Perspective', items:['Human (POV)','Object (POV)','Reverse (POV)']},
+  {group:'Unique', items:['Mirror','Reveal','Shadows']},
+  {group:'Close Up', items:['Close Up (Classic)','Close Up (Extreme)','Close Up (Foreground)']},
+  {group:'Medium', items:['Behind (Medium)','Environment (Medium)','Foreground (Medium)','Head On (Medium)','Hero (Medium)','Medium (Classic)','Reveal (Medium)','Section (Medium)']},
+  {group:'Wide', items:['AWTA (Wide)','Behind (Wide)','Extreme (Wide)','Foreground (Wide)','Head On (Wide)','Low (Wide)','Wide (Classic)']},
+  {group:'Sequences', items:['9 Shot Rule (Classic)','9 Shot Rule (Mixed)','9-Shot Rule (Reverse)','Top-Down','Speed Ramping','Slow Motion Sequence','Cross Cutting','Close Up Sequence','Drone Sequence']},
 ];
+
+/* Reference stills for shot types - shown via the eye-icon preview in the Shot Type picker.
+   Add an entry here (keyed to the exact item string in SHOT_TYPE_GROUPS) to surface a preview. */
+const SHOT_IMG_DIR = 'images for super-loom/';
+const SEQ_IMG_DIR = 'sequences/';
+const SHOT_TYPE_PREVIEWS = {
+  /* ---- Angle ---- */
+  'Ground': {
+    group: 'Angle', title: 'Ground', image: SHOT_IMG_DIR + 'ground.png',
+    desc: 'Camera sits right at ground level, looking up or across. Puts the viewer in the dirt with the subject - raw, immersive, unexpected.'
+  },
+  'High': {
+    group: 'Angle', title: 'High Angle', image: SHOT_IMG_DIR + 'high.png',
+    desc: "Camera sits above the subject, angled down. Shrinks the subject slightly and opens up the space around them - good for context or a beat of vulnerability."
+  },
+  'Low': {
+    group: 'Angle', title: 'Low Angle', image: SHOT_IMG_DIR + 'low-image.png',
+    desc: 'The camera sits below eye level, tilted up at the subject. It makes them look bigger, stronger and more in control - a classic power framing for a hero beat or a moment of authority.'
+  },
+  'Straight Up': {
+    group: 'Angle', title: 'Straight Up', image: SHOT_IMG_DIR + 'straight-up.png',
+    desc: 'Camera points straight up at the sky or something towering overhead. Builds scale and awe - use it to make something feel massive.'
+  },
+  'To The Side': {
+    group: 'Angle', title: 'To The Side', image: SHOT_IMG_DIR + 'to-the-side.png',
+    desc: "Camera holds level with the subject from the side, profile-on. Feels observational - like you're walking alongside them, not talking to them."
+  },
+  'Top Down': {
+    group: 'Angle', title: 'Top Down', image: SHOT_IMG_DIR + 'top-down.png',
+    desc: 'Camera looks straight down from directly overhead. Flattens the scene into a graphic, map-like frame - great for reveals and process shots.'
+  },
+  /* ---- Composition ---- */
+  'Environment': {
+    group: 'Composition', title: 'Environment', image: SHOT_IMG_DIR + 'environment.png',
+    desc: 'The frame gives as much weight to the location as to the subject. Establishes place and mood before (or instead of) focusing in.'
+  },
+  'High Negative Space': {
+    group: 'Composition', title: 'High Negative Space', image: SHOT_IMG_DIR + 'high-negative-space.png',
+    desc: 'The subject sits small inside a large, mostly empty frame. The empty space does the storytelling - isolation, scale, or room to think.'
+  },
+  /* ---- Effect ---- */
+  'Low Shutter': {
+    group: 'Effect', title: 'Low Shutter', image: SHOT_IMG_DIR + 'low-shutter.png',
+    desc: 'A slower shutter speed blurs motion inside the frame. Gives movement a dreamy, chaotic or hyper-kinetic feel depending on how far you push it.'
+  },
+  'Slow Motion': {
+    group: 'Effect', title: 'Slow Motion', image: SHOT_IMG_DIR + 'slow-motion.png',
+    desc: 'Footage captured at a high frame rate and played back slow. Stretches a small moment into something that feels significant.'
+  },
+  /* ---- Perspective ---- */
+  'Object (POV)': {
+    group: 'Perspective', title: 'Object (POV)', image: SHOT_IMG_DIR + 'object-pov.png',
+    desc: "The camera becomes an object in the scene - a phone, a mirror, a product. The viewer sees exactly what that object 'sees.'"
+  },
+  'Reverse (POV)': {
+    group: 'Perspective', title: 'Reverse (POV)', image: SHOT_IMG_DIR + 'reverse-pov.png',
+    desc: "The camera faces back at whoever is filming, hand-held selfie-style. Intimate and direct - like they're talking straight to camera on the move."
+  },
+  /* ---- Unique ---- */
+  'Mirror': {
+    group: 'Unique', title: 'Mirror', image: SHOT_IMG_DIR + 'mirror.png',
+    desc: "The camera becomes a person's own eyes, often via a mirror or reflection. Puts the viewer directly inside someone else's perspective."
+  },
+  'Reveal': {
+    group: 'Unique', title: 'Reveal', image: SHOT_IMG_DIR + 'reveal.png',
+    desc: 'The frame starts hidden or obscured, then moves or opens to reveal the subject. Built-in payoff inside a single shot.'
+  },
+  'Shadows': {
+    group: 'Unique', title: 'Shadows', image: SHOT_IMG_DIR + 'shadows.png',
+    desc: 'Shadows lead the eye or partially hide the subject. Adds mood and mystery without needing extra lighting gear.'
+  },
+  /* ---- Close Up ---- */
+  'Close Up (Classic)': {
+    group: 'Close Up', title: 'Close Up (Classic)', image: SHOT_IMG_DIR + 'close-up.png',
+    desc: 'Tight on the face or a key detail, filling most of the frame. Forces an emotional read - nowhere to hide.'
+  },
+  'Close Up (Extreme)': {
+    group: 'Close Up', title: 'Close Up (Extreme)', image: SHOT_IMG_DIR + 'extreme-close-up.png',
+    desc: 'Even tighter than classic - eyes, hands, texture. Almost abstract, used to punctuate a beat rather than sit in it.'
+  },
+  'Close Up (Foreground)': {
+    group: 'Close Up', title: 'Close Up (Foreground)', image: SHOT_IMG_DIR + 'foreground-close-up.png',
+    desc: "A close, out-of-focus element sits in the foreground while the subject holds focus behind it. Adds depth and a sense of being 'in' the scene."
+  },
+  /* ---- Medium ---- */
+  'Behind (Medium)': {
+    group: 'Medium', title: 'Behind (Medium)', image: SHOT_IMG_DIR + 'behind-medium.png',
+    desc: "Camera sits behind the subject at medium distance, showing what they're looking at. Builds anticipation for the reveal."
+  },
+  'Environment (Medium)': {
+    group: 'Medium', title: 'Environment (Medium)', image: SHOT_IMG_DIR + 'environment-medium.png',
+    desc: 'A medium-distance frame that keeps enough of the location visible to set the scene. Balances subject and place evenly.'
+  },
+  'Foreground (Medium)': {
+    group: 'Medium', title: 'Foreground (Medium)', image: SHOT_IMG_DIR + 'foreground-medium.png',
+    desc: 'A medium shot with something purposely placed in the foreground. Adds layers and a sense of being tucked into the world.'
+  },
+  'Head On (Medium)': {
+    group: 'Medium', title: 'Head On (Medium)', image: SHOT_IMG_DIR + 'head-on-medium.png',
+    desc: 'Subject faces the camera directly at medium distance. Direct, confident, conversational - the workhorse talking-shot.'
+  },
+  'Reveal (Medium)': {
+    group: 'Medium', title: 'Reveal (Medium)', image: SHOT_IMG_DIR + 'reveal-medium.png',
+    desc: 'The frame starts hidden or obscured, then moves or opens to reveal the subject at medium distance. Built-in payoff inside a single shot.'
+  },
+  /* ---- Wide ---- */
+  'AWTA (Wide)': {
+    group: 'Wide', title: 'AWTA (Wide)', image: SHOT_IMG_DIR + 'AWTA-wide.png',
+    desc: 'A Walk-Towards / Walk-Away shot at wide distance - the subject moves through a big environment, toward or away from camera. A classic scene-opener.'
+  },
+  'Behind (Wide)': {
+    group: 'Wide', title: 'Behind (Wide)', image: SHOT_IMG_DIR + 'behind-wide.png',
+    desc: 'A wide shot from behind the subject, showing the full environment they\'re heading into. Sets scale before the reveal.'
+  },
+  'Extreme (Wide)': {
+    group: 'Wide', title: 'Extreme (Wide)', image: SHOT_IMG_DIR + 'extreme-wide.png',
+    desc: 'The subject is small against a huge environment. Establishes location and stakes in a single frame.'
+  },
+  'Foreground (Wide)': {
+    group: 'Wide', title: 'Foreground (Wide)', image: SHOT_IMG_DIR + 'foreground-wide.png',
+    desc: 'A wide shot layered with a foreground element for depth. Feels cinematic and considered, not flat.'
+  },
+  'Head On (Wide)': {
+    group: 'Wide', title: 'Head On (Wide)', image: SHOT_IMG_DIR + 'head-on.png',
+    desc: 'Subject faces the camera directly from a wide distance, environment fully visible around them. Confident and grounded.'
+  },
+  'Low (Wide)': {
+    group: 'Wide', title: 'Low (Wide)', image: SHOT_IMG_DIR + 'low-wide.png',
+    desc: 'A wide shot taken from a low camera position, looking up across the scene. Adds power and scale to the whole environment, not just the subject.'
+  },
+  'Wide (Classic)': {
+    group: 'Wide', title: 'Wide (Classic)', image: SHOT_IMG_DIR + 'classic-wide.png',
+    desc: 'The standard wide establishing shot - full body, full environment, no tricks. Every scene needs at least one.'
+  },
+  /* ---- Sequences ---- */
+  '9 Shot Rule (Classic)': {
+    group: 'Sequences', title: '9 Shot Rule (Classic)', image: SEQ_IMG_DIR + '9 Shot Rule (Classic).png',
+    desc: '2 drone, 2 wide, 2 medium, 2 close-up, 1 unique - shot in that order for full, predictable coverage of a scene.'
+  },
+  '9 Shot Rule (Mixed)': {
+    group: 'Sequences', title: '9 Shot Rule (Mixed)', image: SEQ_IMG_DIR + '9 Shot Rule (Mixed).jpg',
+    desc: 'The same 9-shot coverage (drone, wide, medium, close-up, unique) captured out of order and intercut for a less predictable, more dynamic edit.'
+  },
+  '9-Shot Rule (Reverse)': {
+    group: 'Sequences', title: '9-Shot Rule (Reverse)', image: SEQ_IMG_DIR + '9-Shot Rule (Reverse).png',
+    desc: 'The 9-shot coverage run back to front - close-up and unique first, wide and drone last. Builds outward instead of establishing first.'
+  },
+  'Top-Down': {
+    group: 'Sequences', title: 'Top-Down', image: SEQ_IMG_DIR + 'Top-Down.png',
+    desc: 'A sequence built entirely from overhead, top-down angles. Flattens every beat into a graphic, process-driven feel.'
+  },
+  'Speed Ramping': {
+    group: 'Sequences', title: 'Speed Ramping', image: SEQ_IMG_DIR + 'Speed Ramping.png',
+    desc: 'A shot (or sequence of shots) that smoothly shifts between slow motion and normal/fast speed mid-clip for emphasis.'
+  },
+  'Slow Motion Sequence': {
+    group: 'Sequences', title: 'Slow Motion Sequence', image: SEQ_IMG_DIR + 'Slow Motion Sequence.png',
+    desc: 'A run of shots all captured at a high frame rate and played back slow, stretching a string of small moments into something significant.'
+  },
+  'Cross Cutting': {
+    group: 'Sequences', title: 'Cross Cutting', image: SEQ_IMG_DIR + 'Cross Cutting.png',
+    desc: 'One scene shows an event, another scene shows a parallel event, then you cut between them - builds tension across two threads at once.'
+  },
+  'Close Up Sequence': {
+    group: 'Sequences', title: 'Close Up Sequence', image: SEQ_IMG_DIR + 'Close Up Sequence.png',
+    desc: 'A run of tight close-up shots cut together back to back. Stacks emotional beats without ever pulling back to breathe.'
+  },
+  'Drone Sequence': {
+    group: 'Sequences', title: 'Drone Sequence', image: SEQ_IMG_DIR + 'Drone Sequence.png',
+    desc: 'A run of aerial drone shots cut together to establish scale and location before dropping into ground-level coverage.'
+  },
+};
 
 const SHOT_GLOSSARY = [
   {t:'Match cut', d:'Two visually similar shots cut together - the eye lines up across the cut.'},
@@ -1281,6 +1800,40 @@ const PRODUCTION_TIERS = [
   ]},
 ];
 
+const QUALITY_CHECKS = [
+  {group:'The Hook', note:'If this fails, nothing after it matters - a weak hook means a weak Super Loom no matter how good the rest is.', items:[
+    {key:'hookStopsScroll', h:'The hook would stop a jaded 8-figure founder mid-scroll', span:'Not "pretty good" - genuinely unprecedented. If you have seen anything like it before, it is not enough.'},
+    {key:'hookShareable', h:'The prospect would want to show someone else', span:'Cool enough that their first instinct is to share it with a partner, a friend, or their team.'},
+    {key:'hookPaysOff', h:'The ending hook pays off the opening', span:'The final beat cuts back into the hook\'s world so the video ends on a peak, not a fade.'},
+  ]},
+  {group:'Personalization', note:'A Super Loom is built for one person - if it reads as a template with a name swapped in, it fails here.', items:[
+    {key:'threeLayerResearch', h:'Research goes three layers deep', span:'Strategic, business, and personal lenses all have real findings - not just a company About page skim.'},
+    {key:'usesTheirWords', h:'Uses the prospect\'s own words or a real detail', span:'A direct quote, a specific story, or a signal only found by actually looking - not something guessable about anyone in their niche.'},
+    {key:'onlyForThisPerson', h:'Could not be sent to anyone else', span:'Swap the name and the video stops making sense. If it still works for a different prospect, it is not personal enough.'},
+  ]},
+  {group:'Script Craft & Arc', note:'All ten beats present, in order, following the twin-peaks emotional arc from Script Builder.', items:[
+    {key:'allBeatsWritten', h:'All ten beats are written, none placeholder', span:'Hook through Ending Hook - every section has real content, not a "TBD" or a note to self.'},
+    {key:'goodNewsSandwich', h:'The Problem beat uses the good-news sandwich', span:'Praise what is working first, then contrast with the specific gap - never open with criticism.'},
+    {key:'objectionHandled', h:'The one obvious objection is handled before they can think it', span:'Get ahead of the "I do not have time for this" reaction inside the value beat itself.'},
+    {key:'boldSingleCta', h:'The CTA is one assumptive ask', span:'Never "let me know your thoughts" - say exactly what you want them to do next.'},
+  ]},
+  {group:'The Wager', note:'The wager is what makes the effort legible - it has to be specific to this hook\'s world.', items:[
+    {key:'wagerSpecific', h:'The wager is tied to the hook\'s theme or location', span:'Not a generic dare - it should only make sense inside this particular Super Loom.'},
+    {key:'wagerBigEnough', h:'The wager matches the size of the hook', span:'The bigger and more visible the hook, the bigger the wager needs to be to feel earned.'},
+  ]},
+  {group:'Production Polish', note:'Craft signals effort - sloppy production undercuts an otherwise great concept.', items:[
+    {key:'multipleLocations', h:'Shot across multiple locations or scenes', span:'Never sits in one place the whole way through.'},
+    {key:'noDeskShot', h:'No moment sat at a desk', span:'If there is a desk shot anywhere in the edit, cut it.'},
+    {key:'maxThreeValueShots', h:'Two to three value shots maximum', span:'Unless the hook alone justifies a longer runtime, more than three drags the pacing.'},
+    {key:'intentionalCamera', h:'Camera, audio, and lighting all look intentional', span:'Every frame looks considered, not improvised.'},
+  ]},
+  {group:'Send Readiness', note:'The video is only half the job - the send has to be planned too.', items:[
+    {key:'channelChecked', h:'Delivery channel confirmed, not guessed', span:'Sent wherever the prospect actually lives - checked, not assumed.'},
+    {key:'openingUnder80', h:'Opening message is under 80 words and teases, does not pitch', span:'The video does the selling - the message just earns the click.'},
+    {key:'followUpsPlanned', h:'All four follow-up touches are planned', span:'Not just the first send - the full sequence is scheduled before this goes out.'},
+  ]},
+];
+
 const MESSAGE_SECTIONS = [
   {id:'publicPost', num:'01', tag:'Optional', label:'Public Posting', desc:'A social post about the send - LinkedIn, X, etc. - announcing the Super Loom once it is live. Andre posted publicly and it produced 6 inbound leads. Michel reposted to 70,000 followers and produced 15. Do not skip this if you can help it.', placeholder:'Write the public post...'},
   {id:'firstEmail', num:'03', tag:'Opening Send', label:'First Email', desc:'The message that actually delivers the Super Loom. Under 80 words. Tease, do not pitch - the video does the selling.', placeholder:'e.g. {name} - built this specifically for you, nobody else is getting this. 90 seconds, worth it. [link]', hasSubject:true, subjectPlaceholder:'Subject line...'},
@@ -1289,7 +1842,7 @@ const MESSAGE_SECTIONS = [
 const SOCIAL_FOLLOWUP_SECTION = {id:'socialFollowup', num:'02', tag:'Optional', label:'Social Media Follow-Up', desc:'A follow-up post or two keeping the send visible on social after the public post - a comment, quote-post, or repost with a fresh line. Four posts, spaced out over the follow-up window - click a box to write or edit it.'};
 const EMAIL_FOLLOWUP_SECTION = {id:'emailFollowup', num:'04', tag:'Follow-Up', label:'Follow-Up Message', desc:'Your call opener or nudge email once tracking shows it is delivered. Four emails, spaced out over the follow-up sequence - click a box to write or edit it.'};
 function findMessageSection(id){
-  return MESSAGE_SECTIONS.find(s=> s.id===id) || [SOCIAL_FOLLOWUP_SECTION, EMAIL_FOLLOWUP_SECTION].find(s=> s.id===id);
+  return MESSAGE_SECTIONS.find(s=> s.id===id) || [SOCIAL_FOLLOWUP_SECTION, EMAIL_FOLLOWUP_SECTION].find(s=> s.id===id) || SCRIPT_SECTIONS.find(s=> s.id===id);
 }
 
 const FOLLOWUP_TOUCHES = [
@@ -1312,6 +1865,16 @@ const TEMPLATE_BANK = {
   socialFollowup: [],
   firstEmail: [],
   emailFollowup: [],
+  hook: [],
+  intro: [],
+  funScene: [],
+  whoIAm: [],
+  problem: [],
+  value: [],
+  proof: [],
+  ending: [],
+  cta: [],
+  endingHook: [],
 };
 (function ensureTemplateIds(){
   Object.keys(TEMPLATE_BANK).forEach(sectionId=>{
@@ -1464,6 +2027,7 @@ function defaultPlan(){
     shotList:[],
     locations:[],
     production:{checklist:{}},
+    checks:{checklist:{}},
     delivery:{publicPost:'', firstEmailSubject:'', firstEmail:'', followups:{1:{subject:'',body:''},2:{subject:'',body:''},3:{subject:'',body:''},4:{subject:'',body:''}}, socialFollowups:{1:'',2:'',3:'',4:''}},
   };
 }
@@ -1488,6 +2052,9 @@ function loadPlan(){
         locations: (p.locations||[]),
         production: Object.assign(d.production, p.production||{}, {
           checklist:Object.assign({}, p.production && p.production.checklist),
+        }),
+        checks: Object.assign(d.checks, p.checks||{}, {
+          checklist:Object.assign({}, p.checks && p.checks.checklist),
         }),
         delivery: Object.assign(d.delivery, p.delivery||{}, {
           followups: (()=>{
@@ -1575,8 +2142,380 @@ function closeConfirm(result){
   overlay.classList.remove('open');
   if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
 }
+let _promptResolve = null;
+let _promptExisting = [];
+function showPrompt({title='Add New Item', message='', fieldLabel='Name', placeholder='', confirmLabel='Add', cancelLabel='Cancel', value='', existing=[]} = {}){
+  return new Promise((resolve)=>{
+    _promptResolve = resolve;
+    _promptExisting = existing;
+    document.getElementById('promptTitle').textContent = title;
+    document.getElementById('promptMessage').textContent = message;
+    document.getElementById('promptMessage').style.display = message ? '' : 'none';
+    document.getElementById('promptFieldLabel').textContent = fieldLabel;
+    document.getElementById('promptOkBtn').textContent = confirmLabel;
+    document.getElementById('promptCancelBtn').textContent = cancelLabel;
+    const input = document.getElementById('promptInput');
+    input.placeholder = placeholder;
+    input.value = value;
+    input.classList.remove('has-error');
+    promptShowError('');
+    const chipsWrap = document.getElementById('promptExisting');
+    const chips = document.getElementById('promptExistingChips');
+    if(existing.length){
+      chipsWrap.hidden = false;
+      chips.innerHTML = existing.map(v=> '<span class="prompt-chip">' + esc(v) + '</span>').join('');
+    } else {
+      chipsWrap.hidden = true;
+      chips.innerHTML = '';
+    }
+    document.getElementById('promptOverlay').classList.add('open');
+    requestAnimationFrame(()=>{ input.focus(); input.select(); });
+  });
+}
+function promptShowError(msg){
+  const el = document.getElementById('promptError');
+  el.querySelector('span').textContent = msg;
+  el.classList.toggle('show', !!msg);
+  document.getElementById('promptInput').classList.toggle('has-error', !!msg);
+}
+function submitPrompt(){
+  const input = document.getElementById('promptInput');
+  const val = input.value.trim();
+  if(!val){ promptShowError('Enter a name to continue.'); input.focus(); return; }
+  const dupe = _promptExisting.find(v=> v.toLowerCase() === val.toLowerCase());
+  if(dupe){ promptShowError('"' + dupe + '" is already saved - pick it from the list instead.'); input.focus(); return; }
+  closePrompt(val);
+}
+function closePrompt(result){
+  const overlay = document.getElementById('promptOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_promptResolve){ _promptResolve(result); _promptResolve = null; }
+}
 function copyText(s){
   navigator.clipboard.writeText(s).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+}
+
+/* ============================================================
+ CUSTOM SELECT (styled dropdown) ENGINE
+ A lightweight, accessible replacement for native <select> used
+ wherever we want full control over the option list's look/feel.
+ Panels are portaled to <body> and positioned with fixed coords so
+ they are never clipped by scrolling/overflow-hidden ancestors
+ (e.g. the shot list table wrapper).
+ ============================================================ */
+const LC_CHEVRON_SVG = '<svg class="lc-select-chevron" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LC_CHECK_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LC_TRASH_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 4.5h10M6.5 4.5v-1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1M4.5 4.5l.5 8.2a1 1 0 0 0 1 .8h4a1 1 0 0 0 1-.8l.5-8.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const LC_EYE_SVG = '<svg viewBox="0 0 16 16" fill="none"><path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="2.1" stroke="currentColor" stroke-width="1.4"/></svg>';
+
+let lcSelectOpen = null; // { trigger, panel }
+
+function lcSelectHtml(field, displayValue, placeholder, previewValue){
+  const hasValue = !!displayValue;
+  const hasPreview = !!(previewValue && SHOT_TYPE_PREVIEWS[previewValue]);
+  return '<div class="lc-select' + (hasPreview?' has-preview':'') + '" data-field="' + escAttr(field) + '">'
+    + '<button type="button" class="lc-select-trigger' + (hasValue?'':' is-placeholder') + (hasPreview?' has-preview':'') + '" aria-haspopup="listbox" aria-expanded="false">'
+      + '<span class="lc-select-value">' + esc(hasValue ? displayValue : placeholder) + '</span>'
+      + LC_CHEVRON_SVG
+    + '</button>'
+    + (hasPreview
+        ? '<button type="button" class="lc-select-preview-btn" data-shot-preview="' + escAttr(previewValue) + '" title="Preview ' + escAttr(displayValue) + '" aria-label="Preview ' + escAttr(displayValue) + '">' + LC_EYE_SVG + '</button>'
+        : '')
+  + '</div>';
+}
+function lcOptionRow(value, label, selected, previewValue){
+  const hasPreview = !!(previewValue && SHOT_TYPE_PREVIEWS[previewValue]);
+  const rightHtml = hasPreview
+    ? '<span class="lc-opt-right">'
+        + (selected ? LC_CHECK_SVG : '')
+        + '<button type="button" class="lc-opt-preview-btn" data-shot-preview="' + escAttr(previewValue) + '" title="Preview ' + escAttr(label) + '" aria-label="Preview ' + escAttr(label) + '">' + LC_EYE_SVG + '</button>'
+      + '</span>'
+    : (selected ? LC_CHECK_SVG : '');
+  return '<li class="lc-opt' + (selected?' is-selected':'') + '" data-value="' + escAttr(value) + '" role="option" aria-selected="' + (selected?'true':'false') + '">'
+    + '<span class="lc-opt-label">' + esc(label) + '</span>'
+    + rightHtml
+  + '</li>';
+}
+function lcOptionRowDeletable(value, label, selected){
+  return '<li class="lc-opt lc-opt-deletable' + (selected?' is-selected':'') + '" data-value="' + escAttr(value) + '" role="option" aria-selected="' + (selected?'true':'false') + '">'
+    + '<span class="lc-opt-label">' + esc(label) + '</span>'
+    + '<span class="lc-opt-right">'
+      + (selected ? LC_CHECK_SVG : '')
+      + '<button type="button" class="lc-opt-delete" data-lc-delete="' + escAttr(value) + '" title="Delete ' + escAttr(label) + '" aria-label="Delete ' + escAttr(label) + '">' + LC_TRASH_SVG + '</button>'
+    + '</span>'
+  + '</li>';
+}
+function lcGroupLabel(label){
+  return '<li class="lc-opt-group-label" role="presentation">' + esc(label) + '</li>';
+}
+
+/* ---------- shot type preview modal ---------- */
+let shotPreviewLastFocus = null;
+function openShotPreview(value){
+  const p = SHOT_TYPE_PREVIEWS[value];
+  if(!p) return;
+  closeCustomSelect();
+  shotPreviewLastFocus = document.activeElement;
+  document.getElementById('shotPreviewEyebrow').textContent = p.group || 'Shot Type';
+  document.getElementById('shotPreviewTitle').textContent = p.title || value;
+  document.getElementById('shotPreviewDesc').textContent = p.desc || '';
+  const img = document.getElementById('shotPreviewImg');
+  img.src = p.image;
+  img.alt = (p.title || value) + ' - reference shot';
+  const overlay = document.getElementById('shotPreviewOverlay');
+  overlay.classList.add('open');
+  document.getElementById('shotPreviewCloseBtn').focus();
+  document.addEventListener('keydown', shotPreviewOnKeyDown, true);
+}
+function closeShotPreview(){
+  const overlay = document.getElementById('shotPreviewOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  document.removeEventListener('keydown', shotPreviewOnKeyDown, true);
+  if(shotPreviewLastFocus && shotPreviewLastFocus.focus) shotPreviewLastFocus.focus();
+  shotPreviewLastFocus = null;
+}
+function shotPreviewOnKeyDown(e){
+  if(e.key === 'Escape'){ e.stopImmediatePropagation(); e.stopPropagation(); closeShotPreview(); }
+}
+
+/* ---------- all shot types modal ---------- */
+function allShotsGridHtml(){
+  let html = '';
+  SHOT_TYPE_GROUPS.forEach(g=>{
+    const items = g.items.filter(i=> SHOT_TYPE_PREVIEWS[i]);
+    if(!items.length) return;
+    html += '<div class="all-shots-group-label">' + esc(g.group) + '</div>';
+    html += '<div class="all-shots-grid">' + items.map(i=>{
+      const p = SHOT_TYPE_PREVIEWS[i];
+      return '<button type="button" class="all-shots-card" data-shot-preview="' + escAttr(i) + '">'
+        + '<div class="all-shots-card-media"><img src="' + escAttr(p.image) + '" alt="' + escAttr(p.title) + ' - reference shot" loading="lazy"></div>'
+        + '<div class="all-shots-card-body">'
+          + '<h4 class="all-shots-card-title">' + esc(p.title) + '</h4>'
+          + '<p class="all-shots-card-desc">' + esc(p.desc) + '</p>'
+        + '</div>'
+      + '</button>';
+    }).join('') + '</div>';
+  });
+  return html;
+}
+let allShotsLastFocus = null;
+let allShotsFullscreen = false;
+function openAllShotsModal(){
+  const scroll = document.getElementById('allShotsScroll');
+  scroll.innerHTML = allShotsGridHtml();
+  scroll.querySelectorAll('.all-shots-card[data-shot-preview]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      openShotPreview(card.dataset.shotPreview);
+    });
+  });
+  allShotsLastFocus = document.activeElement;
+  allShotsFullscreen = false;
+  document.getElementById('allShotsBox').classList.remove('fullscreen');
+  const overlay = document.getElementById('allShotsOverlay');
+  overlay.classList.remove('fullscreen');
+  overlay.classList.add('open');
+  document.getElementById('allShotsCloseBtn').focus();
+  document.addEventListener('keydown', allShotsOnKeyDown, true);
+}
+function closeAllShotsModal(){
+  const overlay = document.getElementById('allShotsOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open', 'fullscreen');
+  document.getElementById('allShotsBox').classList.remove('fullscreen');
+  allShotsFullscreen = false;
+  document.removeEventListener('keydown', allShotsOnKeyDown, true);
+  if(allShotsLastFocus && allShotsLastFocus.focus) allShotsLastFocus.focus();
+  allShotsLastFocus = null;
+}
+function toggleAllShotsFullscreen(){
+  allShotsFullscreen = !allShotsFullscreen;
+  document.getElementById('allShotsBox').classList.toggle('fullscreen', allShotsFullscreen);
+  document.getElementById('allShotsOverlay').classList.toggle('fullscreen', allShotsFullscreen);
+}
+function allShotsOnKeyDown(e){
+  if(e.key === 'Escape'){ e.stopPropagation(); closeAllShotsModal(); }
+}
+function closeCustomSelect(){
+  if(!lcSelectOpen) return;
+  const {trigger, panel} = lcSelectOpen;
+  trigger.classList.remove('open');
+  trigger.setAttribute('aria-expanded','false');
+  panel.remove();
+  lcSelectOpen = null;
+  document.removeEventListener('mousedown', lcOnDocMouseDown, true);
+  document.removeEventListener('keydown', lcOnDocKeyDown, true);
+  window.removeEventListener('resize', lcRepositionOpenPanel);
+  window.removeEventListener('scroll', lcRepositionOpenPanel, true);
+}
+function lcOnDocMouseDown(e){
+  if(!lcSelectOpen) return;
+  if(lcSelectOpen.panel.contains(e.target) || lcSelectOpen.trigger.contains(e.target)) return;
+  closeCustomSelect();
+}
+function lcSetActive(items, idx){
+  items.forEach(i=> i.classList.remove('is-active'));
+  if(items[idx]){ items[idx].classList.add('is-active'); items[idx].scrollIntoView({block:'nearest'}); }
+}
+function lcOnDocKeyDown(e){
+  if(!lcSelectOpen) return;
+  const panel = lcSelectOpen.panel;
+  if(e.key==='Escape'){ e.stopPropagation(); const t = lcSelectOpen.trigger; closeCustomSelect(); t.focus(); return; }
+  if(e.key==='Tab'){ closeCustomSelect(); return; }
+  const items = Array.from(panel.querySelectorAll('.lc-opt:not(.is-hidden)'));
+  if(!items.length) return;
+  let idx = items.findIndex(i=> i.classList.contains('is-active'));
+  if(e.key==='ArrowDown'){ e.preventDefault(); e.stopPropagation(); lcSetActive(items, (idx+1)%items.length); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); e.stopPropagation(); lcSetActive(items, (idx-1+items.length)%items.length); }
+  else if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); if(idx>=0) items[idx].click(); }
+}
+function lcPositionPanel(trigger, panel){
+  const r = trigger.getBoundingClientRect();
+  panel.style.left = '-9999px'; panel.style.top = '-9999px'; panel.style.bottom = 'auto';
+  panel.style.width = Math.max(r.width, 200) + 'px';
+  const panelH = panel.offsetHeight;
+  const spaceBelow = window.innerHeight - r.bottom;
+  const openUp = spaceBelow < panelH + 12 && r.top > spaceBelow;
+  if(openUp){
+    panel.style.top = 'auto';
+    panel.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+  } else {
+    panel.style.bottom = 'auto';
+    panel.style.top = (r.bottom + 6) + 'px';
+  }
+  let left = r.left;
+  const maxLeft = window.innerWidth - panel.offsetWidth - 8;
+  if(left > maxLeft) left = Math.max(8, maxLeft);
+  panel.style.left = Math.round(left) + 'px';
+}
+function lcRepositionOpenPanel(){
+  if(lcSelectOpen) lcPositionPanel(lcSelectOpen.trigger, lcSelectOpen.panel);
+}
+function lcFilterPanel(panel, query){
+  const q = query.trim().toLowerCase();
+  panel.querySelectorAll('.lc-opt[data-value]').forEach(li=>{
+    li.classList.toggle('is-hidden', !!q && !li.textContent.toLowerCase().includes(q));
+  });
+  panel.querySelectorAll('.lc-opt-group-label').forEach(gl=>{
+    let next = gl.nextElementSibling, anyVisible = false;
+    while(next && !next.classList.contains('lc-opt-group-label')){
+      if(!next.classList.contains('is-hidden')) anyVisible = true;
+      next = next.nextElementSibling;
+    }
+    gl.classList.toggle('is-hidden', !anyVisible);
+  });
+}
+function openCustomSelect(trigger, opts){
+  if(lcSelectOpen && lcSelectOpen.trigger===trigger){ closeCustomSelect(); return; }
+  closeCustomSelect();
+  const panel = document.createElement('div');
+  panel.className = 'lc-select-panel';
+  panel.innerHTML = opts.panelHtml;
+  document.body.appendChild(panel);
+  trigger.classList.add('open');
+  trigger.setAttribute('aria-expanded','true');
+  lcPositionPanel(trigger, panel);
+  lcSelectOpen = {trigger, panel};
+
+  const searchInput = panel.querySelector('.lc-select-search');
+  if(searchInput){
+    searchInput.addEventListener('input', ()=> lcFilterPanel(panel, searchInput.value));
+    searchInput.addEventListener('click', e=> e.stopPropagation());
+    requestAnimationFrame(()=> searchInput.focus());
+  }
+
+  panel.querySelectorAll('.lc-opt[data-value]').forEach(li=>{
+    li.addEventListener('click', ()=>{ opts.onSelect(li.dataset.value); closeCustomSelect(); });
+    li.addEventListener('mouseenter', ()=>{
+      panel.querySelectorAll('.lc-opt').forEach(o=> o.classList.remove('is-active'));
+      li.classList.add('is-active');
+    });
+  });
+  const addBtn = panel.querySelector('[data-lc-add]');
+  if(addBtn) addBtn.addEventListener('click', ()=>{ closeCustomSelect(); opts.onAdd && opts.onAdd(); });
+
+  panel.querySelectorAll('[data-lc-delete]').forEach(delBtn=>{
+    delBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const val = delBtn.dataset.lcDelete;
+      closeCustomSelect();
+      opts.onDelete && opts.onDelete(val);
+    });
+    delBtn.addEventListener('mousedown', e=> e.stopPropagation());
+  });
+
+  panel.querySelectorAll('[data-shot-preview]').forEach(previewBtn=>{
+    previewBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openShotPreview(previewBtn.dataset.shotPreview);
+    });
+    previewBtn.addEventListener('mousedown', e=> e.stopPropagation());
+  });
+
+  const selectedLi = panel.querySelector('.lc-opt.is-selected');
+  if(selectedLi) selectedLi.classList.add('is-active');
+
+  document.addEventListener('mousedown', lcOnDocMouseDown, true);
+  document.addEventListener('keydown', lcOnDocKeyDown, true);
+  window.addEventListener('resize', lcRepositionOpenPanel);
+  window.addEventListener('scroll', lcRepositionOpenPanel, true);
+}
+
+/* ---- simple flat custom select: drop-in replacement for a plain
+   <select id="x"><option>...</option></select> whose value is read
+   later via document.getElementById('x').value. Backed by a hidden
+   input carrying that same id, so callers never have to change. ---- */
+function lcFlattenGroupedOptions(raw){
+  return raw.flatMap(g=> g.items.map(o=> typeof o==='string' ? {value:o, label:o} : o));
+}
+function lcSimpleSelectHtml(id, options, current, placeholder, extraClass){
+  const isGrouped = Array.isArray(options) && options.length>0 && Array.isArray(options[0].items);
+  const norm = isGrouped ? lcFlattenGroupedOptions(options) : options.map(o=> typeof o==='string' ? {value:o, label:o} : o);
+  const match = norm.find(o=> o.value===current);
+  return '<div class="lc-select' + (extraClass?' '+extraClass:'') + '" data-lc-for="' + escAttr(id) + '">'
+    + '<input type="hidden" id="' + escAttr(id) + '" value="' + escAttr(current||'') + '">'
+    + '<button type="button" class="lc-select-trigger' + (match?'':' is-placeholder') + '" aria-haspopup="listbox" aria-expanded="false">'
+      + '<span class="lc-select-value">' + esc(match ? match.label : (placeholder||'Select…')) + '</span>'
+      + LC_CHEVRON_SVG
+    + '</button>'
+  + '</div>';
+}
+function wireLcSimpleSelects(root, optionsById){
+  root.querySelectorAll('.lc-select[data-lc-for]').forEach(wrap=>{
+    const id = wrap.dataset.lcFor;
+    const spec = optionsById[id];
+    if(!spec) return;
+    const trigger = wrap.querySelector('.lc-select-trigger');
+    const hidden = wrap.querySelector('input[type=hidden]');
+    trigger.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const raw = (typeof spec==='function' ? spec() : spec);
+      const isGrouped = Array.isArray(raw) && raw.length>0 && Array.isArray(raw[0].items);
+      let panelHtml, options;
+      if(isGrouped){
+        options = lcFlattenGroupedOptions(raw);
+        panelHtml = '<ul class="lc-opt-list" role="listbox">' + raw.map(g=>
+          lcGroupLabel(g.label) + g.items.map(o=>{
+            const opt = typeof o==='string' ? {value:o, label:o} : o;
+            return lcOptionRow(opt.value, opt.label, opt.value===hidden.value);
+          }).join('')
+        ).join('') + '</ul>';
+      } else {
+        options = raw.map(o=> typeof o==='string' ? {value:o, label:o} : o);
+        panelHtml = '<ul class="lc-opt-list" role="listbox">' + options.map(o=> lcOptionRow(o.value, o.label, o.value===hidden.value)).join('') + '</ul>';
+      }
+      openCustomSelect(trigger, {
+        panelHtml,
+        onSelect: (val)=>{
+          hidden.value = val;
+          const opt = options.find(o=> o.value===val);
+          trigger.querySelector('.lc-select-value').textContent = opt ? opt.label : val;
+          trigger.classList.remove('is-placeholder');
+        }
+      });
+    });
+  });
 }
 function fillTokens(str){
   const name = plan.prospect.name.trim();
@@ -1923,15 +2862,11 @@ function findingFormHtml(prompt){
   return '<div class="add-finding-form">'
     + '<div class="field"><label>Finding</label><textarea id="findingText-' + pid + '" placeholder="' + escAttr(prompt.placeholder) + '"></textarea></div>'
     + '<div class="row">'
-      + '<div class="field"><label>Source (optional)</label><input type="text" id="findingSource-' + pid + '" placeholder="e.g. LinkedIn post, 3 May 2026"></div>'
+      + '<div class="field"><label>Source (optional)</label>' + lcSimpleSelectHtml('findingSource-' + pid, RESEARCH_SOURCE_GROUPS, '', 'Select source…') + '</div>'
       + '<div class="field"><label>Date observed (optional)</label><input type="text" id="findingDate-' + pid + '" placeholder="e.g. May 2026"></div>'
     + '</div>'
     + '<div class="field"><label>Confidence</label>'
-      + '<select id="findingConf-' + pid + '">'
-        + '<option value="low">Low</option>'
-        + '<option value="medium" selected>Medium</option>'
-        + '<option value="high">High</option>'
-      + '</select>'
+      + lcSimpleSelectHtml('findingConf-' + pid, Object.keys(CONFIDENCE_LABELS).map(k=> ({value:k, label:CONFIDENCE_LABELS[k]})), 'medium')
     + '</div>'
     + '<div class="rowbtns">'
       + '<button type="button" class="btn primary small" data-save-finding="' + pid + '">Save finding</button>'
@@ -1981,6 +2916,13 @@ function renderResearchStep(){
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
   wireStepNav(document);
+
+  if(addingFindingFor){
+    wireLcSimpleSelects(document, {
+      ['findingConf-' + addingFindingFor]: ()=> Object.keys(CONFIDENCE_LABELS).map(k=> ({value:k, label:CONFIDENCE_LABELS[k]})),
+      ['findingSource-' + addingFindingFor]: ()=> RESEARCH_SOURCE_GROUPS,
+    });
+  }
 
   document.getElementById('rs-apikey-save').addEventListener('click', ()=>{
     const val = document.getElementById('rs-apikey').value.trim();
@@ -2060,9 +3002,13 @@ function renderHookStep(){
     + '<div class="doctrine-principle"><span class="dp-label">Effort Bias</span><p>The more visible and unreasonable the effort, the more valuable it is perceived to be.</p></div>'
   + '</div>';
 
-  html += '<div class="callout generate-bar">'
-    + '<div><b>Generate Hook Concepts.</b> Reads your Research Brief and every concept you have used before, then drafts 4 concepts that cannot overlap with past hooks or with each other.</div>'
-    + '<button type="button" class="btn bespoke" id="generateHooksBtn">Generate 4 Concepts</button>'
+  html += '<div class="generate-bar">'
+    + '<div class="generate-bar-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5l2.1 5.9L20 10.5l-5.9 2.1L12 18.5l-2.1-5.9L4 10.5l5.9-2.1L12 2.5z" fill="currentColor"/><path d="M19 15.5l.85 2.15L22 18.5l-2.15.85L19 21.5l-.85-2.15L16 18.5l2.15-.85L19 15.5z" fill="currentColor" opacity=".7"/></svg></div>'
+    + '<div class="generate-bar-copy">'
+      + '<div class="generate-bar-title">Generate Hook Concepts</div>'
+      + '<p class="generate-bar-desc">Reads your Research Brief and every concept you have used before, then drafts 4 concepts that cannot overlap with past hooks or with each other.</p>'
+    + '</div>'
+    + '<button type="button" class="btn bespoke generate-bar-btn" id="generateHooksBtn"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5l2.1 5.9L20 10.5l-5.9 2.1L12 18.5l-2.1-5.9L4 10.5l5.9-2.1L12 2.5z" fill="currentColor"/></svg>Generate 4 Concepts</button>'
   + '</div>';
 
   if(plan.hook.concepts.length){
@@ -2133,8 +3079,30 @@ function smoothPath(pts){
   }
   return d;
 }
+/* Measures the real rendered width of a pill label (uppercase, bold, letter-spaced) via a
+   hidden SVG text node, so the pill rect is sized to the actual glyphs instead of a guessed
+   per-character width - guessing is what let long tags like "Peak 2 · Peak-End" overflow their pill. */
+let _arcPillMeasureText = null;
+function measureArcPillTextWidth(text){
+  if(!_arcPillMeasureText){
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'arc-svg');
+    svg.style.cssText = 'position:absolute; width:0; height:0; overflow:hidden; visibility:hidden;';
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('class', 'arc-pill-text');
+    t.setAttribute('font-size', '10');
+    svg.appendChild(t);
+    document.body.appendChild(svg);
+    _arcPillMeasureText = t;
+  }
+  _arcPillMeasureText.textContent = text;
+  return _arcPillMeasureText.getComputedTextLength();
+}
 function arcSvgHtml(){
-  const W = 1000, H = 300, top = 46, bottom = 224, margin = 46;
+  // top/margin give the first and last beats (always the tagged peaks) enough headroom for
+  // their pill to sit fully above the marker and enough side room for the widest pill
+  // ("Peak 2 · Peak-End") to stay inside the chart instead of overhanging the card edge.
+  const W = 1000, H = 300, top = 62, bottom = 224, margin = 80;
   const n = SCRIPT_SECTIONS.length;
   const xs = {};
   SCRIPT_SECTIONS.forEach((s,i)=>{ xs[s.id] = margin + i * ((W-margin*2)/(n-1)); });
@@ -2152,9 +3120,12 @@ function arcSvgHtml(){
     const numSize = tag ? 12.5 : 10;
     let pill = '';
     if(tag){
-      const above = y > (top+40);
+      // A pill placed above a peak (or below a valley point) can never cross the line, because
+      // the line never rises above a local peak's own height or dips below a valley's. Only
+      // fall back to the opposite side if there truly isn't room to clear the top of the chart.
+      const above = (y - 30 - 15) >= 4;
       const pillY = above ? y - 30 : y + 30;
-      const pillW = tag.length * 6.6 + 22;
+      const pillW = measureArcPillTextWidth(tag) + 30;
       pill = '<g>'
         + '<rect x="' + (x-pillW/2).toFixed(1) + '" y="' + (pillY-15).toFixed(1) + '" width="' + pillW.toFixed(1) + '" height="24" rx="12" fill="var(--bespoke)"></rect>'
         + '<text x="' + x.toFixed(1) + '" y="' + (pillY+4).toFixed(1) + '" text-anchor="middle" class="arc-pill-text" font-size="10">' + esc(tag) + '</text>'
@@ -2196,23 +3167,30 @@ function arcLegendHtml(){
 function scriptCardHtml(s){
   const val = plan.script[s.id] || '';
   const arcTag = ARC_TAGS[s.id];
+  const tplCount = getTemplateGroups(s.id).reduce((n,g)=> n+g.items.length, 0);
   let html = '<div class="msg-card" id="msgcard-' + escAttr(s.id) + '">'
     + '<div class="msg-card-top">'
       + '<div class="msg-num">' + s.num + '</div>'
       + '<div class="msg-heading">'
         + '<div class="msg-title-row"><h3>' + esc(s.label) + '</h3>' + (arcTag ? '<span class="msg-tag">' + esc(arcTag) + '</span>' : '') + '</div>'
-        + '<p class="msg-desc">' + esc(s.desc) + '</p>'
+        + '<p class="msg-desc script-card-desc">' + esc(s.desc) + '</p>'
       + '</div>'
     + '</div>'
     + (plan.scriptMeta[s.id] ? '<div class="script-source-tag">Generated from your research brief and chosen hook.</div>' : '')
+    + '<button type="button" class="tpl-trigger" data-script-tpl-open="' + escAttr(s.id) + '">'
+      + '<span class="tpl-trigger-icon">&#9776;</span>'
+      + '<span class="tpl-trigger-text">'
+        + '<span class="tpl-trigger-title">Browse Template Bank</span>'
+        + '<span class="tpl-trigger-sub">' + tplCount + ' template' + (tplCount===1?'':'s') + ' available - pick one to start from</span>'
+      + '</span>'
+      + '<span class="tpl-trigger-arrow">&rarr;</span>'
+    + '</button>'
     + '<textarea class="msg-textarea" id="script-' + escAttr(s.id) + '" data-script="' + escAttr(s.id) + '" placeholder="' + escAttr(s.placeholder) + '">' + esc(val) + '</textarea>'
     + '<div class="msg-foot">'
       + '<span class="msg-count" id="scriptCount-' + escAttr(s.id) + '">' + val.length + ' character' + (val.length===1?'':'s') + '</span>'
       + '<button type="button" class="btn primary small" data-script-save="' + escAttr(s.id) + '">Save Beat</button>'
-    + '</div>';
-  const live = fillTokens(val || s.placeholder);
-  html += '<div class="token-preview"><span class="tp-label">Preview with {name} / {niche} filled in</span><span class="tp-live" id="scriptPreview-' + escAttr(s.id) + '">' + esc(live) + '</span></div>';
-  html += '</div>';
+    + '</div>'
+  + '</div>';
   return html;
 }
 function renderScriptStep(){
@@ -2269,8 +3247,6 @@ function renderScriptStep(){
       if(plan.scriptMeta[s.id]) delete plan.scriptMeta[s.id];
       persistPlan();
       document.getElementById('scriptCount-'+s.id).textContent = el.value.length + ' character' + (el.value.length===1?'':'s');
-      const prev = document.getElementById('scriptPreview-'+s.id);
-      if(prev) prev.textContent = fillTokens(el.value || s.placeholder);
       renderNav(); renderProgress(); renderPlanPanel();
     });
   });
@@ -2280,6 +3256,11 @@ function renderScriptStep(){
     persistPlan();
     toast('Beat saved');
     renderNav(); renderProgress(); renderPlanPanel();
+  }));
+  document.querySelectorAll('[data-script-tpl-open]').forEach(b=> b.addEventListener('click', ()=>{
+    templateReturnTouch = null;
+    templateReturnScript = b.dataset.scriptTplOpen;
+    openTemplateModal(b.dataset.scriptTplOpen);
   }));
 }
 function wireArcInteractivity(){
@@ -2345,42 +3326,92 @@ function wireArcInteractivity(){
 /* ============================================================
  STEP 5: SHOT LIST
  ============================================================ */
-function shotTypeOptionsHtml(current){
-  const known = new Set();
-  SHOT_TYPE_GROUPS.forEach(g=> g.items.forEach(i=> known.add(i)));
-  let html = '<option value="" ' + (!current?'selected':'') + ' disabled hidden>Select shot type&hellip;</option>';
-  if(current && !known.has(current)){
-    html += '<optgroup label="Current"><option value="' + escAttr(current) + '" selected>' + esc(current) + '</option></optgroup>';
+function shotTypeGroupOf(value){
+  const g = SHOT_TYPE_GROUPS.find(g=> g.items.includes(value));
+  return g ? g.group : null;
+}
+function shotTypeDisplay(value){
+  return value || '';
+}
+function contentTypePanelHtml(current){
+  return '<ul class="lc-opt-list" role="listbox">'
+    + SHOT_CONTENT_TYPES.map(c=> lcOptionRow(c, c, c===current)).join('')
+  + '</ul>';
+}
+function shotTypePanelHtml(current){
+  let list = '';
+  if(current && !shotTypeGroupOf(current)){
+    list += lcGroupLabel('Current');
+    list += lcOptionRow(current, current, true, current);
   }
   SHOT_TYPE_GROUPS.forEach(g=>{
-    html += '<optgroup label="' + escAttr(g.group) + '">' + g.items.map(i=>
-      '<option value="' + escAttr(i) + '" ' + (current===i?'selected':'') + '>' + esc(i) + '</option>'
-    ).join('') + '</optgroup>';
+    list += lcGroupLabel(g.group);
+    list += g.items.map(i=> lcOptionRow(i, i, i===current, i)).join('');
   });
-  return html;
+  return '<div class="lc-select-search-wrap"><input type="text" class="lc-select-search" placeholder="Search shot types&hellip;" autocomplete="off"></div>'
+    + '<ul class="lc-opt-list" role="listbox">' + list + '</ul>';
 }
-function locationOptionsHtml(current){
+function locationPanelHtml(current){
   const saved = plan.locations.slice();
-  if(current && !saved.includes(current)) saved.push(current);
-  let html = '<option value="" ' + (!current?'selected':'') + ' disabled hidden>e.g. Flew 19hrs to a Lebanese mountain range&hellip;</option>';
-  if(saved.length){
-    html += '<optgroup label="Saved Locations">' + saved.map(l=>
-      '<option value="' + escAttr(l) + '" ' + (current===l?'selected':'') + '>' + esc(l) + '</option>'
-    ).join('') + '</optgroup>';
+  const orphanCurrent = current && !saved.includes(current) ? current : null;
+  let list = '';
+  if(orphanCurrent) list += lcOptionRow(orphanCurrent, orphanCurrent, true);
+  if(saved.length) list += saved.map(l=> lcOptionRowDeletable(l, l, l===current)).join('');
+  return '<ul class="lc-opt-list" role="listbox">' + list + '</ul>'
+    + '<button type="button" class="lc-select-add-btn" data-lc-add>+ Add new location&hellip;</button>';
+}
+function scenePanelHtml(current){
+  let list = '';
+  SCENE_GROUPS.forEach(g=>{
+    list += lcGroupLabel(g.group);
+    list += g.items.map(i=> lcOptionRow(i, i, i===current)).join('');
+  });
+  return '<ul class="lc-opt-list" role="listbox">' + list + '</ul>';
+}
+function bulletFormatText(text){
+  if(!text) return '';
+  return text.split('\n').map(line=>{
+    const stripped = line.replace(/^\s*[•\-\*]\s?/, '');
+    return '• ' + stripped;
+  }).join('\n');
+}
+function formatBulletInput(textarea){
+  const raw = textarea.value;
+  if(raw === ''){ return; }
+  const pos = textarea.selectionStart;
+  const rawLines = raw.split('\n');
+  let idx = 0, acc = 0;
+  for(; idx < rawLines.length; idx++){
+    const lineLen = rawLines[idx].length;
+    if(acc + lineLen >= pos) break;
+    acc += lineLen + 1;
   }
-  html += '<option value="__add__">+ Add new location&hellip;</option>';
-  return html;
+  const offsetInLine = pos - acc;
+  const newLines = rawLines.map(line=> '• ' + line.replace(/^\s*[•\-\*]\s?/, ''));
+  const newValue = newLines.join('\n');
+  let newAcc = 0;
+  for(let i=0; i<idx; i++){ newAcc += newLines[i].length + 1; }
+  const oldStripped = rawLines[idx].replace(/^\s*[•\-\*]\s?/, '');
+  const removedPrefixLen = rawLines[idx].length - oldStripped.length;
+  let newOffset = offsetInLine - removedPrefixLen + 2;
+  if(newOffset < 2) newOffset = 2;
+  const newPos = newAcc + newOffset;
+  textarea.value = newValue;
+  textarea.setSelectionRange(newPos, newPos);
+}
+function autoGrowTextarea(textarea){
+  textarea.style.height = 'auto';
+  textarea.style.height = textarea.scrollHeight + 'px';
 }
 function shotRowHtml(row, idx){
-  const opts = SHOT_CONTENT_TYPES.map(c=> '<option value="' + escAttr(c) + '" ' + (row.contentType===c?'selected':'') + '>' + esc(c) + '</option>').join('');
   return '<tr data-shot-id="' + escAttr(row.id) + '">'
     + '<td class="col-num"><span class="shot-num-badge">' + (idx+1) + '</span></td>'
-    + '<td class="col-scene"><input type="text" data-shot-field="scene" value="' + escAttr(row.scene) + '" placeholder="e.g. Hook"></td>'
-    + '<td class="col-shottype"><select class="shot-type-select" data-shot-field="shotType">' + shotTypeOptionsHtml(row.shotType) + '</select></td>'
-    + '<td><textarea data-shot-field="description" placeholder="What happens in frame...">' + esc(row.description) + '</textarea></td>'
-    + '<td><textarea data-shot-field="dialogue" placeholder="Line or VO snippet...">' + esc(row.dialogue) + '</textarea></td>'
-    + '<td class="col-content"><select data-shot-field="contentType">' + opts + '</select></td>'
-    + '<td class="col-location"><select data-shot-field="location">' + locationOptionsHtml(row.location) + '</select></td>'
+    + '<td class="col-scene">' + lcSelectHtml('scene', row.scene, 'Select scene…') + '</td>'
+    + '<td class="col-content">' + lcSelectHtml('contentType', row.contentType, 'Select type…') + '</td>'
+    + '<td class="col-shottype">' + lcSelectHtml('shotType', shotTypeDisplay(row.shotType), 'Select shot type…', row.shotType) + '</td>'
+    + '<td class="col-location">' + lcSelectHtml('location', row.location, 'Select location…') + '</td>'
+    + '<td><textarea data-shot-field="description" placeholder="What happens in frame..." spellcheck="false">' + esc(bulletFormatText(row.description)) + '</textarea></td>'
+    + '<td><textarea data-shot-field="dialogue" placeholder="What is said in the shot..." spellcheck="false">' + esc(bulletFormatText(row.dialogue)) + '</textarea></td>'
     + '<td class="col-del"><button type="button" class="shot-del-btn" data-shot-remove title="Remove shot">&times;</button></td>'
   + '</tr>';
 }
@@ -2399,22 +3430,26 @@ function autoPopulateShotList(){
 function renderShotlistStep(){
   let html = pageHeaderHtml('Step 5 of 7', 'Shot List');
 
-  html += '<div class="callout"><b>Why this matters.</b> Once you understand the shots you need, walk onto set with a tablet, not your memory. The goal is to stop thinking on the day and just execute what you already planned.</div>';
+  html += '<div class="doctrine-hero">'
+    + '<div class="doctrine-badge">Why This Matters</div>'
+    + '<h2 class="doctrine-headline">Walk onto set with a tablet, not your memory.</h2>'
+    + '<p class="doctrine-body">Once you understand the shots you need, the goal is to stop thinking on the day and just execute what you already planned.</p>'
+    + '<div class="doctrine-principle"><span class="dp-label">On Set</span><p>Every shot decided in advance means zero decisions left to make under pressure.</p></div>'
+    + '</div>';
 
   html += '<div class="shot-table-actions">'
+    + '<div class="shot-table-actions-left">'
+      + '<button type="button" class="btn small" id="addShotRowBtn">+ Add Shot Row</button>'
+      + '<button type="button" class="btn small" id="allShotsBtn">All Shots / Sequences</button>'
+    + '</div>'
     + '<button type="button" class="btn bespoke" id="autoFillShotsBtn">Auto-Fill From Script</button>'
-    + '<button type="button" class="btn small" id="addShotRowBtn">+ Add Shot Row</button>'
   + '</div>';
 
   html += '<div class="shot-table-wrap"><table class="shot-table"><thead><tr>'
-    + '<th>#</th><th>Scene</th><th>Shot Type</th><th>Description</th><th>Dialogue / VO</th><th>Content Type</th><th>Location</th><th></th>'
+    + '<th>#</th><th>Scene</th><th>Content Type</th><th>Shot / Sequence</th><th>Location</th><th>Description</th><th>Dialogue</th><th></th>'
   + '</tr></thead><tbody id="shotTableBody">'
     + (plan.shotList.length ? plan.shotList.map(shotRowHtml).join('') : '<tr><td colspan="8" style="padding:26px; text-align:center; color:var(--ink-faint); font-style:italic;">No shots yet - auto-fill from your script or add a row manually.</td></tr>')
   + '</tbody></table></div>';
-
-  html += '<details class="glossary"><summary>Shot & Content Type Glossary</summary><div class="glossary-body">' + SHOT_GLOSSARY.map(g=>
-    '<div class="gterm"><b>' + esc(g.t) + '</b><span>' + esc(g.d) + '</span></div>'
-  ).join('') + '</div></details>';
 
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
@@ -2425,29 +3460,119 @@ function renderShotlistStep(){
       const id = tr.dataset.shotId;
       const row = plan.shotList.find(r=> r.id===id);
       if(!row) return;
-      tr.querySelectorAll('[data-shot-field]').forEach(inp=>{
-        if(inp.dataset.shotField==='location'){
-          inp.addEventListener('change', ()=>{
-            if(inp.value==='__add__'){
-              const val = (prompt('New location:')||'').trim();
-              if(val){
-                if(!plan.locations.includes(val)) plan.locations.push(val);
-                row.location = val;
-                persistPlan();
-              }
-              renderShotlistStep();
-              renderNav(); renderProgress(); renderPlanPanel();
-              return;
+      tr.querySelectorAll('input[data-shot-field], textarea[data-shot-field]').forEach(inp=>{
+        const isBulletField = inp.tagName==='TEXTAREA' && (inp.dataset.shotField==='description' || inp.dataset.shotField==='dialogue');
+        if(isBulletField) autoGrowTextarea(inp);
+        inp.addEventListener('input', ()=>{
+          if(isBulletField) formatBulletInput(inp);
+          row[inp.dataset.shotField] = inp.value;
+          persistPlan();
+          if(isBulletField) autoGrowTextarea(inp);
+        });
+        if(isBulletField){
+          inp.addEventListener('focus', ()=>{
+            if(inp.value === ''){
+              inp.value = '• ';
+              row[inp.dataset.shotField] = inp.value;
+              persistPlan();
+              autoGrowTextarea(inp);
+              const p = inp.value.length;
+              inp.setSelectionRange(p, p);
             }
-            row.location = inp.value;
-            persistPlan();
           });
-          return;
         }
-        inp.addEventListener('input', ()=>{ row[inp.dataset.shotField] = inp.value; persistPlan(); });
       });
+
+      tr.querySelectorAll('.lc-select[data-field]').forEach(wrap=>{
+        const field = wrap.dataset.field;
+        const trigger = wrap.querySelector('.lc-select-trigger');
+        const setTriggerValue = (label)=>{
+          trigger.querySelector('.lc-select-value').textContent = label;
+          trigger.classList.toggle('is-placeholder', !label);
+        };
+        trigger.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          if(field==='contentType'){
+            openCustomSelect(trigger, {
+              panelHtml: contentTypePanelHtml(row.contentType),
+              onSelect: (val)=>{ row.contentType = val; setTriggerValue(val); persistPlan(); }
+            });
+          } else if(field==='shotType'){
+            openCustomSelect(trigger, {
+              panelHtml: shotTypePanelHtml(row.shotType),
+              onSelect: (val)=>{
+                row.shotType = val;
+                persistPlan();
+                renderShotlistStep();
+                renderNav(); renderProgress(); renderPlanPanel();
+              }
+            });
+          } else if(field==='location'){
+            openCustomSelect(trigger, {
+              panelHtml: locationPanelHtml(row.location),
+              onSelect: (val)=>{ row.location = val; setTriggerValue(val); persistPlan(); },
+              onAdd: async ()=>{
+                const val = await showPrompt({
+                  title: 'Add New Location',
+                  message: 'Where does this shot take place? It\'ll be saved so you can reuse it across other shots.',
+                  fieldLabel: 'Location Name',
+                  placeholder: 'e.g. Kitchen, Backyard, Studio A',
+                  confirmLabel: 'Add Location',
+                  existing: plan.locations
+                });
+                if(val){
+                  if(!plan.locations.includes(val)) plan.locations.push(val);
+                  row.location = val;
+                  persistPlan();
+                  toast('Location added: ' + val);
+                }
+                renderShotlistStep();
+                renderNav(); renderProgress(); renderPlanPanel();
+              },
+              onDelete: async (val)=>{
+                const usedBy = plan.shotList.filter(r=> r.location===val).length;
+                const ok = await showConfirm({
+                  title: 'Delete this location?',
+                  message: '"' + val + '" will be removed from your saved locations'
+                    + (usedBy ? ' and cleared from ' + usedBy + ' shot' + (usedBy===1?'':'s') + ' using it.' : '.'),
+                  confirmLabel: 'Delete Location',
+                  cancelLabel: 'Cancel'
+                });
+                if(!ok) return;
+                plan.locations = plan.locations.filter(l=> l!==val);
+                plan.shotList.forEach(r=>{ if(r.location===val) r.location = ''; });
+                persistPlan();
+                toast('Location deleted: ' + val);
+                renderShotlistStep();
+                renderNav(); renderProgress(); renderPlanPanel();
+              }
+            });
+          } else if(field==='scene'){
+            openCustomSelect(trigger, {
+              panelHtml: scenePanelHtml(row.scene),
+              onSelect: (val)=>{ row.scene = val; setTriggerValue(val); persistPlan(); }
+            });
+          }
+        });
+      });
+
+      tr.querySelectorAll('.lc-select-preview-btn[data-shot-preview]').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          openShotPreview(btn.dataset.shotPreview);
+        });
+      });
+
       const rm = tr.querySelector('[data-shot-remove]');
-      if(rm) rm.addEventListener('click', ()=>{
+      if(rm) rm.addEventListener('click', async ()=>{
+        const label = row.scene ? '"' + row.scene + '"' : 'this shot';
+        const ok = await showConfirm({
+          title: 'Delete this shot?',
+          message: 'Remove ' + label + ' from your shot list? This can\'t be undone.',
+          confirmLabel: 'Delete Shot',
+          cancelLabel: 'Cancel'
+        });
+        if(!ok) return;
         plan.shotList = plan.shotList.filter(r=> r.id!==id);
         persistPlan();
         renderShotlistStep();
@@ -2470,6 +3595,7 @@ function renderShotlistStep(){
     renderShotlistStep();
     renderNav(); renderProgress(); renderPlanPanel();
   });
+  document.getElementById('allShotsBtn').addEventListener('click', openAllShotsModal);
 }
 
 /* ============================================================
@@ -2639,6 +3765,7 @@ function touchGridCardHtml(kind, cfg){
 let touchModalKind = null;
 let touchModalIdx = null;
 let templateReturnTouch = null;
+let templateReturnScript = null;
 function fullscreenBtnHtml(){
   return '<button type="button" class="modal-fullscreen-btn" id="modalFullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">'
     + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
@@ -2673,6 +3800,7 @@ function closeTouchModal(){
   templateCatManageOpen = false;
   templateCatEditing = null;
   templateReturnTouch = null;
+  templateReturnScript = null;
   modalFullscreen = false;
   document.getElementById('feModalOverlay').classList.remove('open', 'fullscreen');
   document.getElementById('feModalBox').classList.remove('fullscreen');
@@ -2766,10 +3894,9 @@ function findTemplateById(groups, id){
   return null;
 }
 function templateEditFormHtml(section, it, catList){
-  const catOptions = catList.map(c=> '<option value="' + escAttr(c) + '" ' + (((it.cat||'General')===c)?'selected':'') + '>' + esc(c) + '</option>').join('');
   return '<div class="tpl-card tpl-card-editing">'
     + '<input type="text" class="tpl-edit-title" id="tplEditTitle" placeholder="Template name..." value="' + escAttr(it.title||'') + '">'
-    + '<select class="tpl-edit-cat" id="tplEditCat">' + catOptions + '</select>'
+    + lcSimpleSelectHtml('tplEditCat', catList, it.cat||'General', 'Select category…', 'tpl-edit-cat')
     + '<input type="text" class="tpl-edit-subject" id="tplEditSubject" placeholder="Subject line..." value="' + escAttr(it.subject||'') + '">'
     + '<textarea class="tpl-edit-text" id="tplEditText" placeholder="Template body...">' + esc(it.text||'') + '</textarea>'
     + '<div class="tpl-edit-actions">'
@@ -2887,6 +4014,9 @@ function renderTemplateModal(){
   box.innerHTML = html;
   document.getElementById('modalCloseBtn').addEventListener('click', closeTouchModal);
   wireFullscreenBtn();
+  if(templateEditingId){
+    wireLcSimpleSelects(box, { tplEditCat: ()=> catList.map(c=> ({value:c, label:c})) });
+  }
   document.getElementById('tplNewBtn').addEventListener('click', ()=>{
     templateEditingId = 'NEW';
     renderTemplateModal();
@@ -3007,6 +4137,17 @@ function renderTemplateModal(){
       persistPlan();
       toast('Template applied');
       openTouchModal(kind, idx);
+      return;
+    }
+    if(templateReturnScript){
+      const scriptId = templateReturnScript;
+      plan.script[scriptId] = item.text;
+      if(plan.scriptMeta[scriptId]) delete plan.scriptMeta[scriptId];
+      persistPlan();
+      closeTouchModal();
+      toast('Template applied');
+      renderScriptStep();
+      renderNav(); renderProgress(); renderPlanPanel();
       return;
     }
     plan.delivery[section.id] = item.text;
@@ -3284,13 +4425,35 @@ render();
 
 document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
 document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('railToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('railToggleBtn');
+  if(window.innerWidth <= 980){
+    const rail = document.getElementById('rail');
+    rail.classList.toggle('open');
+    btn.classList.toggle('is-collapsed', rail.classList.contains('open'));
+  } else {
+    const app = document.getElementById('app');
+    app.classList.toggle('rail-collapsed');
+    btn.classList.toggle('is-collapsed', app.classList.contains('rail-collapsed'));
+  }
+});
 document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
 document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
 document.getElementById('feModalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='feModalOverlay') closeTouchModal(); });
+document.getElementById('promptOverlay').addEventListener('click', (e)=>{ if(e.target.id==='promptOverlay') closePrompt(null); });
+document.getElementById('promptCancelBtn').addEventListener('click', ()=> closePrompt(null));
+document.getElementById('promptForm').addEventListener('submit', (e)=>{ e.preventDefault(); submitPrompt(); });
+document.getElementById('promptInput').addEventListener('input', ()=> promptShowError(''));
+document.getElementById('shotPreviewOverlay').addEventListener('click', (e)=>{ if(e.target.id==='shotPreviewOverlay') closeShotPreview(); });
+document.getElementById('shotPreviewCloseBtn').addEventListener('click', ()=> closeShotPreview());
+document.getElementById('allShotsOverlay').addEventListener('click', (e)=>{ if(e.target.id==='allShotsOverlay') closeAllShotsModal(); });
+document.getElementById('allShotsCloseBtn').addEventListener('click', ()=> closeAllShotsModal());
+document.getElementById('allShotsFullscreenBtn').addEventListener('click', ()=> toggleAllShotsFullscreen());
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
   if(e.key==='Escape' && document.getElementById('feModalOverlay').classList.contains('open')) closeTouchModal();
+  if(e.key==='Escape' && document.getElementById('promptOverlay').classList.contains('open')) closePrompt(null);
 });
 document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
 document.getElementById('clearPlanBtn').addEventListener('click', async ()=>{

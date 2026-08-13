@@ -66,15 +66,34 @@ svg{display:block;}
   grid-template-areas: "rail main";
   flex:1 1 auto; min-height:0;
   overflow:hidden;
+  transition: grid-template-columns .28s var(--ease, ease);
 }
+#app.rail-collapsed{ grid-template-columns: 0px 1fr; }
+#app.rail-collapsed nav#rail{ opacity:0; pointer-events:none; }
 @media (max-width: 980px){
   #app{ grid-template-columns: 1fr; grid-template-areas: "main"; }
+  #app.rail-collapsed{ grid-template-columns: 1fr; }
   nav#rail{
     position:fixed; inset:0 auto 0 0; width:340px; max-width:88vw; z-index:50;
     transform:translateX(-100%); transition:transform .2s ease;
   }
   nav#rail.open{transform:translateX(0); box-shadow:20px 0 40px -20px rgba(0,0,0,.35);}
+  #app.rail-collapsed nav#rail{ opacity:1; pointer-events:auto; }
 }
+
+/* ---------- sidebar toggle (burger) ---------- */
+.rail-toggle-btn{
+  display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  width:34px; height:34px; border-radius:8px; border:1px solid var(--line-strong);
+  background:var(--paper); cursor:pointer; padding:0; margin-right:12px;
+  transition:border-color .15s ease, background-color .15s ease;
+}
+.rail-toggle-btn:hover{border-color:var(--stamp); background:#F7F8F7;}
+.rail-toggle-btn svg{width:18px; height:18px; color:var(--ink); display:block;}
+.rail-toggle-btn .burger-line{transition:transform .25s var(--ease, ease), opacity .2s ease; transform-origin:center;}
+.rail-toggle-btn.is-collapsed .burger-line1{transform:translateY(6px) rotate(45deg);}
+.rail-toggle-btn.is-collapsed .burger-line2{opacity:0;}
+.rail-toggle-btn.is-collapsed .burger-line3{transform:translateY(-6px) rotate(-45deg);}
 
 /* ---------- sidebar ---------- */
 nav#rail{
@@ -653,6 +672,13 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 
 <div class="site-topbar-accent"></div>
 <div class="site-topbar">
+  <button class="rail-toggle-btn" id="railToggleBtn" title="Toggle sidebar" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line class="burger-line burger-line1" x1="3" y1="6" x2="21" y2="6"></line>
+      <line class="burger-line burger-line2" x1="3" y1="12" x2="21" y2="12"></line>
+      <line class="burger-line burger-line3" x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
   <a class="back-link" href="index.html">&larr; Outreach Tools</a>
   <h1>VSL Loom</h1>
   <div class="who">
@@ -1919,6 +1945,18 @@ render();
 
 document.getElementById('railOpenBtn').addEventListener('click', ()=> document.getElementById('rail').classList.add('open'));
 document.getElementById('railCloseBtn').addEventListener('click', ()=> document.getElementById('rail').classList.remove('open'));
+document.getElementById('railToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('railToggleBtn');
+  if(window.innerWidth <= 980){
+    const rail = document.getElementById('rail');
+    rail.classList.toggle('open');
+    btn.classList.toggle('is-collapsed', rail.classList.contains('open'));
+  } else {
+    const app = document.getElementById('app');
+    app.classList.toggle('rail-collapsed');
+    btn.classList.toggle('is-collapsed', app.classList.contains('rail-collapsed'));
+  }
+});
 document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeTemplateModal(); });
 document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
