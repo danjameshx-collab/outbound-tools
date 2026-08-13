@@ -846,8 +846,137 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
 ::-webkit-scrollbar{width:10px; height:10px;}
 ::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
+
+/* ---------- library launcher ---------- */
+#loomWorkspace{display:none; flex:1 1 auto; flex-direction:column; min-height:0;}
+#loomWorkspace.active{display:flex;}
+#loomLauncher{
+  display:none; flex:1 1 auto; min-height:0; overflow-y:auto; flex-direction:column; align-items:center;
+  padding:56px 24px 80px; font-family:var(--font-body);
+}
+#loomLauncher.active{display:flex;}
+.launcher-inner{width:100%; max-width:980px;}
+.launcher-header{text-align:center; margin-bottom:40px;}
+.launcher-header .back-link{
+  display:inline-flex; align-items:center; gap:6px; color:var(--ink-soft); font-size:13px; font-weight:600;
+  text-decoration:none; margin-bottom:22px; transition:color .15s ease;
+}
+.launcher-header .back-link:hover{color:var(--stamp);}
+.launcher-title{
+  font-family:var(--font-display); font-weight:700; font-size:32px; letter-spacing:-.01em;
+  margin:0 0 10px; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:12px;
+}
+.launcher-title .logo-mark{
+  display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px;
+  background:linear-gradient(155deg, var(--stamp), #175738); color:#fff;
+  box-shadow:0 4px 10px -3px rgba(30,107,69,.45); font-family:var(--font-display); font-weight:700; font-size:14px;
+}
+.launcher-subhead{font-size:15px; color:var(--ink-soft); margin:0;}
+.launcher-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:32px;
+}
+.launcher-card{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:20px 18px; cursor:pointer; text-align:left;
+  transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+  display:flex; flex-direction:column; min-height:132px;
+}
+.launcher-card:hover{border-color:var(--stamp); box-shadow:var(--shadow); transform:translateY(-2px);}
+.launcher-card.new{
+  align-items:center; justify-content:center; text-align:center; border-style:dashed; border-color:var(--line-strong);
+  background:var(--mimeo-ink); gap:10px;
+}
+.launcher-card.new:hover{border-color:var(--stamp);}
+.launcher-card.new .plus{
+  width:38px; height:38px; border-radius:50%; background:var(--stamp); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; line-height:1;
+}
+.launcher-card.new .label{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+.launcher-card .lc-name{
+  font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--ink); margin:0 0 4px;
+  padding-right:56px; overflow-wrap:break-word;
+}
+.launcher-card .lc-meta{font-size:12px; color:var(--ink-faint); margin:0 0 12px;}
+.launcher-card .lc-progress{margin-top:auto;}
+.launcher-card .lc-progress-label{font-size:11px; color:var(--ink-soft); font-weight:600; margin-bottom:5px;}
+.launcher-card .lc-progress-bar{height:5px; border-radius:99px; background:var(--line); overflow:hidden;}
+.launcher-card .lc-progress-fill{height:100%; background:var(--stamp); border-radius:99px;}
+.launcher-card .lc-actions{position:absolute; top:10px; right:10px; display:flex; gap:4px;}
+.launcher-card .lc-icon-btn{
+  width:24px; height:24px; border-radius:6px; border:none;
+  background:transparent; color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease;
+}
+.launcher-card .lc-icon-btn:hover{background:var(--mimeo-ink); color:var(--stamp);}
+.launcher-card .lc-delete:hover{background:#FBEEE0; color:var(--warn);}
+.launcher-card .lc-icon-btn svg{width:14px; height:14px;}
+.launcher-empty{
+  grid-column:1/-1; text-align:center; padding:32px 16px; color:var(--ink-faint); font-size:13px;
+}
+
+/* ---------- sidebar item name (rename current saved item) ---------- */
+.sidebar-loom-name{
+  display:flex; align-items:center; gap:6px; margin:0 20px 14px; padding:8px 10px;
+  border:1px solid var(--line); border-radius:8px; background:var(--paper);
+}
+.sidebar-loom-name .sln-text{
+  flex:1 1 auto; min-width:0; font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.sidebar-loom-name .sln-edit{
+  flex:0 0 auto; width:22px; height:22px; border-radius:6px; border:none; background:transparent;
+  color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease;
+}
+.sidebar-loom-name .sln-edit:hover{background:var(--mimeo-ink); color:var(--stamp);}
+.sidebar-loom-name .sln-edit svg{width:13px; height:13px;}
+
+/* ---------- prompt dialog (styled text-input modal, replaces window.prompt) ---------- */
+.prompt-box{max-width:400px;}
+.prompt-icon{background:var(--mimeo-ink); color:var(--stamp);}
+.prompt-icon svg{width:16px; height:16px;}
+.prompt-field-label{
+  display:block; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+  letter-spacing:.05em; font-size:10.5px; color:var(--ink-faint); margin:0 0 7px;
+}
+.prompt-input{
+  width:100%; box-sizing:border-box; border:1.5px solid var(--line-strong); border-radius:9px;
+  background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:14px;
+  padding:10px 12px; transition:border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.prompt-input:focus{outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);}
+.prompt-input.has-error{border-color:var(--warn); box-shadow:0 0 0 3px rgba(180,105,26,.13);}
+.prompt-error{
+  min-height:16px; font-size:12px; color:var(--warn); margin:6px 2px 0; line-height:1.4;
+  display:flex; align-items:center; gap:5px; opacity:0; transform:translateY(-2px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+.prompt-error.show{opacity:1; transform:translateY(0);}
+.prompt-existing{margin:14px 0 0; padding-top:12px; border-top:1px solid var(--line);}
+.prompt-existing-label{
+  font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  font-size:10px; color:var(--ink-faint); margin:0 0 8px;
+}
+.prompt-existing-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.prompt-chip{
+  font-size:11.5px; color:var(--ink-soft); background:var(--paper); border:1px solid var(--line);
+  border-radius:999px; padding:4px 10px; line-height:1.3;
+}
+.prompt-actions{margin-top:20px;}
 </style>
 
+<div id="loomLauncher">
+  <div class="launcher-inner">
+    <div class="launcher-header">
+      <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+      <h1 class="launcher-title"><span class="logo-mark">PG</span>Physical Goods</h1>
+      <p class="launcher-subhead">Create A New Send or Browse Previous Sends</p>
+    </div>
+    <div class="launcher-grid" id="launcherGrid"></div>
+  </div>
+</div>
+
+<div id="loomWorkspace">
 <div class="site-topbar-accent"></div>
 <div class="site-topbar">
   <button class="rail-toggle-btn" id="railToggleBtn" title="Toggle sidebar" aria-label="Toggle sidebar">
@@ -857,7 +986,7 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
       <line class="burger-line burger-line3" x1="3" y1="18" x2="21" y2="18"></line>
     </svg>
   </button>
-  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <a class="back-link" href="#" id="backToLibraryLink">&larr; My Physical Goods Sends</a>
   <h1>Physical Goods</h1>
   <div class="who">
     <span>Signed in as Dan</span>
@@ -874,6 +1003,10 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
         <div class="logo-sub">Send Builder</div>
       </div>
       <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu">Close</button>
+    </div>
+    <div class="sidebar-loom-name">
+      <span class="sln-text" id="sidebarLoomNameText">Untitled Send</span>
+      <button class="sln-edit" id="sidebarLoomRenameBtn" title="Rename this Send" aria-label="Rename this Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
     </div>
     <div class="sidebar-progress">
       <div class="pp-label"><span>Plan progress</span><span id="progressLabel">0/6</span></div>
@@ -903,6 +1036,7 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
     <div id="content"></div>
   </main>
 </div>
+</div>
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-box" id="modalBox"></div>
@@ -918,6 +1052,27 @@ table.goods-table .col-action .btn{white-space:nowrap; width:100%; text-align:ce
       <button type="button" class="btn primary danger" id="confirmOkBtn">Confirm</button>
     </div>
   </div>
+</div>
+
+<div class="confirm-overlay" id="promptOverlay" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+  <form class="confirm-box prompt-box" id="promptForm" novalidate>
+    <div class="confirm-icon prompt-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    </div>
+    <h3 class="confirm-title" id="promptTitle">Name This Send</h3>
+    <p class="confirm-message" id="promptMessage"></p>
+    <label class="prompt-field-label" for="promptInput" id="promptFieldLabel">Name</label>
+    <input type="text" class="prompt-input" id="promptInput" placeholder="e.g. Acme Roofing - John Smith" autocomplete="off" maxlength="60">
+    <div class="prompt-error" id="promptError"><span></span></div>
+    <div class="prompt-existing" id="promptExisting" hidden>
+      <div class="prompt-existing-label">Already Saved</div>
+      <div class="prompt-existing-chips" id="promptExistingChips"></div>
+    </div>
+    <div class="confirm-actions prompt-actions">
+      <button type="button" class="btn" id="promptCancelBtn">Cancel</button>
+      <button type="submit" class="btn primary" id="promptOkBtn">Save</button>
+    </div>
+  </form>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1189,7 +1344,225 @@ function loadPlan(){
   }catch(e){}
   return defaultPlan();
 }
-function persistPlan(){ localStorage.setItem('physicalgoods_plan', JSON.stringify(plan)); }
+function persistPlan(){ localStorage.setItem('physicalgoods_plan', JSON.stringify(plan)); syncActiveLoomToLibrary(); }
+
+/* ============================================================
+ SEND LIBRARY - save/browse multiple Physical Goods sends
+ Each saved send is {id, name, updatedAt, plan}. The "active" send
+ id is remembered so edits made via persistPlan() flow straight
+ into its library record without any extra save step.
+ ============================================================ */
+function loadLibrary(){
+  try{ const l = JSON.parse(localStorage.getItem('physicalgoods_library')); if(Array.isArray(l)) return l; }catch(e){}
+  return [];
+}
+function persistLibrary(){ localStorage.setItem('physicalgoods_library', JSON.stringify(library)); }
+let library = loadLibrary();
+function migrateLegacyPlan(){
+  if(library.length) return;
+  const hasContent = plan && ((plan.good && plan.good.name) || (plan.sendMethod) || (plan.insideMessage||'').trim());
+  if(!hasContent) return;
+  const id = 'send_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  library.push({ id, name: loomDisplayName(plan) || 'Untitled Send', updatedAt: Date.now(), plan: plan });
+  persistLibrary();
+}
+function loomDisplayName(p){ return (p && p.good && p.good.name) || null; }
+function syncActiveLoomToLibrary(){
+  const id = getActiveLoomId();
+  if(!id) return;
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  rec.plan = plan;
+  rec.updatedAt = Date.now();
+  if(!rec.name) rec.name = loomDisplayName(plan) || 'Untitled Send';
+  persistLibrary();
+}
+function getActiveLoomId(){ return localStorage.getItem('physicalgoods_active_id') || null; }
+function setActiveLoomId(id){
+  if(id) localStorage.setItem('physicalgoods_active_id', id);
+  else localStorage.removeItem('physicalgoods_active_id');
+}
+function loomProgressFraction(p){
+  if(!p) return null;
+  const checks = [
+    !!(p.good && p.good.name),
+    !!p.costTier,
+    !!(p.research && Object.values(p.research).some(sec=> sec && Object.values(sec).some(v=> Array.isArray(v) ? v.length : (v||'').toString().trim()))),
+    !!(p.sendMethod),
+    !!((p.insideMessage||p.beforeLanding||'').toString().trim()),
+    !!(Array.isArray(p.followupEmails) && p.followupEmails.some(e=> e && ((e.subject||'')+(e.body||'')).trim())),
+  ];
+  return { done: checks.filter(Boolean).length, total: checks.length };
+}
+function createNewLoom(name){
+  const id = 'send_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  library.push({ id, name: name || 'Untitled Send', updatedAt: Date.now(), plan: defaultPlan() });
+  persistLibrary();
+  openLoom(id);
+}
+function openLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  setActiveLoomId(id);
+  localStorage.setItem('physicalgoods_plan', JSON.stringify(rec.plan));
+  plan = loadPlan();
+  activeStep = STEPS[0].id;
+  showWorkspace();
+  render();
+}
+async function deleteLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  const ok = await showConfirm({
+    title:'Delete this Send?',
+    message:'"' + (rec.name || 'Untitled Send') + '" and everything saved in it will be permanently deleted. This cannot be undone.',
+    confirmLabel:'Delete',
+  });
+  if(!ok) return;
+  library = library.filter(l=> l.id !== id);
+  persistLibrary();
+  if(getActiveLoomId() === id) setActiveLoomId(null);
+  renderLauncher();
+}
+async function renameLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  const name = await showPrompt({
+    title:'Rename Send',
+    fieldLabel:'Send name',
+    placeholder:'e.g. Acme Roofing - John Smith',
+    confirmLabel:'Save',
+    value: rec.name || '',
+  });
+  if(name === null) return;
+  rec.name = name.trim() || rec.name;
+  persistLibrary();
+  renderLauncher();
+  updateSidebarLoomName();
+}
+function updateSidebarLoomName(){
+  const el = document.getElementById('sidebarLoomNameText');
+  if(!el) return;
+  const rec = library.find(l=> l.id === getActiveLoomId());
+  el.textContent = rec ? (rec.name || 'Untitled Send') : 'Untitled Send';
+}
+function showWorkspace(){
+  document.getElementById('loomLauncher').classList.remove('active');
+  document.getElementById('loomWorkspace').classList.add('active');
+}
+function showLauncher(){
+  document.getElementById('loomWorkspace').classList.remove('active');
+  document.getElementById('loomLauncher').classList.add('active');
+  renderLauncher();
+}
+function fmtLoomDate(ts){
+  try{ return new Date(ts).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }catch(e){ return ''; }
+}
+const TRASH_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>';
+const PENCIL_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+function renderLauncher(){
+  const grid = document.getElementById('launcherGrid');
+  if(!grid) return;
+  const sorted = library.slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
+  let html = '<button type="button" class="launcher-card new" id="launcherCreateBtn"><span class="plus">+</span><span class="label">Create New Send</span></button>';
+  if(!sorted.length){
+    html += '<div class="launcher-empty">No sends saved yet - create your first one to get started.</div>';
+  } else {
+    sorted.forEach(rec=>{
+      const name = rec.name || loomDisplayName(rec.plan) || 'Untitled Send';
+      const prog = loomProgressFraction(rec.plan);
+      const progBar = (prog && prog.total) ? '<div class="lc-progress"><div class="lc-progress-label">' + prog.done + '/' + prog.total + ' steps</div><div class="lc-progress-bar"><div class="lc-progress-fill" style="width:' + Math.round(100*prog.done/prog.total) + '%"></div></div></div>' : '';
+      html += '<div class="launcher-card" data-loom-id="' + rec.id + '">' +
+        '<div class="lc-actions">' +
+          '<button type="button" class="lc-icon-btn lc-rename" data-rename-id="' + rec.id + '" title="Rename this Send" aria-label="Rename">' + PENCIL_ICON_SVG + '</button>' +
+          '<button type="button" class="lc-icon-btn lc-delete" data-delete-id="' + rec.id + '" title="Delete this Send" aria-label="Delete">' + TRASH_ICON_SVG + '</button>' +
+        '</div>' +
+        '<h3 class="lc-name">' + esc(name) + '</h3>' +
+        '<p class="lc-meta">Updated ' + fmtLoomDate(rec.updatedAt) + '</p>' +
+        progBar +
+        '</div>';
+    });
+  }
+  grid.innerHTML = html;
+  const createBtn = document.getElementById('launcherCreateBtn');
+  if(createBtn) createBtn.addEventListener('click', async ()=>{
+    const name = await showPrompt({
+      title:'Name This Send',
+      message:'What should we call this one? You can always rename it later.',
+      fieldLabel:'Send name',
+      placeholder:'e.g. Acme Roofing - John Smith',
+      confirmLabel:'Create',
+    });
+    if(name === null) return;
+    createNewLoom(name.trim() || 'Untitled Send');
+  });
+  grid.querySelectorAll('.launcher-card[data-loom-id]').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.lc-icon-btn')) return;
+      openLoom(card.getAttribute('data-loom-id'));
+    });
+  });
+  grid.querySelectorAll('.lc-delete').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteLoom(btn.getAttribute('data-delete-id')); });
+  });
+  grid.querySelectorAll('.lc-rename').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); renameLoom(btn.getAttribute('data-rename-id')); });
+  });
+}
+
+/* ============================================================
+ STYLED PROMPT DIALOG (promise-based, replaces window.prompt)
+ ============================================================ */
+let _promptResolve = null;
+let _promptExisting = [];
+function showPrompt({title='Add New Item', message='', fieldLabel='Name', placeholder='', confirmLabel='Add', cancelLabel='Cancel', value='', existing=[]} = {}){
+  return new Promise((resolve)=>{
+    _promptResolve = resolve;
+    _promptExisting = existing;
+    document.getElementById('promptTitle').textContent = title;
+    document.getElementById('promptMessage').textContent = message;
+    document.getElementById('promptMessage').style.display = message ? '' : 'none';
+    document.getElementById('promptFieldLabel').textContent = fieldLabel;
+    document.getElementById('promptOkBtn').textContent = confirmLabel;
+    document.getElementById('promptCancelBtn').textContent = cancelLabel;
+    const input = document.getElementById('promptInput');
+    input.placeholder = placeholder;
+    input.value = value;
+    input.classList.remove('has-error');
+    promptShowError('');
+    const chipsWrap = document.getElementById('promptExisting');
+    const chips = document.getElementById('promptExistingChips');
+    if(existing.length){
+      chipsWrap.hidden = false;
+      chips.innerHTML = existing.map(v=> '<span class="prompt-chip">' + esc(v) + '</span>').join('');
+    } else {
+      chipsWrap.hidden = true;
+      chips.innerHTML = '';
+    }
+    document.getElementById('promptOverlay').classList.add('open');
+    requestAnimationFrame(()=>{ input.focus(); input.select(); });
+  });
+}
+function promptShowError(msg){
+  const el = document.getElementById('promptError');
+  el.querySelector('span').textContent = msg;
+  el.classList.toggle('show', !!msg);
+  document.getElementById('promptInput').classList.toggle('has-error', !!msg);
+}
+function submitPrompt(){
+  const input = document.getElementById('promptInput');
+  const val = input.value.trim();
+  if(!val){ promptShowError('Enter a name to continue.'); input.focus(); return; }
+  const dupe = _promptExisting.find(v=> v.toLowerCase() === val.toLowerCase());
+  if(dupe){ promptShowError('"' + dupe + '" is already saved - pick it from the list instead.'); input.focus(); return; }
+  closePrompt(val);
+}
+function closePrompt(result){
+  const overlay = document.getElementById('promptOverlay');
+  if(!overlay.classList.contains('open')) return;
+  overlay.classList.remove('open');
+  if(_promptResolve){ _promptResolve(result); _promptResolve = null; }
+}
 
 function loadCustomGoods(){
   try{
@@ -1277,6 +1650,7 @@ let customTemplateAdds = loadCustomTemplateAdds();
 let customTemplateDeletes = loadCustomTemplateDeletes();
 let customCategories = loadCustomCategories();
 let plan = loadPlan();
+migrateLegacyPlan();
 let activeStep = 'research';
 let goodsModal = null;
 let editingGoodId = null;
@@ -2554,6 +2928,7 @@ function render(){
   renderStepContent();
   renderPlanPanel();
   renderMobileTopbar();
+  updateSidebarLoomName();
 }
 
 render();
@@ -2576,8 +2951,16 @@ document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.ta
 document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
 document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
+document.getElementById('promptOverlay').addEventListener('click', (e)=>{ if(e.target.id==='promptOverlay') closePrompt(null); });
+document.getElementById('promptCancelBtn').addEventListener('click', ()=> closePrompt(null));
+document.getElementById('promptForm').addEventListener('submit', (e)=>{ e.preventDefault(); submitPrompt(); });
+document.getElementById('promptInput').addEventListener('input', ()=> promptShowError(''));
+document.getElementById('backToLibraryLink').addEventListener('click', (e)=>{ e.preventDefault(); setActiveLoomId(null); showLauncher(); });
+document.getElementById('sidebarLoomRenameBtn').addEventListener('click', ()=> renameLoom(getActiveLoomId()));
+showLauncher();
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape' && document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm(false);
+  if(e.key==='Escape' && document.getElementById('promptOverlay').classList.contains('open')) closePrompt(null);
 });
 document.getElementById('copyPlanBtn').addEventListener('click', ()=> copyText(planText()));
 document.getElementById('clearPlanBtn').addEventListener('click', async ()=>{

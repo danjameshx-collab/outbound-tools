@@ -235,6 +235,91 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 .card h3{margin:0 0 4px; font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--ink);}
 .card p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
 
+/* ---------- loom launcher ---------- */
+#loomWorkspace{display:none; flex:1 1 auto; flex-direction:column; min-height:0;}
+#loomWorkspace.active{display:flex;}
+#loomLauncher{
+  display:none; flex:1 1 auto; min-height:0; overflow-y:auto; flex-direction:column; align-items:center;
+  padding:56px 24px 80px; font-family:var(--font-body);
+}
+#loomLauncher.active{display:flex;}
+.launcher-inner{width:100%; max-width:980px;}
+.launcher-header{text-align:center; margin-bottom:40px;}
+.launcher-header .back-link{
+  display:inline-flex; align-items:center; gap:6px; color:var(--ink-soft); font-size:13px; font-weight:600;
+  text-decoration:none; margin-bottom:22px; transition:color .15s ease;
+}
+.launcher-header .back-link:hover{color:var(--bespoke);}
+.launcher-title{
+  font-family:var(--font-display); font-weight:700; font-size:32px; letter-spacing:-.01em;
+  margin:0 0 10px; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:12px;
+}
+.launcher-title .logo-mark{
+  display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px;
+  background:linear-gradient(150deg, var(--bespoke), var(--bespoke-dark)); color:#fff;
+  box-shadow:0 4px 10px -3px rgba(30,107,69,.45); font-family:var(--font-display); font-weight:700; font-size:14px;
+}
+.launcher-subhead{font-size:15px; color:var(--ink-soft); margin:0;}
+.launcher-subhead b{color:var(--ink); font-weight:700;}
+.launcher-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:32px;
+}
+.launcher-card{
+  position:relative; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:20px 18px; cursor:pointer; text-align:left;
+  transition:box-shadow .18s ease, border-color .18s ease, transform .18s ease;
+  display:flex; flex-direction:column; min-height:132px;
+}
+.launcher-card:hover{border-color:var(--bespoke); box-shadow:var(--shadow-hover); transform:translateY(-2px);}
+.launcher-card.new{
+  align-items:center; justify-content:center; text-align:center; border-style:dashed; border-color:var(--line-strong);
+  background:var(--mimeo-ink); gap:10px;
+}
+.launcher-card.new:hover{border-color:var(--bespoke); background:var(--bespoke-bg);}
+.launcher-card.new .plus{
+  width:38px; height:38px; border-radius:50%; background:var(--bespoke); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; line-height:1;
+}
+.launcher-card.new .label{font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink);}
+.launcher-card .lc-name{
+  font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--ink); margin:0 0 4px;
+  padding-right:20px; overflow-wrap:break-word;
+}
+.launcher-card .lc-meta{font-size:12px; color:var(--ink-faint); margin:0 0 12px;}
+.launcher-card .lc-progress{margin-top:auto;}
+.launcher-card .lc-progress-label{font-size:11px; color:var(--ink-soft); font-weight:600; margin-bottom:5px;}
+.launcher-card .lc-progress-bar{height:5px; border-radius:99px; background:var(--line); overflow:hidden;}
+.launcher-card .lc-progress-fill{height:100%; background:var(--stamp); border-radius:99px;}
+.launcher-card .lc-actions{position:absolute; top:10px; right:10px; display:flex; gap:4px;}
+.launcher-card .lc-icon-btn{
+  width:24px; height:24px; border-radius:6px; border:none;
+  background:transparent; color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease;
+}
+.launcher-card .lc-icon-btn:hover{background:var(--mimeo-ink); color:var(--bespoke);}
+.launcher-card .lc-delete:hover{background:#FBEEE0; color:var(--warn);}
+.launcher-card .lc-icon-btn svg{width:14px; height:14px;}
+
+/* ---------- sidebar loom name (rename current loom) ---------- */
+.sidebar-loom-name{
+  display:flex; align-items:center; gap:6px; margin:0 20px 14px; padding:8px 10px;
+  border:1px solid var(--line); border-radius:8px; background:var(--paper);
+}
+.sidebar-loom-name .sln-text{
+  flex:1 1 auto; min-width:0; font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.sidebar-loom-name .sln-edit{
+  flex:0 0 auto; width:22px; height:22px; border-radius:6px; border:none; background:transparent;
+  color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background-color .15s ease, color .15s ease;
+}
+.sidebar-loom-name .sln-edit:hover{background:var(--mimeo-ink); color:var(--bespoke);}
+.sidebar-loom-name .sln-edit svg{width:13px; height:13px;}
+.launcher-empty{
+  grid-column:1/-1; text-align:center; padding:32px 16px; color:var(--ink-faint); font-size:13px;
+}
+
 /* ---------- callouts ---------- */
 .callout{
   border:1px solid var(--stamp); border-left:3px solid var(--stamp); background:var(--mimeo-ink); border-radius:10px;
@@ -1335,6 +1420,18 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
 }
 </style>
 
+<div id="loomLauncher">
+  <div class="launcher-inner">
+    <div class="launcher-header">
+      <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+      <h1 class="launcher-title"><span class="logo-mark">SL</span>Super Loom</h1>
+      <p class="launcher-subhead">Create A New Super Loom or Browse Previous Super Looms</p>
+    </div>
+    <div class="launcher-grid" id="launcherGrid"></div>
+  </div>
+</div>
+
+<div id="loomWorkspace">
 <div class="site-topbar-accent"></div>
 <div class="site-topbar">
   <button class="rail-toggle-btn" id="railToggleBtn" title="Toggle sidebar" aria-label="Toggle sidebar">
@@ -1344,7 +1441,7 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
       <line class="burger-line burger-line3" x1="3" y1="18" x2="21" y2="18"></line>
     </svg>
   </button>
-  <a class="back-link" href="index.html">&larr; Outreach Tools</a>
+  <a class="back-link" href="#" id="backToLibraryLink">&larr; My Super Looms</a>
   <h1>Super Loom</h1>
   <div class="who">
     <span>Signed in as Dan</span>
@@ -1361,6 +1458,10 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
         <div class="logo-sub">Bespoke Film Builder</div>
       </div>
       <button class="iconbtn rail-close-mobile" id="railCloseBtn" title="Close menu" aria-label="Close menu">Close</button>
+    </div>
+    <div class="sidebar-loom-name">
+      <span class="sln-text" id="sidebarLoomNameText">Untitled Super Loom</span>
+      <button class="sln-edit" id="sidebarLoomRenameBtn" title="Rename this Super Loom" aria-label="Rename this Super Loom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
     </div>
     <div class="sidebar-progress">
       <div class="pp-label"><span>Build progress</span><span id="progressLabel">0/7</span></div>
@@ -1389,6 +1490,7 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
     </div>
     <div id="content"></div>
   </main>
+</div>
 </div>
 
 <div class="modal-overlay" id="feModalOverlay" role="dialog" aria-modal="true">
@@ -2073,8 +2175,186 @@ function loadPlan(){
     }
   }catch(e){}
 }
-function persistPlan(){ localStorage.setItem('superloom_plan', JSON.stringify(plan)); }
+function persistPlan(){
+  localStorage.setItem('superloom_plan', JSON.stringify(plan));
+  syncActiveLoomToLibrary();
+}
 loadPlan();
+
+/* ============================================================
+ SUPER LOOM LIBRARY - save/browse multiple Super Looms
+ Each saved loom is {id, name, updatedAt, plan}. The "active" loom
+ id is remembered so edits made via persistPlan() flow straight
+ into its library record without any extra save step.
+ ============================================================ */
+function loadLibrary(){
+  try{ const l = JSON.parse(localStorage.getItem('superloom_library')); if(Array.isArray(l)) return l; }catch(e){}
+  return [];
+}
+function persistLibrary(){ localStorage.setItem('superloom_library', JSON.stringify(library)); }
+let library = loadLibrary();
+/* One-time migration: if this browser already had a single Super Loom plan
+   saved before the library existed, carry it forward as its first entry
+   instead of silently losing it. */
+(function migrateLegacyPlan(){
+  if(library.length) return;
+  const hasContent = plan && ((plan.prospect && plan.prospect.name && plan.prospect.name.trim()) ||
+    (plan.script && Object.values(plan.script).some(v=> (v||'').toString().trim())) ||
+    (plan.hook && plan.hook.chosenTitle && plan.hook.chosenTitle.trim()));
+  if(!hasContent) return;
+  const id = 'loom_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  library.push({ id, name: loomDisplayName(plan) || 'Untitled Super Loom', updatedAt: Date.now(), plan: plan });
+  persistLibrary();
+})();
+function getActiveLoomId(){ return localStorage.getItem('superloom_active_id') || null; }
+function setActiveLoomId(id){
+  if(id) localStorage.setItem('superloom_active_id', id);
+  else localStorage.removeItem('superloom_active_id');
+}
+function loomDisplayName(p){
+  const name = p && p.prospect && (p.prospect.name || p.prospect.company);
+  return name || null;
+}
+function syncActiveLoomToLibrary(){
+  const id = getActiveLoomId();
+  if(!id) return;
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  rec.plan = plan;
+  rec.updatedAt = Date.now();
+  if(!rec.name) rec.name = loomDisplayName(plan) || 'Untitled Super Loom';
+  persistLibrary();
+}
+function loomProgressFraction(p){
+  if(!p) return null;
+  const checks = [
+    !!(p.prospect && p.prospect.name && p.prospect.name.trim()),
+    !!(p.research && Object.values(p.research).some(sec=> sec && Object.values(sec).some(v=> Array.isArray(v) ? v.length : (v||'').toString().trim()))),
+    !!(p.hook && p.hook.chosenTitle && p.hook.chosenTitle.trim()),
+    !!(p.script && Object.values(p.script).some(v=> (v||'').toString().trim())),
+    !!(p.shotList && p.shotList.length),
+    !!(p.production && p.production.checklist && Object.values(p.production.checklist).some(Boolean)),
+    !!(p.delivery && p.delivery.publicPost && p.delivery.publicPost.trim()),
+  ];
+  return { done: checks.filter(Boolean).length, total: checks.length };
+}
+function createNewLoom(name){
+  const id = 'loom_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const freshPlan = defaultPlan();
+  library.push({ id, name: name || 'Untitled Super Loom', updatedAt: Date.now(), plan: freshPlan });
+  persistLibrary();
+  openLoom(id);
+}
+function openLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  setActiveLoomId(id);
+  localStorage.setItem('superloom_plan', JSON.stringify(rec.plan));
+  loadPlan();
+  activeStep = STEPS[0].id;
+  showWorkspace();
+  render();
+}
+async function deleteLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  const ok = await showConfirm({
+    title:'Delete this Super Loom?',
+    message:'"' + (rec.name || 'Untitled Super Loom') + '" and everything saved in it will be permanently deleted. This cannot be undone.',
+    confirmLabel:'Delete',
+  });
+  if(!ok) return;
+  library = library.filter(l=> l.id !== id);
+  persistLibrary();
+  if(getActiveLoomId() === id) setActiveLoomId(null);
+  renderLauncher();
+}
+function showWorkspace(){
+  document.getElementById('loomLauncher').classList.remove('active');
+  document.getElementById('loomWorkspace').classList.add('active');
+}
+function showLauncher(){
+  document.getElementById('loomWorkspace').classList.remove('active');
+  document.getElementById('loomLauncher').classList.add('active');
+  renderLauncher();
+}
+function fmtLoomDate(ts){
+  try{ return new Date(ts).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }catch(e){ return ''; }
+}
+const TRASH_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>';
+const PENCIL_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+function renderLauncher(){
+  const grid = document.getElementById('launcherGrid');
+  if(!grid) return;
+  const sorted = library.slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
+  let html = '<button type="button" class="launcher-card new" id="launcherCreateBtn"><span class="plus">+</span><span class="label">Create New Super Loom</span></button>';
+  if(!sorted.length){
+    html += '<div class="launcher-empty">No Super Looms saved yet - create your first one to get started.</div>';
+  } else {
+    sorted.forEach(rec=>{
+      const name = rec.name || loomDisplayName(rec.plan) || 'Untitled Super Loom';
+      const prog = loomProgressFraction(rec.plan);
+      const progBar = (prog && prog.total) ? '<div class="lc-progress"><div class="lc-progress-label">' + prog.done + '/' + prog.total + ' steps</div><div class="lc-progress-bar"><div class="lc-progress-fill" style="width:' + Math.round(100*prog.done/prog.total) + '%"></div></div></div>' : '';
+      html += '<div class="launcher-card" data-loom-id="' + rec.id + '">' +
+        '<div class="lc-actions">' +
+          '<button type="button" class="lc-icon-btn lc-rename" data-rename-id="' + rec.id + '" title="Rename this Super Loom" aria-label="Rename">' + PENCIL_ICON_SVG + '</button>' +
+          '<button type="button" class="lc-icon-btn lc-delete" data-delete-id="' + rec.id + '" title="Delete this Super Loom" aria-label="Delete">' + TRASH_ICON_SVG + '</button>' +
+        '</div>' +
+        '<h3 class="lc-name">' + esc(name) + '</h3>' +
+        '<p class="lc-meta">Updated ' + fmtLoomDate(rec.updatedAt) + '</p>' +
+        progBar +
+        '</div>';
+    });
+  }
+  grid.innerHTML = html;
+  const createBtn = document.getElementById('launcherCreateBtn');
+  if(createBtn) createBtn.addEventListener('click', async ()=>{
+    const name = await showPrompt({
+      title:'Name Your Super Loom',
+      message:'What should we call this one? You can always rename it later by filling in the whale\'s name or company.',
+      fieldLabel:'Super Loom name',
+      placeholder:'e.g. Acme Roofing - John Smith',
+      confirmLabel:'Create',
+    });
+    if(name === null) return;
+    createNewLoom(name.trim() || 'Untitled Super Loom');
+  });
+  grid.querySelectorAll('.launcher-card[data-loom-id]').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.lc-delete')) return;
+      openLoom(card.getAttribute('data-loom-id'));
+    });
+  });
+  grid.querySelectorAll('.lc-delete').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteLoom(btn.getAttribute('data-delete-id')); });
+  });
+  grid.querySelectorAll('.lc-rename').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); renameLoom(btn.getAttribute('data-rename-id')); });
+  });
+}
+async function renameLoom(id){
+  const rec = library.find(l=> l.id === id);
+  if(!rec) return;
+  const name = await showPrompt({
+    title:'Rename Super Loom',
+    message:'',
+    fieldLabel:'Super Loom name',
+    placeholder:'e.g. Acme Roofing - John Smith',
+    confirmLabel:'Save',
+    value: rec.name || '',
+  });
+  if(name === null) return;
+  rec.name = name.trim() || rec.name;
+  persistLibrary();
+  renderLauncher();
+  updateSidebarLoomName();
+}
+function updateSidebarLoomName(){
+  const el = document.getElementById('sidebarLoomNameText');
+  if(!el) return;
+  const rec = library.find(l=> l.id === getActiveLoomId());
+  el.textContent = rec ? (rec.name || 'Untitled Super Loom') : 'Untitled Super Loom';
+}
 
 /* Hook ledger persists independently of Clear Plan - the whole point is it remembers every
    concept ever used in this tool so Hook Lab never repeats itself across different whales. */
@@ -4419,6 +4699,7 @@ function render(){
   renderStepContent();
   renderPlanPanel();
   renderMobileTopbar();
+  updateSidebarLoomName();
 }
 
 render();
@@ -4437,6 +4718,9 @@ document.getElementById('railToggleBtn').addEventListener('click', ()=>{
     btn.classList.toggle('is-collapsed', app.classList.contains('rail-collapsed'));
   }
 });
+document.getElementById('backToLibraryLink').addEventListener('click', (e)=>{ e.preventDefault(); setActiveLoomId(null); showLauncher(); });
+document.getElementById('sidebarLoomRenameBtn').addEventListener('click', ()=> renameLoom(getActiveLoomId()));
+showLauncher();
 document.getElementById('confirmOverlay').addEventListener('click', (e)=>{ if(e.target.id==='confirmOverlay') closeConfirm(false); });
 document.getElementById('confirmOkBtn').addEventListener('click', ()=> closeConfirm(true));
 document.getElementById('confirmCancelBtn').addEventListener('click', ()=> closeConfirm(false));
