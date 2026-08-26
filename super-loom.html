@@ -1093,7 +1093,7 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 
 /* ---------- shot list table ---------- */
 .shot-table-wrap{overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow); background:var(--paper-raised);}
-table.shot-table{width:100%; min-width:1220px; border-collapse:collapse; font-size:15px; table-layout:fixed;}
+table.shot-table{width:100%; min-width:1560px; border-collapse:collapse; font-size:15px; table-layout:fixed;}
 table.shot-table th{
   text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:12px; color:var(--bespoke);
   background:var(--bespoke-bg); padding:12px 12px; border-bottom:1.5px solid var(--line-strong); white-space:nowrap;
@@ -1110,21 +1110,63 @@ table.shot-table input[type=text], table.shot-table textarea{
   font-family:var(--font-body); font-size:15px; padding:7px 9px; color:var(--ink); resize:vertical; line-height:1.4;
   transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
-table.shot-table textarea{min-height:42px; resize:none; overflow:hidden;}
+table.shot-table textarea{min-height:64px; resize:none; overflow:hidden; line-height:1.5;}
 table.shot-table input[type=text]:hover, table.shot-table textarea:hover{border-color:var(--line-strong);}
 table.shot-table input[type=text]:focus, table.shot-table textarea:focus{
   outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);
 }
 table.shot-table .col-num{width:36px; text-align:center; padding-top:12px;}
-table.shot-table .col-scene{width:200px;}
+table.shot-table .col-scene{width:130px;}
+table.shot-table .col-content{width:105px;}
+table.shot-table .col-shottype{width:125px;}
+table.shot-table .col-location{width:100px;}
+table.shot-table .col-desc{width:490px;}
+table.shot-table .col-dialogue{width:490px;}
+table.shot-table .col-desc textarea, table.shot-table .col-dialogue textarea{font-size:15px; padding:9px 11px; min-height:78px;}
 table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
+
+/* ---------- shot table: stacked card layout on narrow screens ---------- */
+@media (max-width:900px){
+  .shot-table-wrap{overflow-x:visible; border:none; box-shadow:none; background:transparent; border-radius:0;}
+  table.shot-table{min-width:0; width:100%; table-layout:auto;}
+  table.shot-table thead{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  table.shot-table tbody{display:block;}
+  table.shot-table tr{
+    display:grid; grid-template-columns:1fr auto; align-items:start; column-gap:10px;
+    grid-template-areas: "num del" "scene scene" "content content" "shottype shottype" "location location" "desc desc" "dialogue dialogue";
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:14px;
+    box-shadow:var(--shadow); padding:14px 14px 16px; margin-bottom:12px;
+  }
+  table.shot-table tbody tr:nth-child(even){background:var(--paper-raised);}
+  table.shot-table tbody tr:hover{background:var(--paper-raised);}
+  table.shot-table tbody tr:last-child{margin-bottom:0;}
+  table.shot-table td{display:block; padding:0; border-bottom:none; width:auto;}
+  table.shot-table td.col-num{grid-area:num; padding-top:2px;}
+  table.shot-table td.col-del{grid-area:del; text-align:right;}
+  table.shot-table td.col-scene{grid-area:scene; margin-top:12px;}
+  table.shot-table td.col-content{grid-area:content; margin-top:12px;}
+  table.shot-table td.col-shottype{grid-area:shottype; margin-top:12px;}
+  table.shot-table td.col-location{grid-area:location; margin-top:12px;}
+  table.shot-table td.col-desc{grid-area:desc; margin-top:12px; width:auto;}
+  table.shot-table td.col-dialogue{grid-area:dialogue; margin-top:12px; width:auto;}
+  table.shot-table td[data-label]::before{
+    content:attr(data-label); display:block; font-family:var(--font-body); font-weight:700;
+    text-transform:uppercase; letter-spacing:.06em; font-size:10.5px; color:var(--bespoke); margin-bottom:5px;
+  }
+  table.shot-table input[type=text], table.shot-table textarea{font-size:16px;}
+  table.shot-table .col-desc textarea, table.shot-table .col-dialogue textarea{min-height:80px;}
+  .shot-del-btn{width:30px; height:30px; font-size:16px;}
+}
 .shot-num-badge{
   display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%;
   background:var(--bespoke-bg); color:var(--bespoke); font-family:var(--font-body); font-weight:700; font-size:11px;
 }
 .shot-del-btn{width:24px; height:24px; border-radius:50%; border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-faint); cursor:pointer; font-size:14px; line-height:1; padding:0; transition:background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;}
 .shot-del-btn:hover{background:var(--warn); border-color:var(--warn); color:#fff; transform:scale(1.08);}
-.shot-table-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
+.shot-table-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin:26px 0;}
 .shot-table-actions-left{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
 
 /* ---------- script outline (typed markdown-lite, explicit save, read-only display) ---------- */
@@ -3732,12 +3774,12 @@ function autoGrowTextarea(textarea){
 function shotRowHtml(row, idx){
   return '<tr data-shot-id="' + escAttr(row.id) + '">'
     + '<td class="col-num"><span class="shot-num-badge">' + (idx+1) + '</span></td>'
-    + '<td class="col-scene">' + lcSelectHtml('scene', row.scene, 'Select scene…') + '</td>'
-    + '<td class="col-content">' + lcSelectHtml('contentType', row.contentType, 'Select type…') + '</td>'
-    + '<td class="col-shottype">' + lcSelectHtml('shotType', shotTypeDisplay(row.shotType), 'Select shot type…', row.shotType) + '</td>'
-    + '<td class="col-location">' + lcSelectHtml('location', row.location, 'Select location…') + '</td>'
-    + '<td><textarea data-shot-field="description" placeholder="What happens in frame..." spellcheck="false">' + esc(bulletFormatText(row.description)) + '</textarea></td>'
-    + '<td><textarea data-shot-field="dialogue" placeholder="What is said in the shot..." spellcheck="false">' + esc(bulletFormatText(row.dialogue)) + '</textarea></td>'
+    + '<td class="col-scene" data-label="Scene">' + lcSelectHtml('scene', row.scene, 'Select scene…') + '</td>'
+    + '<td class="col-content" data-label="Content Type">' + lcSelectHtml('contentType', row.contentType, 'Select type…') + '</td>'
+    + '<td class="col-shottype" data-label="Shot / Sequence">' + lcSelectHtml('shotType', shotTypeDisplay(row.shotType), 'Select shot type…', row.shotType) + '</td>'
+    + '<td class="col-location" data-label="Location">' + lcSelectHtml('location', row.location, 'Select location…') + '</td>'
+    + '<td class="col-desc" data-label="Description"><textarea data-shot-field="description" placeholder="What happens in frame..." spellcheck="false">' + esc(bulletFormatText(row.description)) + '</textarea></td>'
+    + '<td class="col-dialogue" data-label="Dialogue"><textarea data-shot-field="dialogue" placeholder="What is said in the shot..." spellcheck="false">' + esc(bulletFormatText(row.dialogue)) + '</textarea></td>'
     + '<td class="col-del"><button type="button" class="shot-del-btn" data-shot-remove title="Remove shot">&times;</button></td>'
   + '</tr>';
 }
@@ -3839,6 +3881,15 @@ function wireOutline(){
     btn.addEventListener('click', ()=> outlineApplyPrefix(btn.dataset.outlinePrefix));
   });
 }
+function shotTableActionsHtml(){
+  return '<div class="shot-table-actions">'
+    + '<div class="shot-table-actions-left">'
+      + '<button type="button" class="btn small" data-shot-action="add-row">+ Add Shot Row</button>'
+      + '<button type="button" class="btn small" data-shot-action="all-shots">All Shots / Sequences</button>'
+    + '</div>'
+    + '<button type="button" class="btn bespoke" data-shot-action="auto-fill">Auto-Fill From Script</button>'
+  + '</div>';
+}
 function renderShotlistStep(){
   let html = pageHeaderHtml('Step 5 of 7', 'Shot List');
 
@@ -3848,14 +3899,6 @@ function renderShotlistStep(){
     + '<p class="doctrine-body">Once you understand the shots you need, the goal is to stop thinking on the day and just execute what you already planned.</p>'
     + '<div class="doctrine-principle"><span class="dp-label">On Set</span><p>Every shot decided in advance means zero decisions left to make under pressure.</p></div>'
     + '</div>';
-
-  html += '<div class="shot-table-actions">'
-    + '<div class="shot-table-actions-left">'
-      + '<button type="button" class="btn small" id="addShotRowBtn">+ Add Shot Row</button>'
-      + '<button type="button" class="btn small" id="allShotsBtn">All Shots / Sequences</button>'
-    + '</div>'
-    + '<button type="button" class="btn bespoke" id="autoFillShotsBtn">Auto-Fill From Script</button>'
-  + '</div>';
 
   html += '<div class="outline-section">'
     + '<div class="outline-head">'
@@ -3877,11 +3920,15 @@ function renderShotlistStep(){
     + '<p class="outline-hint" id="outlineHint" style="display:none;">Click a button above to style the line your cursor is on &middot; everything else is a bullet &middot; don\'t forget to hit <kbd>Save</kbd></p>'
   + '</div>';
 
+  html += shotTableActionsHtml();
+
   html += '<div class="shot-table-wrap"><table class="shot-table"><thead><tr>'
     + '<th>#</th><th>Scene</th><th>Content Type</th><th>Shot / Sequence</th><th>Location</th><th>Description</th><th>Dialogue</th><th></th>'
   + '</tr></thead><tbody id="shotTableBody">'
     + (plan.shotList.length ? plan.shotList.map(shotRowHtml).join('') : '<tr><td colspan="8" style="padding:26px; text-align:center; color:var(--ink-faint); font-style:italic;">No shots yet - auto-fill from your script or add a row manually.</td></tr>')
   + '</tbody></table></div>';
+
+  html += shotTableActionsHtml();
 
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
@@ -4015,20 +4062,20 @@ function renderShotlistStep(){
   }
   wireRows();
 
-  document.getElementById('autoFillShotsBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('[data-shot-action="auto-fill"]').forEach(btn=> btn.addEventListener('click', ()=>{
     autoPopulateShotList();
     persistPlan();
     toast('Shot list populated from your script beats');
     renderShotlistStep();
     renderNav(); renderProgress(); renderPlanPanel();
-  });
-  document.getElementById('addShotRowBtn').addEventListener('click', ()=>{
+  }));
+  document.querySelectorAll('[data-shot-action="add-row"]').forEach(btn=> btn.addEventListener('click', ()=>{
     plan.shotList.push({id:uid(), scene:'', shotType:'', description:'', dialogue:'', contentType:'A-Roll', location:''});
     persistPlan();
     renderShotlistStep();
     renderNav(); renderProgress(); renderPlanPanel();
-  });
-  document.getElementById('allShotsBtn').addEventListener('click', openAllShotsModal);
+  }));
+  document.querySelectorAll('[data-shot-action="all-shots"]').forEach(btn=> btn.addEventListener('click', openAllShotsModal));
 }
 
 /* ============================================================
