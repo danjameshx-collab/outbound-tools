@@ -1127,6 +1127,50 @@ table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
 .shot-table-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:26px;}
 .shot-table-actions-left{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
 
+/* ---------- script outline (typed markdown-lite, explicit save, read-only display) ---------- */
+.outline-section{margin-bottom:22px;}
+.outline-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px;}
+.outline-title{font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-.01em; color:var(--ink); margin:0;}
+.outline-head-actions{display:flex; align-items:center; gap:8px;}
+.outline-view{
+  width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:14px; background:var(--paper-raised);
+  padding:18px 22px; box-shadow:var(--shadow); font-size:14px; line-height:1.65; color:var(--ink); cursor:default;
+}
+.outline-empty{margin:0; color:var(--ink-faint); font-style:italic; font-size:13.5px;}
+.outline-block-h1, .outline-block-h2, .outline-block-h3{
+  font-family:var(--font-display); color:var(--bespoke); letter-spacing:-.01em; margin:0;
+}
+.outline-block-h1{font-size:21px; font-weight:800; margin:22px 0 8px;}
+.outline-block-h2{font-size:17px; font-weight:800; margin:18px 0 7px;}
+.outline-block-h3{font-size:14.5px; font-weight:800; margin:14px 0 6px;}
+.outline-view > .outline-block-h1:first-child,
+.outline-view > .outline-block-h2:first-child,
+.outline-view > .outline-block-h3:first-child{margin-top:0;}
+.outline-block-bullet{position:relative; padding-left:18px; margin:3px 0;}
+.outline-block-bullet:before{
+  content:''; position:absolute; left:3px; top:.82em; width:5px; height:5px; border-radius:50%;
+  background:var(--mimeo); transform:translateY(-50%);
+}
+.outline-edit-toolbar{display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap;}
+.outline-edit-toolbar button{
+  font-family:var(--font-body); font-weight:700; font-size:11.5px; padding:5px 12px; border-radius:999px;
+  border:1px solid var(--line); background:var(--paper-raised); color:var(--ink-soft); cursor:pointer;
+  transition:background-color .13s ease, color .13s ease, border-color .13s ease;
+}
+.outline-edit-toolbar button:hover{background:var(--mimeo-ink); color:var(--ink); border-color:var(--line-strong);}
+.outline-textarea{
+  display:block; width:100%; box-sizing:border-box; min-height:130px; resize:none; overflow:hidden;
+  border:1px solid var(--line); border-radius:14px; background:var(--paper-raised); padding:16px 20px; box-shadow:var(--shadow);
+  font-family:var(--font-body); font-size:14px; line-height:1.65; color:var(--ink);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+.outline-textarea:focus{outline:none; border-color:var(--mimeo); box-shadow:0 0 0 3px rgba(47,143,91,.15), var(--shadow);}
+.outline-hint{margin:8px 2px 0; font-size:11.5px; color:var(--ink-faint);}
+.outline-hint kbd{
+  font-family:var(--font-mono); font-size:10px; background:var(--paper); border:1px solid var(--line);
+  border-radius:4px; padding:1px 5px; color:var(--ink-soft);
+}
+
 /* ---------- custom select (styled dropdown) ---------- */
 .lc-select{position:relative; width:100%;}
 .lc-select-trigger{
@@ -2127,6 +2171,7 @@ function defaultPlan(){
     script:{hook:'', intro:'', funScene:'', whoIAm:'', problem:'', value:'', proof:'', ending:'', cta:'', endingHook:''},
     scriptMeta:{},
     shotList:[],
+    outlineText:'',
     locations:[],
     production:{checklist:{}},
     checks:{checklist:{}},
@@ -3005,6 +3050,7 @@ function renderProgress(){
   document.getElementById('progressFill').style.width = (n/STEPS.length*100) + '%';
 }
 function setActiveStep(id){
+  if(activeStep==='shotlist' && id!=='shotlist' && outlineMode==='edit' && outlineDirty) outlineSave();
   activeStep = id;
   render();
   const ph = document.querySelector('.page-header');
@@ -3707,6 +3753,92 @@ function autoPopulateShotList(){
     });
   });
 }
+/* ---------- script outline (typed markdown-lite, explicit save, read-only display) ---------- */
+let outlineMode = 'view';
+let outlineDirty = false;
+function outlineParseLine(line){
+  const trimmed = line.trim();
+  if(trimmed.startsWith('### ')) return {type:'h3', text: trimmed.slice(4).trim()};
+  if(trimmed.startsWith('## ')) return {type:'h2', text: trimmed.slice(3).trim()};
+  if(trimmed.startsWith('# ')) return {type:'h1', text: trimmed.slice(2).trim()};
+  return {type:'bullet', text: trimmed};
+}
+function outlineRenderView(text){
+  const view = document.getElementById('outlineView');
+  if(!view) return;
+  const raw = (text || '').trim();
+  const empty = '<p class="outline-empty">No outline yet — click Edit to add one.</p>';
+  if(!raw){ view.innerHTML = empty; return; }
+  const html = raw.split(/\r?\n/).map(outlineParseLine).filter(b=> b.text).map(b=>{
+    if(b.type==='bullet') return '<div class="outline-block-bullet">' + esc(b.text) + '</div>';
+    return '<' + b.type + ' class="outline-block-' + b.type + '">' + esc(b.text) + '</' + b.type + '>';
+  }).join('');
+  view.innerHTML = html || empty;
+}
+function outlineSetMode(mode){
+  outlineMode = mode;
+  const isEdit = mode==='edit';
+  document.getElementById('outlineView').style.display = isEdit ? 'none' : 'block';
+  document.getElementById('outlineTextarea').style.display = isEdit ? 'block' : 'none';
+  document.getElementById('outlineEditToolbar').style.display = isEdit ? 'flex' : 'none';
+  document.getElementById('outlineHint').style.display = isEdit ? 'block' : 'none';
+  document.getElementById('outlineEditBtn').style.display = isEdit ? 'none' : 'inline-block';
+  document.getElementById('outlineSaveBtn').style.display = isEdit ? 'inline-block' : 'none';
+  document.getElementById('outlineCancelBtn').style.display = isEdit ? 'inline-block' : 'none';
+  if(!isEdit) outlineRenderView(plan.outlineText || '');
+}
+function outlineEnterEdit(){
+  const ta = document.getElementById('outlineTextarea');
+  ta.value = plan.outlineText || '';
+  outlineDirty = false;
+  outlineSetMode('edit');
+  requestAnimationFrame(()=>{ autoGrowTextarea(ta); ta.focus(); });
+}
+function outlineSave(){
+  const ta = document.getElementById('outlineTextarea');
+  plan.outlineText = ta.value;
+  outlineDirty = false;
+  persistPlan();
+  outlineSetMode('view');
+}
+function outlineCancelEdit(){
+  outlineDirty = false;
+  outlineSetMode('view');
+}
+function outlineCurrentLineRange(ta){
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  const lineStart = val.lastIndexOf('\n', pos-1) + 1;
+  let lineEnd = val.indexOf('\n', pos);
+  if(lineEnd===-1) lineEnd = val.length;
+  return {lineStart, lineEnd};
+}
+function outlineApplyPrefix(prefix){
+  const ta = document.getElementById('outlineTextarea');
+  const {lineStart, lineEnd} = outlineCurrentLineRange(ta);
+  const line = ta.value.slice(lineStart, lineEnd);
+  const stripped = line.replace(/^(#{1,3})\s+/, '');
+  const newLine = prefix ? prefix + ' ' + stripped : stripped;
+  ta.focus();
+  ta.setRangeText(newLine, lineStart, lineEnd, 'end');
+  autoGrowTextarea(ta);
+  outlineDirty = true;
+}
+function wireOutline(){
+  const ta = document.getElementById('outlineTextarea');
+  ta.value = plan.outlineText || '';
+  outlineDirty = false;
+  outlineSetMode(ta.value.trim() ? 'view' : 'edit');
+  requestAnimationFrame(()=> autoGrowTextarea(ta));
+  ta.addEventListener('input', ()=>{ autoGrowTextarea(ta); outlineDirty = true; });
+  document.getElementById('outlineEditBtn').addEventListener('click', outlineEnterEdit);
+  document.getElementById('outlineSaveBtn').addEventListener('click', outlineSave);
+  document.getElementById('outlineCancelBtn').addEventListener('click', outlineCancelEdit);
+  document.getElementById('outlineEditToolbar').querySelectorAll('button[data-outline-prefix]').forEach(btn=>{
+    btn.addEventListener('mousedown', e=> e.preventDefault());
+    btn.addEventListener('click', ()=> outlineApplyPrefix(btn.dataset.outlinePrefix));
+  });
+}
 function renderShotlistStep(){
   let html = pageHeaderHtml('Step 5 of 7', 'Shot List');
 
@@ -3725,6 +3857,26 @@ function renderShotlistStep(){
     + '<button type="button" class="btn bespoke" id="autoFillShotsBtn">Auto-Fill From Script</button>'
   + '</div>';
 
+  html += '<div class="outline-section">'
+    + '<div class="outline-head">'
+      + '<h2 class="outline-title">Script Outline</h2>'
+      + '<div class="outline-head-actions">'
+        + '<button type="button" class="btn small" id="outlineEditBtn">Edit</button>'
+        + '<button type="button" class="btn small" id="outlineCancelBtn" style="display:none;">Cancel</button>'
+        + '<button type="button" class="btn small primary" id="outlineSaveBtn" style="display:none;">Save</button>'
+      + '</div>'
+    + '</div>'
+    + '<div class="outline-view" id="outlineView"></div>'
+    + '<div class="outline-edit-toolbar" id="outlineEditToolbar" style="display:none;">'
+      + '<button type="button" data-outline-prefix="">Bullet</button>'
+      + '<button type="button" data-outline-prefix="#">Heading 1</button>'
+      + '<button type="button" data-outline-prefix="##">Heading 2</button>'
+      + '<button type="button" data-outline-prefix="###">Heading 3</button>'
+    + '</div>'
+    + '<textarea class="outline-textarea" id="outlineTextarea" style="display:none;" placeholder="Start typing your outline…" spellcheck="false"></textarea>'
+    + '<p class="outline-hint" id="outlineHint" style="display:none;">Click a button above to style the line your cursor is on &middot; everything else is a bullet &middot; don\'t forget to hit <kbd>Save</kbd></p>'
+  + '</div>';
+
   html += '<div class="shot-table-wrap"><table class="shot-table"><thead><tr>'
     + '<th>#</th><th>Scene</th><th>Content Type</th><th>Shot / Sequence</th><th>Location</th><th>Description</th><th>Dialogue</th><th></th>'
   + '</tr></thead><tbody id="shotTableBody">'
@@ -3734,6 +3886,7 @@ function renderShotlistStep(){
   html += stepNavHtml();
   document.getElementById('content').innerHTML = html;
   wireStepNav(document);
+  wireOutline();
 
   function wireRows(){
     document.querySelectorAll('#shotTableBody tr[data-shot-id]').forEach(tr=>{
