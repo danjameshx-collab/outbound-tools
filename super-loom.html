@@ -1093,7 +1093,7 @@ main#content-col{grid-area:main; display:flex; flex-direction:column; overflow:h
 
 /* ---------- shot list table ---------- */
 .shot-table-wrap{overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow); background:var(--paper-raised);}
-table.shot-table{width:100%; min-width:1560px; border-collapse:collapse; font-size:15px; table-layout:fixed;}
+table.shot-table{width:100%; min-width:1600px; border-collapse:collapse; font-size:15px; table-layout:fixed;}
 table.shot-table th{
   text-align:left; font-weight:700; text-transform:uppercase; letter-spacing:.06em; font-size:12px; color:var(--bespoke);
   background:var(--bespoke-bg); padding:12px 12px; border-bottom:1.5px solid var(--line-strong); white-space:nowrap;
@@ -1115,15 +1115,15 @@ table.shot-table input[type=text]:hover, table.shot-table textarea:hover{border-
 table.shot-table input[type=text]:focus, table.shot-table textarea:focus{
   outline:none; border-color:var(--mimeo); background:var(--paper-raised); box-shadow:0 0 0 3px rgba(47,143,91,.15);
 }
-table.shot-table .col-num{width:36px; text-align:center; padding-top:12px;}
-table.shot-table .col-scene{width:130px;}
-table.shot-table .col-content{width:105px;}
-table.shot-table .col-shottype{width:125px;}
-table.shot-table .col-location{width:100px;}
-table.shot-table .col-desc{width:490px;}
-table.shot-table .col-dialogue{width:490px;}
+table.shot-table .col-num{width:34px; text-align:center; padding-top:12px;}
+table.shot-table .col-scene{width:92px;}
+table.shot-table .col-content{width:84px;}
+table.shot-table .col-shottype{width:92px;}
+table.shot-table .col-location{width:78px;}
+table.shot-table .col-desc{width:565px;}
+table.shot-table .col-dialogue{width:565px;}
 table.shot-table .col-desc textarea, table.shot-table .col-dialogue textarea{font-size:15px; padding:9px 11px; min-height:78px;}
-table.shot-table .col-del{width:34px; text-align:center; padding-top:10px;}
+table.shot-table .col-del{width:46px; text-align:center; padding:10px 14px 10px 6px;}
 
 /* ---------- shot table: stacked card layout on narrow screens ---------- */
 @media (max-width:900px){
@@ -1767,15 +1767,15 @@ const SCENE_GROUPS = [
 
 const SHOT_CONTENT_TYPES = ['A-Roll','Animation','Net Footage'];
 const SHOT_TYPE_GROUPS = [
-  {group:'Angle', items:['Ground','High','Low','Straight Up','To The Side','Top Down']},
-  {group:'Composition', items:['Environment','High Negative Space','Section']},
-  {group:'Effect', items:['Low Shutter','Slow Motion']},
-  {group:'Perspective', items:['Human (POV)','Object (POV)','Reverse (POV)']},
-  {group:'Unique', items:['Mirror','Reveal','Shadows']},
+  {group:'Sequences', items:['9 Shot Rule (Classic)','9 Shot Rule (Mixed)','9-Shot Rule (Reverse)','APS-C','Close Up Sequence','Cross Cutting','Cut Sequence Zoom','Drone Sequence','Many People','Match Cuts','POV','Slow Motion Sequence','Speed Ramping','Top-Down']},
+  {group:'Composition', items:['Frame In A Frame','High Negative Space','Leading Lines','Rule Of Thirds','Symmetry']},
   {group:'Close Up', items:['Close Up (Classic)','Close Up (Extreme)','Close Up (Foreground)']},
-  {group:'Medium', items:['Behind (Medium)','Environment (Medium)','Foreground (Medium)','Head On (Medium)','Hero (Medium)','Medium (Classic)','Reveal (Medium)','Section (Medium)']},
+  {group:'Medium', items:['Behind (Medium)','Environment (Medium)','Foreground (Medium)','Head On (Medium)','Reveal (Medium)']},
   {group:'Wide', items:['AWTA (Wide)','Behind (Wide)','Extreme (Wide)','Foreground (Wide)','Head On (Wide)','Low (Wide)','Wide (Classic)']},
-  {group:'Sequences', items:['9 Shot Rule (Classic)','9 Shot Rule (Mixed)','9-Shot Rule (Reverse)','Top-Down','Speed Ramping','Slow Motion Sequence','Cross Cutting','Close Up Sequence','Drone Sequence']},
+  {group:'Angle', items:['Ground','High','Low','Straight Up','To The Side','Top Down']},
+  {group:'Perspective', items:['Object (POV)','Reverse (POV)']},
+  {group:'Unique', items:['Mirror','Reveal','Shadows']},
+  {group:'Effect', items:['Low Shutter','Slow Motion']},
 ];
 
 /* Reference stills for shot types - shown via the eye-icon preview in the Shot Type picker.
@@ -1809,13 +1809,25 @@ const SHOT_TYPE_PREVIEWS = {
     desc: 'Camera looks straight down from directly overhead. Flattens the scene into a graphic, map-like frame - great for reveals and process shots.'
   },
   /* ---- Composition ---- */
-  'Environment': {
-    group: 'Composition', title: 'Environment', image: SHOT_IMG_DIR + 'environment.png',
-    desc: 'The frame gives as much weight to the location as to the subject. Establishes place and mood before (or instead of) focusing in.'
+  'Frame In A Frame': {
+    group: 'Composition', title: 'Frame In A Frame', image: SHOT_IMG_DIR + 'Frame In A Frame.png',
+    desc: 'The subject is framed by something inside the scene - a doorway, window, or gap between objects. Adds depth and draws the eye straight to the subject.'
   },
   'High Negative Space': {
     group: 'Composition', title: 'High Negative Space', image: SHOT_IMG_DIR + 'high-negative-space.png',
     desc: 'The subject sits small inside a large, mostly empty frame. The empty space does the storytelling - isolation, scale, or room to think.'
+  },
+  'Leading Lines': {
+    group: 'Composition', title: 'Leading Lines', image: SHOT_IMG_DIR + 'Leading Lines.png',
+    desc: 'Lines in the scene - a road, railing, or shadow - pull the eye through the frame toward the subject. Gives a static shot direction and depth.'
+  },
+  'Rule Of Thirds': {
+    group: 'Composition', title: 'Rule Of Thirds', image: SHOT_IMG_DIR + 'Rule Of Thirds.png',
+    desc: 'The subject sits off-center, on one of the grid intersections instead of dead center. Feels more natural and balanced than a centered frame.'
+  },
+  'Symmetry': {
+    group: 'Composition', title: 'Symmetry', image: SHOT_IMG_DIR + 'Symmetry.png',
+    desc: 'The frame is built around a mirrored balance - matching elements on either side of center. Feels ordered, deliberate, and calm.'
   },
   /* ---- Effect ---- */
   'Low Shutter': {
@@ -1867,7 +1879,7 @@ const SHOT_TYPE_PREVIEWS = {
     desc: "Camera sits behind the subject at medium distance, showing what they're looking at. Builds anticipation for the reveal."
   },
   'Environment (Medium)': {
-    group: 'Medium', title: 'Environment (Medium)', image: SHOT_IMG_DIR + 'environment-medium.png',
+    group: 'Medium', title: 'Environment (Medium)', image: SHOT_IMG_DIR + 'environment v2.png',
     desc: 'A medium-distance frame that keeps enough of the location visible to set the scene. Balances subject and place evenly.'
   },
   'Foreground (Medium)': {
@@ -1947,6 +1959,26 @@ const SHOT_TYPE_PREVIEWS = {
   'Drone Sequence': {
     group: 'Sequences', title: 'Drone Sequence', image: SEQ_IMG_DIR + 'Drone Sequence.png',
     desc: 'A run of aerial drone shots cut together to establish scale and location before dropping into ground-level coverage.'
+  },
+  'APS-C': {
+    group: 'Sequences', title: 'APS-C', image: SEQ_IMG_DIR + 'APS-C.png',
+    desc: 'A moody, tightly-cropped talking-head clip shot on an APS-C sensor for extra reach and a punchier, more compressed look. Good for hook or testimonial beats.'
+  },
+  'Cut Sequence Zoom': {
+    group: 'Sequences', title: 'Cut Sequence Zoom', image: SEQ_IMG_DIR + 'Cut Sequence Zoom.png',
+    desc: 'A run of cutaway inserts that punch progressively closer on the same action, building anticipation shot by shot before the payoff.'
+  },
+  'Many People': {
+    group: 'Sequences', title: 'Many People', image: SEQ_IMG_DIR + 'Many People.png',
+    desc: 'The same subject appears multiple times within one frame, cloned across the scene doing different things at once. Turns a single actor into a busy, populated shot.'
+  },
+  'Match Cuts': {
+    group: 'Sequences', title: 'Match Cuts', image: SEQ_IMG_DIR + 'Match Cuts.png',
+    desc: 'Shots linked by matching action, shape or motion across the cut, so one scene flows straight into the next without a visible seam.'
+  },
+  'POV': {
+    group: 'Sequences', title: 'POV', image: SEQ_IMG_DIR + 'POV.png',
+    desc: 'A first-person, often fisheye action-cam angle that puts the viewer directly in the subject\'s hands or eyeline for a raw, in-the-moment feel.'
   },
 };
 
